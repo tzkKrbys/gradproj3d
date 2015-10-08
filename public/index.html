@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>JavaScriptデモ</title>
+	<link rel="stylesheet" href="./css/main.css">
+
+	<!--		<script src="js/mic.js"></script>-->
+	<meta name="viewport" content="width=device-width initial-scale=1.0">
+<!--	< script src = "https://skyway.io/dist/0.3/peer.js" ></script>-->
+	<style>
+		body {
+			color: #fff;
+		}
+		#video {
+			width: 0px;
+			height: 0px;
+			position: fixed;
+			top: 0;
+			left: 0;
+			
+		}
+		#setsumei {
+			position: fixed;
+			z-index: 10;
+			top: 0;
+			left: 0;
+		}
+	</style>
+	<script>
+
+</script>
+</head>
+
+<body>
+<div id="setsumei">
+	方向キーで前後左右に球を動かせます<br>
+	Aキーで上昇、Zキーで下降します。<br>
+	ドラッグアンドドロップで視点が変わります。<br>
+	マウスホイールで視点が前後します。
+	
+</div>
+<!--
+	<div id="wrapper" class="clearfix">
+		<div id="test">
+			<div id="testDiv">現在の人数：</div>
+			<div id="testDiv2"></div>
+			<div id="testDiv3"></div>
+			<div id="testDiv4"></div>
+			<div id="testDiv5"></div>
+			<div id="testDiv6"></div>
+			<div id="testDiv7"></div>
+		</div>
+		<div id="gameCanvas">
+			<canvas id="canvas" width="1100" height="600"></canvas>
+		</div>
+		<div id="chatArea">
+			<form id="myForm" class="clearfix" action="" method="">
+				<textarea id="chatTextArea" name="chat" rows="2" cols="30" placeholder="チャット(shift+enterで発言)"></textarea>
+				<input type="button" id="sendMsgBtn" value="発言">
+				<input type="reset" id="clearBtn" value="クリア">
+			</form>
+		</div>
+		<div id="videoElems"></div>
+		<video id="video" class="videoWindow" autoplay ></video>
+		<audio id="audio"></audio>
+	</div>
+-->
+	<!--end#wrapper-->
+	<script src="./js/jquery-2.1.4.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="./js/three.min.js"></script>
+	<script src="./js/OrbitControls.js"></script>
+	<script src="./js/icon3d.js"></script>
+<!--	<script src="./js/main.js"></script>-->
+	<script src="./js/main3d.js"></script>
+<!--	<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>-->
+<!--	<script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>-->
+<!--	<script src="./js/peer.js"></script>-->
+	<script src="https://skyway.io/dist/0.3/peer.js"></script>
+	<script src="./js/voiceChat.js"></script>
+	<script src="./js/three_d.js"></script>
+</body>
+</html>

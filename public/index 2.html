@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>サンプル</title>
+    <style>
+		* {
+			margin: 0;
+			padding: 0;
+			background-size: border-box;
+		}
+	</style>
+</head>
+
+<body>
+    <script src="three.min.js"></script>
+	<script src="OrbitControls.js"></script>
+    <script>
+
+        var main = function () {
+            var scene = new THREE.Scene();
+            console.log(THREE);
+
+            var width = 1280;
+            var height = 640;
+            var fov = 60;
+            var aspect = width / height;
+            var near = 1;
+            var far = 1000;
+            var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.set(0, 0, 150);
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize(width, height);
+			renderer.shadowMapEnabled = true;//影をつける
+            document.body.appendChild(renderer.domElement);
+
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+			
+			var directionalLight = new THREE.DirectionalLight(0xffffff);
+            directionalLight.position.set(0, 0.7, 0.7);
+			directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            var geometry = new THREE.CubeGeometry(30, 30, 30);
+            var material = new THREE.MeshPhongMaterial({
+                color: 0xffaacc
+            });
+            var mesh = new THREE.Mesh(geometry, material);
+			mesh.castShadow = true;
+			mesh.receiveShadow = true;
+            scene.add(mesh);
+
+            var geometry2 = new THREE.CubeGeometry(20, 20, 20);
+            var material2 = new THREE.MeshPhongMaterial({
+                color: 0x00ffdd
+            });
+            var mesh2 = new THREE.Mesh(geometry2, material2);
+            mesh2.position.x = 100;
+            mesh2.position.y = -100;
+            mesh2.position.z = -150;
+            mesh2.castShadow = true;
+            mesh2.receiveShadow = true;
+            scene.add(mesh2);
+            console.log(mesh2);
+
+
+            //球体の座標
+            var spherePos;
+            spherePos = {posX: 0, posY: 0, posZ: 0};
+            //球体を表示する部分
+            var sphere = new THREE.Mesh(
+                //球のジオメトリ　（半径：２０）
+                new THREE.SphereGeometry(30, 100, 100),
+                //マテリアル （材質）
+                new THREE.MeshPhongMaterial({
+                    //色（１６進数）
+                    color: 0x00ff00
+                }));
+            //影の設定
+            sphere.castShadow = true;
+            //影の設定
+            sphere.receiveShadow = true;
+            //sceneに追加
+            scene.add(sphere);
+            // 位置設定
+            sphere.position.set( -100, 0, -200);
+            scene.add(sphere);
+
+
+            var groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+            //平面オブジェクトの色を設定します。
+            material3 = new THREE.MeshPhongMaterial({
+                color: 0xccccFF
+            });
+            var ground = new THREE.Mesh(groundGeometry, material3);
+            //続いて、平面オブジェクトの位置を調整します。
+            console.log(ground.rotation);
+            //            ground.rotation = {_x: 50, _y: 0, _z: 0};
+            ground.rotation.x = 4.7;
+            ground.position.z = -500;
+            ground.position.y = -400;
+			ground.receiveShadow = true;
+            //視覚効果を作る
+            console.log(ground);
+            scene.add(ground);
+
+
+            var moveLeft = false;
+            var moveRight = false;
+            var moveUp = false;
+            var moveDown = false;
+            var moveForward = false;
+            var moveBackward = false;
+
+            document.body.onkeydown = function (e) {
+                switch (e.keyCode) {
+                case 37: // ←キー
+                    moveLeft = true;
+                    break;
+                case 39: // →キー
+                    moveRight = true;
+                    break;
+                case 38: // ↑キー
+                    moveUp = true;
+                    break;
+                case 40: // ↓キー
+                    moveDown = true;
+                    break;
+                case 65: // ↑キー
+                    moveForward = true;
+                    break;
+                case 90: // ↓キー
+                    moveBackward = true;
+                    break;
+                }
+                console.log(e.keyCode);
+                console.log('moveLeft : ' + moveLeft + ' ,moveRight : ' + moveRight + ' ,moveUp : ' + moveUp + ' ,moveDown : ' + moveDown + ' ,moveForward : ' + moveForward + ' ,moveBackward : ' + moveBackward);
+            }
+            document.body.onkeyup = function (e) {
+                switch (e.keyCode) {
+                case 37: // ←キー
+                    moveLeft = false;
+                    break;
+                case 39: // →キー
+                    moveRight = false;
+                    break;
+                case 38: // ↑キー
+                    moveUp = false;
+                    break;
+                case 40: // ↓キー
+                    moveDown = false;
+                    break;
+                case 65: // ↑キー
+                    moveForward = false;
+                    break;
+                case 90: // ↓キー
+                    moveBackward = false;
+                    break;
+                }
+                console.log(e.keyCode);
+                console.log('moveLeft : ' + moveLeft + ' ,moveRight : ' + moveRight + ' ,moveUp : ' + moveUp + ' ,moveDown : ' + moveDown + ' ,moveForward : ' + moveForward + ' ,moveBackward : ' + moveBackward);
+            }
+            
+            function moveObj( obj, moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward ) {
+                if (moveLeft) obj.posX-=2;
+                if (moveRight) obj.posX+=2;
+                if (moveUp) obj.posY+=2;
+                if (moveDown) obj.posY-=2;
+                if (moveForward) obj.posZ-=2;
+                if (moveBackward) obj.posZ+=2;
+            }
+
+            renderer.render(scene, camera);
+
+            (function renderLoop() {
+                requestAnimationFrame(renderLoop);
+                mesh.rotation.set(
+                    mesh.rotation.x + 0.005,
+                    mesh.rotation.y + 0.001,
+                    mesh.rotation.z + 0.01
+                );
+                mesh2.rotation.set(
+                    0,
+                    mesh2.rotation.y + 0.01,
+                    mesh2.rotation.z + 0.01
+                );
+                moveObj(spherePos, moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward );
+                console.log(spherePos.posY);
+                sphere.position.set( spherePos.posX, spherePos.posY, spherePos.posZ );
+                controls.update();
+                renderer.render(scene, camera);
+            })();
+        };
+        window.addEventListener('DOMContentLoaded', main, false);
+    </script>
+</body>
+
+</html>
