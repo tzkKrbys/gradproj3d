@@ -67,15 +67,22 @@ $(document).ready(function(){
 	//-------------------------------------------socket.io---//
 	socket.on('connect', function() {
 		socket.on('emit_fron_server_sendcharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
-			data.charasArr.forEach(function(chara) {//data.iconsは配列
-				console.log(chara);
+			data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
 				if (!chara) return;
-				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
+//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
+				var othreChara = new Chara();
+				othreChara.socketId = chara.socketId;
+				othreChara.Pos = chara.Pos;
+				othreChara.textureImg = chara.textureImg;
+				othreChara.peerId = chara.peerId;
+				otherCharasArr.push(othreChara);
 			});
 			$('#testDiv').html('現在の人数：' + data.numOfIcon);
 			if(otherCharasArr.length != 0) {
-				createMesh(otherCharasArr[0]);//otherCharasArr[0]はmyIcon
-				scene.add(otherCharasArr[0].mesh);
+				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyIcon
+					scene.add(otherCharasArr[i].mesh);
+				});
 			}
 		});
 
@@ -85,7 +92,20 @@ $(document).ready(function(){
 		//socket.emit('emit_from_client_join', myIcon);
 
 		socket.on('emit_from_server_join', function(data) {
-			otherCharasArr.push(myChara.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
+//			otherCharasArr.push(myChara.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
+			console.log(data.chara);
+			
+			var othreChara = new Chara();
+			othreChara.socketId = data.chara.socketId;
+			othreChara.Pos = data.chara.Pos;
+			othreChara.textureImg = data.chara.textureImg;
+			othreChara.peerId = data.chara.peerId;
+			createMesh(othreChara);
+			otherCharasArr.push(othreChara);
+			scene.add(othreChara.mesh);
+
+			console.log(otherCharasArr);
+//			debugger;
 			$('#testDiv').html('現在の人数：' + data.numOfIcon);
 		});
 
@@ -234,7 +254,7 @@ $(document).ready(function(){
 
 		function positionChange() {
 			if (myChara) {
-				if (myChara.Pos[0] != Pos[0] || myIcon.Pos[1] != Pos[1] || myIcon.Pos[2] != Pos[2]) {
+				if (myChara.Pos[0] != Pos[0] || myChara.Pos[1] != Pos[1] || myChara.Pos[2] != Pos[2]) {
 					socket.emit('emit_from_client_charaPosChanged', myChara.Pos);
 				}
 			}
@@ -246,12 +266,11 @@ $(document).ready(function(){
 			requestAnimationFrame(renderLoop);
 
 			countFrames++;
-			if (myChara) {
-				myChara.Pos.map(function(e) {
-					return e.array;
-				});
-//				Pos = myChara.Pos;
-			}
+
+
+
+
+
 
 			//-----------------------------------音声ビジュアルエフェクト
 			//符号なし8bitArrayを生成
@@ -420,34 +439,42 @@ $(document).ready(function(){
 			}
 			//otherIcon-------------------
 			if(otherCharasArr.length != 0) {
-				otherCharasArr.forEach(function (icon) {
-					icon.endDrag();
+				otherCharasArr.forEach(function (chara) {
+//					icon.endDrag();
 					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
-					icon.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-					if (icon.data.countVoice) {
+					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
+					if (chara.countVoice) {
 						//					context.globalAlpha = icon.countVoice * 3 / 1000;
 						//					console.log(icon.talkingNodesSocketIds.length);
-						if (icon.data.talkingNodesSocketIds.length > 0) {
+						if (chara.talkingNodesSocketIds.length > 0) {
 							//						context.fillStyle = "#0f0";
 						} else {
 							//						context.fillStyle = "#ff0";
 						}
-						icon.data.countVoice--;
+						chara.countVoice--;
 					}
 				});
 			}
 
 			socket.on('emit_from_server_charaPosChanged', function (data) {
-				otherCharasArr.forEach(function (icon, i, icons) {
-					if (icon.socketId == data.socketId) {
-						otherCharasArr[i].data.PosX = data.PosX;
-						otherCharasArr[i].data.PosY = data.PosY;
-						otherCharasArr[i].data.PosZ = data.PosZ;
+				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+					if (chara.socketId == data.socketId) {
+						otherCharasArr[i].Pos = data.Pos;
+//						otherCharasArr[i].Pos[0] = data.Pos[0];
+//						otherCharasArr[i].Pos[1] = data.Pos[1];
+//						otherCharasArr[i].Pos[2] = data.Pos[2];
 					}
 				});
 			})
+			
+			//myCharaの位置が変化していたら
 			positionChange();
-
+			if (myChara/* && countFrames % 2 == 0*/) {
+				Pos[0] = myChara.Pos[0];
+				Pos[1] = myChara.Pos[1];
+				Pos[2] = myChara.Pos[2];
+			}
+			controls.update();
 
 			mesh.rotation.set(
 				mesh.rotation.x + 0.005,
@@ -462,11 +489,12 @@ $(document).ready(function(){
 			myChara.Move(moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward);
 			myChara.mesh.position.set(myChara.Pos[0], myChara.Pos[1], myChara.Pos[2]);
 			if(otherCharasArr.length != 0) {
-				otherCharasArr.forEach(function(icon, i, icons) {
-					otherCharasArr[i].mesh.position.set(icon.data.PosX, icon.data.PosY, icon.data.PosZ);
+				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					console.log(otherCharasArr[i]);
+					otherCharasArr[i].mesh.position.set(chara.Pos[0], chara.Pos[1], chara.Pos[2]);
 				});
 			}
-			controls.update();
+
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------
 	}

@@ -87,7 +87,7 @@ io.sockets.on('connection', function (socket) {
 	}), numOfIcon: io.sockets.sockets.length});
 
 	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	console.log(socket);
+//	console.log(socket);
 	console.log('clientから接続がありました');
 	socket.on('emit_from_client', function (data) {
 //		console.log(data);
@@ -100,7 +100,7 @@ io.sockets.on('connection', function (socket) {
 	//iconのプロパティを更新する
 	socket.on('emit_from_client_iconUpdate', function (data) {
 		socket.chara = data;//socketオブジェクトの中にiconを格納
-		console.log(socket.chara);
+		console.log('103行目 : '+socket.chara);
 		socket.broadcast.emit('emit_from_server_iconUpdate', data);
 	});
 
@@ -110,12 +110,12 @@ io.sockets.on('connection', function (socket) {
 	
 	
 	socket.on('emit_from_client_mkIconBtn', function (data) {
-		console.log(data);
+//		console.log(data);
 	});
 
 //----------------------------------------------------アクセス時
 	socket.on('emit_from_test', function(data) {
-		console.log(data);
+//		console.log(data);
 	});
 	//voiceChat.jsに記述
 	socket.on('emit_from_client_join', function(data) {//dataはmyIcon
@@ -123,20 +123,21 @@ io.sockets.on('connection', function (socket) {
 		socket.chara.Pos = data.Pos;
 		socket.chara.textureImg = data.textureImg;
 		socket.chara.peerId = data.peerId;
-		socket.broadcast.emit('emit_from_server_join', {icon: data, numOfIcon: io.sockets.sockets.length});
-		console.log('124行目きてますよ〜');
-		console.log('人数：' + io.sockets.sockets.length);
-		console.log(data);
+		var chara = {
+			socketId: socket.chara.socketId,
+			Pos: socket.chara.Pos,
+			textureImg: socket.chara.textureImg,
+			peerId: socket.chara.peerId
+		};
+		charasArr.push(chara);
+		socket.broadcast.emit('emit_from_server_join', {chara: chara, numOfChara: io.sockets.sockets.length});
+
 	});
 
 
 	socket.on('emit_from_client_charaPosChanged', function(data) {
-		console.log('dddata : ' + data);
-		console.log('136行目'　+　socket.chara);
-		socket.chara.Pos = data.Pos;
-		console.log('data.Pos : ' + data.Pos);
-		console.log('socket.chara.Pos : ' + socket.chara.Pos);
-//		socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.chara.socketId, PosX: socket.chara.PosX, PosY: socket.chara.PosY, PosZ: socket.chara.PosYZ});
+		socket.chara.Pos = data;
+socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.id, Pos: data});
 	});
 	
 	socket.on('emit_from_client_sendMsg', function(data) {
@@ -150,12 +151,12 @@ io.sockets.on('connection', function (socket) {
 	
 	
 	socket.on('emit_from_client_peerCallConnected', function(data) {//dataはicon.socketId
-		console.log(data);
+//		console.log(data);
 		socket.broadcast.emit('emit_from_server_peerCallConnected', {socketId: socket.id, talkingNodesSocketId: data});
 	});
 
 	socket.on('emit_from_client_peerCallDisconnected', function(data) {//dataはicon.socketId
-		console.log(data);
+//		console.log(data);
 		socket.broadcast.emit('emit_from_server_peerCallDisconnected', {socketId: socket.id, talkingNodesSocketId: data});
 	});
 	
