@@ -62,40 +62,52 @@ function KeyUp3d(e) {
 }
 
 $(document).ready(function(){
+	var main = function () {
+		var scene = new THREE.Scene();
 	socket = io.connect();
 	console.log('connectしました。');
 	window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
 	window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
 
-	myIcon = new MyIcon();		// クラス
-	//	myIcon.Init( Math.floor( Math.random() * canvasWidth), Math.floor( Math.random() * canvasHeight) ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
-	myIcon.InitPos( 0, 0, 0 ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
 
 	console.log(myIcon);
 	
 	//-------------------------------------------socket.io---//
 	socket.on('connect', function() {
-		socket.on('emit_fron_server_sendIcons', function(data){//dataは{icons:[], numOgIcon: io.sockets.sockets.length}
-			data.icons.forEach(function(icon) {
+		socket.on('emit_fron_server_sendIcons', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
+			console.log(data);
+			console.log(data.iconsArr);//配列
+			data.iconsArr.forEach(function(icon) {//data.iconsは配列
 				if (!icon) return;
 				console.log(icon);
 				//				icons.push(MyIcon.fromObject( icon,canvasWidth/2, canvasHeight/2 ));
 				icons.push(MyIcon.fromObject( icon, icon.PosX, icon.PosY, icon.PosZ ));
 			});
+			console.log(icons);
 			$('#testDiv').html('現在の人数：' + data.numOfIcon);
-			console.log(data.numOfIcon);
+			if(icons.length != 0) {
+				console.log(data.numOfIcon);
+				console.log(icons[0]);
+				mkSphere(icons[0]);//icons[0]はmyIcon
+				console.log(icons[0]);
+				console.log(icons);
+				scene.add(icons[0].mesh);
+			}
 		});
 		// クラス生成
-		myIcon.socketId = socket.id;
-
+		myIcon.data.socketId = socket.id;
+		console.log(myIcon);
+		//voiceChat.jsに記述
 		//socket.emit('emit_from_client_join', myIcon);
 
-		socket.on('emit_from_server_join', function(data) {
+		socket.on('emit_from_server_join', function(data) {//dataは{icon: data(myIcon.data), numOfIcon: io.sockets.sockets.length}
 			console.log(data);
 			//			icons.push(MyIcon.fromObject( data.icon, canvasWidth/2, canvasHeight/2  ));
+			console.log(data.icon);
 			icons.push(MyIcon.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
 			$('#testDiv').html('現在の人数：' + data.numOfIcon);
 			console.log(data.numOfIcon);
+			console.log(icons);
 		});
 
 
@@ -127,18 +139,66 @@ $(document).ready(function(){
 	
 	
 	$('#sendMsgBtn').on("click",function(){
-		myIcon.SendChat();
-		socket.emit('emit_from_client_sendMsg', {str: myIcon.str, chatShowCount: myIcon.chatShowCount});
+		myIcon.data.SendChat();
+		socket.emit('emit_from_client_sendMsg', {str: myIcon.data.str, chatShowCount: myIcon.data.chatShowCount});
 	});
 	
+	var spherePos;
+	var sphere;
+	
+	function mkSphere(icon) {
+//		this.data = data;
+		//球体の座標
+		//			var spherePos;
+		//		spherePos = {
+		//			posX: myIcon.data.PosX,
+		//			posY: myIcon.data.PosY,
+		//			posZ: myIcon.data.PosZ
+		//		};
+		
+		var texture  = new THREE.ImageUtils.loadTexture(icon.data.textureImg);
 
-	var main = function () {
-		var scene = new THREE.Scene();
-		console.log(THREE);
+		//球体を表示する部分
+//		sphere = new THREE.Mesh(
+		icon.mesh = new THREE.Mesh(
+			//球のジオメトリ　（半径：２０）
+			new THREE.SphereGeometry(30, 100, 100),
+			//マテリアル （材質）
+			//				new THREE.MeshPhongMaterial({
+			//					//色（１６進数）
+			//					color: 0x00ff00
+			//				})
+			new THREE.MeshPhongMaterial({
+				map: texture
+			}));
+		//影の設定
+//		sphere.castShadow = true;
+		myIcon.mesh.castShadow = true;
+		//影の設定
+//		sphere.receiveShadow = true;
+		myIcon.mesh.receiveShadow = true;
+		// 位置設定
+//		sphere.position.set(-100, 0, 0);
+		myIcon.mesh.position.set(-100, 0, 0);
+		//sceneに追加
+	}
 
+//	var main = function () {
+//		var scene = new THREE.Scene();
+
+		myIcon = new MyIcon(); // クラス
+//		myIcon.Init( 0, 0, -300, './img/IMG_2706.jpg' ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
+		myIcon.InitPos( 0, 0, -300 ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
+		myIcon.data.textureImg = './img/IMG_2706.jpg';
+		mkSphere(myIcon);
+		scene.add(myIcon.mesh);
+		
+
+		
+		
 		var width = 1280;
 		var height = 640;
-		var fov = 60;
+		var fov = 60;//フレーム数
 		var aspect = width / height;
 		var near = 1;
 		var far = 4000;
@@ -147,21 +207,28 @@ $(document).ready(function(){
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
-		renderer.shadowMapEnabled = true; //影をつける
+//		renderer.shadowMapEnabled = true; //影をつける
+		renderer.shadowMap.enabled = true; //影をつける
 		document.body.appendChild(renderer.domElement);
 
 		var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+//		var directionalLight = new THREE.DirectionalLight(0xffffff);
 		var directionalLight = new THREE.DirectionalLight(0xffffff);
 		directionalLight.position.set(0, 0.7, 0.7);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
 
 		var geometry = new THREE.CubeGeometry(30, 30, 30);
-		var material = new THREE.MeshPhongMaterial({
-			color: 0xffaacc
-		});
-		var mesh = new THREE.Mesh(geometry, material);
+//		var material = new THREE.MeshPhongMaterial({
+//			color: 0xffaacc
+//		});
+		var textureMesh  = new THREE.ImageUtils.loadTexture('./img/son.png');
+
+//		var mesh = new THREE.Mesh(geometry, material);
+		var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+			map: textureMesh
+		}));
 		mesh.position.x = -100;
 		mesh.position.y = 0;
 		mesh.position.z = -100;
@@ -171,10 +238,14 @@ $(document).ready(function(){
 		scene.add(mesh);
 
 		var geometry2 = new THREE.CubeGeometry(20, 20, 20);
-		var material2 = new THREE.MeshPhongMaterial({
-			color: 0x00ffdd
-		});
-		var mesh2 = new THREE.Mesh(geometry2, material2);
+//		var material2 = new THREE.MeshPhongMaterial({
+//			color: 0x00ffdd
+//		});
+		var textureMesh2  = new THREE.ImageUtils.loadTexture('./img/circleParis.png');
+//		var mesh2 = new THREE.Mesh(geometry2, material2);
+		var mesh2 = new THREE.Mesh(geometry2, new THREE.MeshPhongMaterial({
+			map: textureMesh2
+		}));
 		mesh2.position.x = 100;
 		mesh2.position.y = -100;
 		mesh2.position.z = -150;
@@ -184,43 +255,17 @@ $(document).ready(function(){
 		console.log(mesh2);
 
 
-		//球体の座標
-		var spherePos;
-		console.log(myIcon.PosX);
-		console.log(myIcon.PosY);
-		console.log(myIcon.PosZ);
-
-//		spherePos = {
-//			posX: myIcon.PosX,
-//			posY: myIcon.PosY,
-//			posZ: myIcon.PosZ
-//		};
-		//球体を表示する部分
-		var sphere = new THREE.Mesh(
-			//球のジオメトリ　（半径：２０）
-			new THREE.SphereGeometry(30, 100, 100),
-			//マテリアル （材質）
-			new THREE.MeshPhongMaterial({
-				//色（１６進数）
-				color: 0x00ff00
-			}));
-		//影の設定
-		sphere.castShadow = true;
-		//影の設定
-		sphere.receiveShadow = true;
-		//sceneに追加
-		scene.add(sphere);
-		// 位置設定
-		sphere.position.set(-100, 0, 0);
-		scene.add(sphere);
-
 
 		var groundGeometry = new THREE.PlaneGeometry(1000, 1000);
 		//平面オブジェクトの色を設定します。
 		material3 = new THREE.MeshPhongMaterial({
 			color: 0xccccFF
 		});
-		var ground = new THREE.Mesh(groundGeometry, material3);
+		var texture1  = new THREE.ImageUtils.loadTexture('./img/IMG_2706.jpg');
+//		var ground = new THREE.Mesh(groundGeometry, material3);
+		var ground = new THREE.Mesh(groundGeometry, new THREE.MeshPhongMaterial({
+			map: texture1
+		}));
 		//続いて、平面オブジェクトの位置を調整します。
 		console.log(ground.rotation);
 		//            ground.rotation = {_x: 50, _y: 0, _z: 0};
@@ -253,12 +298,12 @@ $(document).ready(function(){
 		var capacityOfVoiceChat = 3;
 
 		function positionChange() {
-			if (myIcon) {
-				if (myIcon.PosX != PosX || myIcon.PosY != PosY || myIcon.PosZ != PosZ) {
+			if (myIcon.data) {
+				if (myIcon.data.PosX != PosX || myIcon.data.PosY != PosY || myIcon.data.PosZ != PosZ) {
 					socket.emit('emit_from_client_iconPosChanged', {
-						PosX: myIcon.PosX,
-						PosY: myIcon.PosY,
-						PosZ: myIcon.PosZ
+						PosX: myIcon.data.PosX,
+						PosY: myIcon.data.PosY,
+						PosZ: myIcon.data.PosZ
 					});
 				}
 			}
@@ -270,10 +315,10 @@ $(document).ready(function(){
 			requestAnimationFrame(renderLoop);
 
 			countFrames++;
-			if (myIcon) {
-				PosX = myIcon.PosX;
-				PosY = myIcon.PosY;
-				PosZ = myIcon.PosZ;
+			if (myIcon.data) {
+				PosX = myIcon.data.PosX;
+				PosY = myIcon.data.PosY;
+				PosZ = myIcon.data.PosZ;
 			}
 
 			//-----------------------------------音声ビジュアルエフェクト
@@ -293,9 +338,9 @@ $(document).ready(function(){
 				}
 			}
 			if (volume) {
-				if (myIcon) {
-					myIcon.countVoice = 100;
-					socket.emit('emit_from_client_voicePU', myIcon.countVoice);
+				if (myIcon.data) {
+					myIcon.data.countVoice = 100;
+					socket.emit('emit_from_client_voicePU', myIcon.data.countVoice);
 				}
 			}
 			//-----------------------------------音声ビジュアルエフェクト
@@ -352,7 +397,7 @@ $(document).ready(function(){
 						}
 					});
 				});
-				myIcon.talkingNodes.push({
+				myIcon.data.talkingNodes.push({
 					socketId: icon.socketId,
 					call: call
 				});
@@ -361,26 +406,26 @@ $(document).ready(function(){
 
 
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
-				$('#testDiv2').html('myIcon.talkingNodes.length : ' + myIcon.talkingNodes.length);
-				$('#testDiv3').html('myIcon.socketId : ' + myIcon.socketId);
-				if (myIcon.talkingNodes.length) {
-					$('#testDiv4').html('myIcon.talkingNodes[0].socketId : ' + myIcon.talkingNodes[0].socketId);
-					//					console.log(myIcon.talkingNodes);
+				$('#testDiv2').html('myIcon.data.talkingNodes.length : ' + myIcon.data.talkingNodes.length);
+				$('#testDiv3').html('myIcon.data.socketId : ' + myIcon.data.socketId);
+				if (myIcon.data.talkingNodes.length) {
+					$('#testDiv4').html('myIcon.data.talkingNodes[0].socketId : ' + myIcon.data.talkingNodes[0].socketId);
+					//					console.log(myIcon.data.talkingNodes);
 				} else {
-					$('#testDiv4').html('myIcon.talkingNodes[0].socketId : ');
+					$('#testDiv4').html('myIcon.data.talkingNodes[0].socketId : ');
 				}
-				if (myIcon && peer && myStream) {
+				if (myIcon.data && peer && myStream) {
 					if (icons.length > 0) {
 						icons.forEach(function (icon, i, icons) {
 							if (icon.peerId) {
-								var diffX = icon.PosX - myIcon.PosX;
-								var diffY = icon.PosY - myIcon.PosY;
+								var diffX = icon.PosX - myIcon.data.PosX;
+								var diffY = icon.PosY - myIcon.data.PosY;
 								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									//									console.log(icon.talkingNodesSocketIds);
 									if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
-										if (myIcon.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
-											if (myIcon.talkingNodes.length) { //myIcon誰かと話してたら
-												myIcon.talkingNodes.forEach(function (talkingNode, i, arr) {
+										if (myIcon.data.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
+											if (myIcon.data.talkingNodes.length) { //myIcon誰かと話してたら
+												myIcon.data.talkingNodes.forEach(function (talkingNode, i, arr) {
 													if (talkingNode.socketId == icon.socketId) { //話しているのがその相手だったら
 														return; //何もしない
 													} else { //話している人でなければ
@@ -396,8 +441,8 @@ $(document).ready(function(){
 											}
 										}
 									} else if (icon.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //iconが話せない場合
-										if (myIcon.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる場合
-											if (icon.talkingNodesSocketIds == myIcon.socketId) {
+										if (myIcon.data.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる場合
+											if (icon.talkingNodesSocketIds == myIcon.data.socketId) {
 												console.log('相手は話せます');
 												//接続する
 												console.log(3333);
@@ -408,8 +453,8 @@ $(document).ready(function(){
 										}
 									}
 								} else { //一定距離以外なら
-									if (myIcon.talkingNodes.length != 0) {
-										myIcon.talkingNodes.forEach(function (talkingNode, i, arr) {
+									if (myIcon.data.talkingNodes.length != 0) {
+										myIcon.data.talkingNodes.forEach(function (talkingNode, i, arr) {
 											if (talkingNode.socketId == icon.socketId) { //切断する
 												talkingNode.call.close();
 												//												talkingNode.call.on('close', function() {
@@ -432,56 +477,61 @@ $(document).ready(function(){
 				}
 			}
 
-			if (myIcon) {
+			if (myIcon.data) {
 				//				myIcon.Draw(context,0,0); //myIconの描画メソッド呼出
 				myIcon.DrawChat(); //myIconオブジェクトの描画メソッド呼出
-				if (myIcon.countVoice) {
-					//					context.globalAlpha = myIcon.countVoice * 3 / 1000;
-					//					console.log(myIcon.talkingNodes.length);
-					if (myIcon.talkingNodes.length > 0) {
-						context.fillStyle = "#0f0";
+				if (myIcon.data.countVoice) {
+					//					context.globalAlpha = myIcon.data.countVoice * 3 / 1000;
+					//					console.log(myIcon.data.talkingNodes.length);
+					if (myIcon.data.talkingNodes.length > 0) {
+//						context.fillStyle = "#0f0";
 					} else {
-						context.fillStyle = "#ff0";
+//						context.fillStyle = "#ff0";
 					}
 					//					context.beginPath();
 					//円の設定（X中心軸,Y中心軸、半径、円のスタート度、円のエンド度、回転）
 					//		context.arc(oldX, oldY, Math.sqrt(Math.pow(px, 2) + Math.pow(py, 2)), 0, Math.PI * 2, false); // full circle
-					//					context.arc(myIcon.PosX, myIcon.PosY, 140, 0, Math.PI * 2, false); // full circle
+					//					context.arc(myIcon.data.PosX, myIcon.data.PosY, 140, 0, Math.PI * 2, false); // full circle
 					//					context.fill();
 					//					context.globalAlpha = 1;
-					myIcon.countVoice--;
+					myIcon.data.countVoice--;
 				}
 			}
 			//otherIcon-------------------
-			icons.forEach(function (icon) {
-				icon.endDrag();
-				//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
-				icon.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-				if (icon.countVoice) {
-					//					context.globalAlpha = icon.countVoice * 3 / 1000;
-					//					console.log(icon.talkingNodesSocketIds.length);
-					if (icon.talkingNodesSocketIds.length > 0) {
-						//						context.fillStyle = "#0f0";
-					} else {
-						//						context.fillStyle = "#ff0";
+			console.log(icons);
+			if(icons.length != 0) {
+				icons.forEach(function (icon) {
+					console.log(icon);
+					icon.endDrag();
+					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
+					icon.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
+					if (icon.data.countVoice) {
+						//					context.globalAlpha = icon.countVoice * 3 / 1000;
+						//					console.log(icon.talkingNodesSocketIds.length);
+						if (icon.data.talkingNodesSocketIds.length > 0) {
+							//						context.fillStyle = "#0f0";
+						} else {
+							//						context.fillStyle = "#ff0";
+						}
+						//					context.fillStyle = "#ff0";
+						//					context.beginPath();
+						//円の設定（X中心軸,Y中心軸、半径、円のスタート度、円のエンド度、回転）
+						//		context.arc(oldX, oldY, Math.sqrt(Math.pow(px, 2) + Math.pow(py, 2)), 0, Math.PI * 2, false); // full circle
+						//					context.arc(icon.PosX, icon.PosY, 140, 0, Math.PI * 2, false); // full circle
+						//					context.fill();
+						//					context.globalAlpha = 1;
+						icon.data.countVoice--;
 					}
-					//					context.fillStyle = "#ff0";
-					//					context.beginPath();
-					//円の設定（X中心軸,Y中心軸、半径、円のスタート度、円のエンド度、回転）
-					//		context.arc(oldX, oldY, Math.sqrt(Math.pow(px, 2) + Math.pow(py, 2)), 0, Math.PI * 2, false); // full circle
-					//					context.arc(icon.PosX, icon.PosY, 140, 0, Math.PI * 2, false); // full circle
-					//					context.fill();
-					//					context.globalAlpha = 1;
-					icon.countVoice--;
-				}
-			});
+				});
+			}
 	//		}();
 
 			socket.on('emit_from_server_iconPosChanged', function (data) {
 				icons.forEach(function (icon, i, icons) {
 					if (icon.socketId == data.socketId) {
-						icons[i].PosX = data.PosX;
-						icons[i].PosY = data.PosY;
+						icons[i].data.PosX = data.PosX;
+						icons[i].data.PosY = data.PosY;
+						icons[i].data.PosZ = data.PosZ;
 					}
 				});
 			})
@@ -500,9 +550,15 @@ $(document).ready(function(){
 			);
 //			moveObj(spherePos, moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward);
 			myIcon.Move(moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward);
-			//console.log(spherePos.posY);
-			console.log(spherePos);
-			sphere.position.set(myIcon.PosX, myIcon.PosY, myIcon.PosZ);
+			myIcon.mesh.position.set(myIcon.data.PosX, myIcon.data.PosY, myIcon.data.PosZ);
+			if(icons.length != 0) {
+				console.log(icons.length);
+				icons.forEach(function(icon, i, icons) {
+					console.log(icon);
+					console.log(icon[i]);
+					icons[i].mesh.position.set(icon.data.PosX, icon.data.PosY, icon.data.PosZ);
+				});
+			}
 			controls.update();
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------

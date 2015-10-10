@@ -102,7 +102,9 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 peer.on('open', function () {
 	myIcon.peerId = peer.id;
 	console.log(myIcon.peerId);
-	socket.emit('emit_from_client_join', myIcon);
+//	debugger;
+	socket.emit('emit_from_test', myIcon.data);
+	socket.emit('emit_from_client_join', myIcon.data);
 //	$('#peer-id').text(id);
 //	peer.listAllPeers(function(list) {
 //		console.dir(list);

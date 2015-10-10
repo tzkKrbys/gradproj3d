@@ -81,7 +81,7 @@ io.set('log level', 1);
 io.sockets.on('connection', function (socket) {
 	
 	//io.sockets.socketsは配列になっている
-	socket.emit('emit_fron_server_sendIcons', {icons: io.sockets.sockets.map(function(e) {
+	socket.emit('emit_fron_server_sendIcons', {iconsArr: io.sockets.sockets.map(function(e) {
 		return e.icon;//配列が生成される
 	}), numOfIcon: io.sockets.sockets.length});
 
@@ -114,11 +114,14 @@ io.sockets.on('connection', function (socket) {
 	});
 
 //----------------------------------------------------アクセス時
+	socket.on('emit_from_test', function(data) {
+		console.log(data);
+	});
 	//voiceChat.jsに記述
 	socket.on('emit_from_client_join', function(data) {//dataはmyIcon
 		socket.icon = data;
 		socket.broadcast.emit('emit_from_server_join', {icon: data, numOfIcon: io.sockets.sockets.length});
-		console.log('きてますよ〜');
+		console.log('124行目きてますよ〜');
 		console.log('人数：' + io.sockets.sockets.length);
 		console.log(data);
 	});
@@ -127,7 +130,8 @@ io.sockets.on('connection', function (socket) {
 	socket.on('emit_from_client_iconPosChanged', function(data) {
 		socket.icon.PosX = data.PosX;
 		socket.icon.PosY = data.PosY;
-		socket.broadcast.emit('emit_from_server_iconPosChanged', {socketId: socket.icon.socketId, PosX: socket.icon.PosX, PosY: socket.icon.PosY});
+		socket.icon.PosZ = data.PosZ;
+		socket.broadcast.emit('emit_from_server_iconPosChanged', {socketId: socket.icon.socketId, PosX: socket.icon.PosX, PosY: socket.icon.PosY, PosZ: socket.icon.PosYZ});
 	});
 	
 	socket.on('emit_from_client_sendMsg', function(data) {
