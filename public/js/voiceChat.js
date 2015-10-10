@@ -100,11 +100,18 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 
 
 peer.on('open', function () {
-	myIcon.peerId = peer.id;
-	console.log(myIcon.peerId);
+	myChara.peerId = peer.id;
+	console.log(myChara.peerId);
 //	debugger;
-	socket.emit('emit_from_test', myIcon.data);
-	socket.emit('emit_from_client_join', myIcon.data);
+	console.log(myChara);
+	var sendCharaData = {
+		socketId: myChara.socketId,
+		Pos: myChara.Pos,
+		textureImg: myChara.textureImg,
+		peerId: myChara.peerId
+	};
+	socket.emit('emit_from_test', sendCharaData);
+	socket.emit('emit_from_client_join', sendCharaData);
 //	$('#peer-id').text(id);
 //	peer.listAllPeers(function(list) {
 //		console.dir(list);

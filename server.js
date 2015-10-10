@@ -74,20 +74,20 @@ server.listen(port, function () {
 
 var io = socketio.listen(server);
 var icons = [];
+var charasArr = [];
 var ids = [];
 
 io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
-	
+	socket.chara = {};
 	//io.sockets.socketsは配列になっている
-	socket.emit('emit_fron_server_sendIcons', {iconsArr: io.sockets.sockets.map(function(e) {
+	socket.emit('emit_fron_server_sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
 		return e.icon;//配列が生成される
 	}), numOfIcon: io.sockets.sockets.length});
 
-
 	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	
+	console.log(socket);
 	console.log('clientから接続がありました');
 	socket.on('emit_from_client', function (data) {
 //		console.log(data);
@@ -99,8 +99,8 @@ io.sockets.on('connection', function (socket) {
 
 	//iconのプロパティを更新する
 	socket.on('emit_from_client_iconUpdate', function (data) {
-		socket.icon = data;//socketオブジェクトの中にiconを格納
-		console.log(socket.icon);
+		socket.chara = data;//socketオブジェクトの中にiconを格納
+		console.log(socket.chara);
 		socket.broadcast.emit('emit_from_server_iconUpdate', data);
 	});
 
@@ -119,7 +119,10 @@ io.sockets.on('connection', function (socket) {
 	});
 	//voiceChat.jsに記述
 	socket.on('emit_from_client_join', function(data) {//dataはmyIcon
-		socket.icon = data;
+		socket.chara.socketId = socket.id;
+		socket.chara.Pos = data.Pos;
+		socket.chara.textureImg = data.textureImg;
+		socket.chara.peerId = data.peerId;
 		socket.broadcast.emit('emit_from_server_join', {icon: data, numOfIcon: io.sockets.sockets.length});
 		console.log('124行目きてますよ〜');
 		console.log('人数：' + io.sockets.sockets.length);
@@ -127,11 +130,13 @@ io.sockets.on('connection', function (socket) {
 	});
 
 
-	socket.on('emit_from_client_iconPosChanged', function(data) {
-		socket.icon.PosX = data.PosX;
-		socket.icon.PosY = data.PosY;
-		socket.icon.PosZ = data.PosZ;
-		socket.broadcast.emit('emit_from_server_iconPosChanged', {socketId: socket.icon.socketId, PosX: socket.icon.PosX, PosY: socket.icon.PosY, PosZ: socket.icon.PosYZ});
+	socket.on('emit_from_client_charaPosChanged', function(data) {
+		console.log('dddata : ' + data);
+		console.log('136行目'　+　socket.chara);
+		socket.chara.Pos = data.Pos;
+		console.log('data.Pos : ' + data.Pos);
+		console.log('socket.chara.Pos : ' + socket.chara.Pos);
+//		socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.chara.socketId, PosX: socket.chara.PosX, PosY: socket.chara.PosY, PosZ: socket.chara.PosYZ});
 	});
 	
 	socket.on('emit_from_client_sendMsg', function(data) {
@@ -156,7 +161,7 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.on('disconnect', function() {
 		console.log('disconnect : ' + socket.id);
-		//サーバー側のiconはsocket.iconに格納されていて、disconnect時には勝手に消える為、削除処理不要
+		//サーバー側のiconはsocket.charaに格納されていて、disconnect時には勝手に消える為、削除処理不要
 		socket.broadcast.emit('emit_from_server_iconRemove', { socketId: socket.id, numOfIcon: io.sockets.sockets.length});
 		
 	});
