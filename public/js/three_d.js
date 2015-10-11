@@ -218,9 +218,12 @@ $(document).ready(function(){
 		
 
 
-		
-		var width = 1280;
-		var height = 640;
+		console.log(window.innerWidth);
+		console.log(window.innerHeight);
+//		var width = 1280;
+//		var height = 640;
+		var width = window.innerWidth;
+		var height = window.innerHeight;
 		var fov = 60;//フレーム数
 		var aspect = width / height;
 		var near = 1;
