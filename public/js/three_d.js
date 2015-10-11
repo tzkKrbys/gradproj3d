@@ -66,9 +66,14 @@ $(document).ready(function(){
 	
 	//-------------------------------------------socket.io---//
 	socket.on('connect', function() {
-		socket.on('emit_fron_server_sendcharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
+		socket.on('emit_fron_server_sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
+			console.log("入りましたよ！！");
+			console.log(data);
+
 			data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
-				if (!chara) return;
+				console.log("きてるね〜");
+				console.log(chara.socketId);
+				if (!chara.socketId) return;
 //				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
 				var othreChara = new Chara();
 				othreChara.socketId = chara.socketId;
@@ -110,11 +115,16 @@ $(document).ready(function(){
 		});
 
 
-		socket.on('emit_from_server_iconRemove', function(data){
-			otherCharasArr.forEach(function(icon, i, icons) {
-				if(icon.socketId == data.socketId) otherCharasArr.splice(i, 1);
+		socket.on('emit_from_server_charaRemove', function(data){
+			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+				if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
+				console.log(otherCharasArr[i]);
+				scene.remove( chara.mesh );
+//				geometry.dispose();
+//				material.dispose();
+//				texture.dispose();
 			});
-			$('#testDiv').html('現在の人数：' + data.numOfIcon);
+			$('#testDiv').html('現在の人数：' + data.numOfChara);
 		});
 
 		socket.on('emit_from_server_sendMsg', function(data) {
@@ -489,9 +499,11 @@ $(document).ready(function(){
 			myChara.Move(moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward);
 			myChara.mesh.position.set(myChara.Pos[0], myChara.Pos[1], myChara.Pos[2]);
 			if(otherCharasArr.length != 0) {
+				console.log(otherCharasArr);
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-					console.log(otherCharasArr[i]);
-					otherCharasArr[i].mesh.position.set(chara.Pos[0], chara.Pos[1], chara.Pos[2]);
+//					console.log(otherCharasArr[i]);
+//					console.log(chara);
+					otherCharasArr[i].mesh.position.set(otherCharasArr[i].Pos[0], otherCharasArr[i].Pos[1], otherCharasArr[i].Pos[2]);
 				});
 			}
 

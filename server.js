@@ -80,12 +80,18 @@ var ids = [];
 io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
+	console.log("入りました！！");
+	console.log(charasArr);
+
 	socket.chara = {};
 	//io.sockets.socketsは配列になっている
 	socket.emit('emit_fron_server_sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
-		return e.icon;//配列が生成される
+		return e.chara;//配列が生成される
 	}), numOfIcon: io.sockets.sockets.length});
-
+	console.log('91行目 : '+io.sockets.sockets.map(function(e) {
+		console.log('92行目'+e.chara[1]);
+		return e.chara;//配列が生成される
+	}));
 	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 //	console.log(socket);
 	console.log('clientから接続がありました');
@@ -118,18 +124,20 @@ io.sockets.on('connection', function (socket) {
 //		console.log(data);
 	});
 	//voiceChat.jsに記述
-	socket.on('emit_from_client_join', function(data) {//dataはmyIcon
+	socket.on('emit_from_client_join', function(data) {//dataはmyChara
 		socket.chara.socketId = socket.id;
 		socket.chara.Pos = data.Pos;
 		socket.chara.textureImg = data.textureImg;
 		socket.chara.peerId = data.peerId;
+		console.log("join!!!!");
+		console.log(socket.chara.Pos);
 		var chara = {
 			socketId: socket.chara.socketId,
 			Pos: socket.chara.Pos,
 			textureImg: socket.chara.textureImg,
 			peerId: socket.chara.peerId
 		};
-		charasArr.push(chara);
+//		charasArr.push(chara);
 		socket.broadcast.emit('emit_from_server_join', {chara: chara, numOfChara: io.sockets.sockets.length});
 
 	});
@@ -162,8 +170,8 @@ socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.id, 
 	
 	socket.on('disconnect', function() {
 		console.log('disconnect : ' + socket.id);
-		//サーバー側のiconはsocket.charaに格納されていて、disconnect時には勝手に消える為、削除処理不要
-		socket.broadcast.emit('emit_from_server_iconRemove', { socketId: socket.id, numOfIcon: io.sockets.sockets.length});
+		//サーバー側のcharaはsocket.charaに格納されていて、disconnect時には勝手に消える為、削除処理不要
+		socket.broadcast.emit('emit_from_server_charaRemove', { socketId: socket.id, numOfChara: io.sockets.sockets.length});
 		
 	});
 });//---end---io.sockets.on('connection'
