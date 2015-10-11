@@ -177,9 +177,9 @@ $(document).ready(function(){
 				new THREE.SphereGeometry(charaX.voiceBallMeshSize, 100, 100),
 				new THREE.MeshPhongMaterial({
 					//				map: texture
-					color: 0xffff66,
+					color: 0xffff00,
 					transparent: true,
-					opacity: 0.5
+					opacity: 0.4
 				})
 			);
 			charaX.voiceBallMesh.castShadow = true;//影の設定
@@ -196,6 +196,7 @@ $(document).ready(function(){
 				charaX.voiceBallMeshScale,
 				charaX.voiceBallMeshScale
 			);
+			console.log(charaX.voiceBallMesh.material.color);
 
 		}
 
@@ -225,7 +226,7 @@ $(document).ready(function(){
 		var near = 1;
 		var far = 4000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-		camera.position.set(0, 0, 150);
+		camera.position.set(0, 0, 200);
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
@@ -414,9 +415,12 @@ $(document).ready(function(){
 					if (otherCharasArr.length > 0) {
 						otherCharasArr.forEach(function (icon, i, icons) {
 							if (icon.peerId) {
-								var diffX = icon.PosX - myChara.PosX;
-								var diffY = icon.PosY - myChara.PosY;
-								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
+								var diffX = icon.Pos[0] - myChara.Pos[0];
+								var diffY = icon.Pos[1] - myChara.Pos[1];
+								var diffZ = icon.Pos[2] - myChara.Pos[2];
+								var talkAbleDistance = 140;
+//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
+								if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
 									if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
 										if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
 											if (myChara.talkingNodes.length) { //myIcon誰かと話してたら
@@ -473,7 +477,12 @@ $(document).ready(function(){
 					//					console.log(myChara.talkingNodes.length);
 					if (myChara.talkingNodes.length > 0) {
 //						context.fillStyle = "#0f0";
+						myChara.voiceBallMesh.material.color.r = 0;
+						console.log('いる');
 					} else {
+						myChara.voiceBallMesh.material.color.r = 1;
+						console.log('いない');
+
 //						context.fillStyle = "#ff0";
 					}
 					//					context.beginPath();
@@ -495,9 +504,9 @@ $(document).ready(function(){
 //						context.globalAlpha = icon.countVoice * 3 / 1000;
 						//					console.log(icon.talkingNodesSocketIds.length);
 						if (chara.talkingNodesSocketIds.length > 0) {
-							//						context.fillStyle = "#0f0";
+							otherCharasArr[i].voiceBallMesh.material.color.r = 0;
 						} else {
-							//						context.fillStyle = "#ff0";
+							otherCharasArr[i].voiceBallMesh.material.color.r = 1;
 						}
 						otherCharasArr[i].voiceBallMeshScale -= 0.01;
 					}
@@ -553,9 +562,9 @@ $(document).ready(function(){
 				myChara.Pos[2]
 			);
 			myChara.mesh.rotation.set(
-				mesh.rotation.x ,
-				mesh.rotation.y,
-				mesh.rotation.z + 0
+				myChara.mesh.rotation.x + 0.0,
+				myChara.mesh.rotation.y + 0.02,
+				myChara.mesh.rotation.z + 0.0
 			);
 			myChara.voiceBallMesh.position.set(
 				myChara.Pos[0],
