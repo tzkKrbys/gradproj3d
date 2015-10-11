@@ -127,6 +127,7 @@ $(document).ready(function(){
 					if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
 					console.log(otherCharasArr[i]);
 					scene.remove( chara.mesh );
+					scene.remove( chara.voiceBallMesh );
 	//				geometry.dispose();
 	//				material.dispose();
 	//				texture.dispose();
@@ -172,7 +173,7 @@ $(document).ready(function(){
 			//sceneに追加
 			
 			charaX.voiceBallMeshSize = 140;
-			charaX.voiceBallMeshScale = 0;
+			charaX.voiceBallMeshScale = 0.1;
 			charaX.voiceBallMesh = new THREE.Mesh(
 				new THREE.SphereGeometry(charaX.voiceBallMeshSize, 100, 100),
 				new THREE.MeshPhongMaterial({
@@ -390,7 +391,7 @@ $(document).ready(function(){
 
 			function callAndAddEvent(icon) {
 				var call = peer.call(icon.peerId, myStream);
-				call.on('close', function () { //callが終了したら
+				call.on('close', function () { //callが終了した際のイベントを設定
 					$('video').each(function (i, element) { //videoタグをサーチ
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
 							$(element).remove(); //タグを左k女
@@ -475,7 +476,7 @@ $(document).ready(function(){
 			if (myChara) {
 				//				myIcon.Draw(context,0,0); //myIconの描画メソッド呼出
 				myChara.DrawChat(); //myIconオブジェクトの描画メソッド呼出
-				if (myChara.voiceBallMeshScale > 0) {
+				if (myChara.voiceBallMeshScale > 0.1) {
 					//					context.globalAlpha = myChara.countVoice * 3 / 1000;
 					//					console.log(myChara.talkingNodes.length);
 					if (myChara.talkingNodes.length > 0) {
@@ -503,7 +504,7 @@ $(document).ready(function(){
 //					icon.endDrag();
 					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
 					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-					if (chara.voiceBallMeshScale > 0) {
+					if (chara.voiceBallMeshScale > 0.1) {
 //						context.globalAlpha = icon.countVoice * 3 / 1000;
 						//					console.log(icon.talkingNodesSocketIds.length);
 						if (chara.talkingNodesSocketIds.length > 0) {
@@ -575,7 +576,7 @@ $(document).ready(function(){
 				myChara.Pos[2]
 			);
 			if(otherCharasArr.length != 0) {
-				console.log(otherCharasArr);
+//				console.log(otherCharasArr);
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 //					console.log(otherCharasArr[i]);
 //					console.log(chara);
