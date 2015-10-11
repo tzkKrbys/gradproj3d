@@ -154,7 +154,11 @@ socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.id, 
 		socket.broadcast.emit('emit_from_server_voicePU', { socketId: socket.id ,voiceBallMeshScale: data});
 	});
 	
-	
+	//----------------------chat関連
+	socket.on('emit_from_client_modeChange', function (data) {
+		socket.chara.mediaStreamMode = data;
+		socket.broadcast.emit('emit_from_server_modeChange', { socketId: socket.id, mediaStreamMode: data});
+	});
 	socket.on('emit_from_client_peerCallConnected', function(data) {//dataはicon.socketId
 //		console.log(data);
 		socket.broadcast.emit('emit_from_server_peerCallConnected', {socketId: socket.id, talkingNodesSocketId: data});

@@ -194,6 +194,9 @@ function Chara(){
 	this.voiceBallMesh;
 	this.voiceBallMeshSize;
 	this.voiceBallMeshScale;
+	this.mediaStreamMode;
+	this.isVideoChatting = false;
+	this.videoChatCall;
 }
 
 /*初期化関数*/

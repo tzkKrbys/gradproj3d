@@ -319,10 +319,29 @@ $(document).ready(function(){
 		$('body').on('click', function() {
 			myChara.voiceBallMeshScale = 1;
 		});
+		
+		//mediaStreamModeを変更
+		socket.on('emit_from_server_modeChange', function (data) {
+			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId) {
+					otherCharasArr[i].mediaStreamMode = data.mediaStreamMode;
+				}
+			});
+		});
+		
+		
+
+		
+			
+			
+			
+			
+
 		(function renderLoop() {
 			requestAnimationFrame(renderLoop);
 
 			countFrames++;
+
 
 			//-----------------------------------音声ビジュアルエフェクト
 			//符号なし8bitArrayを生成
@@ -342,13 +361,12 @@ $(document).ready(function(){
 			}
 			if (volume) {
 				if (myChara) {
-//					myChara.countVoice = 100;
+					//					myChara.countVoice = 100;
 					myChara.voiceBallMeshScale = 1;
 					socket.emit('emit_from_client_voicePU', myChara.voiceBallMeshScale);
 				}
 			}
 			//-----------------------------------音声ビジュアルエフェクト
-
 
 
 			socket.on('emit_from_server_voicePU', function (data) {
@@ -405,6 +423,18 @@ $(document).ready(function(){
 				});
 				socket.emit('emit_from_client_peerCallConnected', icon.socketId);
 			}
+			function videoCallAndAddEvent(icon) {
+				var call = peer.call(icon.peerId, myStream);
+				call.on('close', function () { //callが終了した際のイベントを設定
+					$('video').each(function (i, element) { //videoタグをサーチ
+						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+							$(element).remove();
+							console.log('削除！');
+						}
+					});
+				});
+				myChara.videoChatCall = call;
+			}
 
 
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
@@ -415,6 +445,7 @@ $(document).ready(function(){
 				} else {
 					$('#testDiv4').html('myChara.talkingNodes[0].socketId : ');
 				}
+				
 				if (myChara && peer && myStream) {
 					if (otherCharasArr.length > 0) {
 						otherCharasArr.forEach(function (icon, i, icons) {
@@ -422,49 +453,69 @@ $(document).ready(function(){
 								var diffX = icon.Pos[0] - myChara.Pos[0];
 								var diffY = icon.Pos[1] - myChara.Pos[1];
 								var diffZ = icon.Pos[2] - myChara.Pos[2];
-								var talkAbleDistance = 140;
-//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
-								if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
-									if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
-										if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
-											if (myChara.talkingNodes.length) { //myIcon誰かと話してたら
-												myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
-													if (talkingNode.socketId == icon.socketId) { //話しているのがその相手だったら
-														return; //何もしない
-													} else { //話している人でなければ
-														//接続する
-														console.log(1111);
-														callAndAddEvent(icon); //callしてイベント設置
-													}
-												});
-											} else { //myIconが誰かと話してなければ
-												//接続する
-												console.log(2222);
-												callAndAddEvent(icon); //callしてイベント設置
+								console.log('myChara.mediaStreamMode : ' + myChara.mediaStreamMode);
+//								console.log('icon.mediaStreamMode : ' + icon.mediaStreamMode);
+								console.log(icon.mediaStreamMode);
+								
+								if (myChara.mediaStreamMode == 'audio' || icon.mediaStreamMode == 'audio') {
+									var talkAbleDistance = 140;
+	//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
+									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
+										if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
+											if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
+												if (myChara.talkingNodes.length) { //myIcon誰かと話してたら
+													myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+														if (talkingNode.socketId == icon.socketId) { //話しているのがその相手だったら
+															return; //何もしない
+														} else { //話している人でなければ
+															//接続する
+															console.log(1111);
+															callAndAddEvent(icon); //callしてイベント設置
+														}
+													});
+												} else { //myIconが誰かと話してなければ
+													//接続する
+													console.log(2222);
+													callAndAddEvent(icon); //callしてイベント設置
+												}
+											}
+										} else if (icon.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //iconが話せない場合
+											if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる場合
+												if (icon.talkingNodesSocketIds == myChara.socketId) {
+													console.log('相手は話せます');
+													//接続する
+													console.log(3333);
+													callAndAddEvent(icon); //callしてイベント設置
+												} else {
+													console.log('相手は話せません');
+												}
 											}
 										}
-									} else if (icon.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //iconが話せない場合
-										if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる場合
-											if (icon.talkingNodesSocketIds == myChara.socketId) {
-												console.log('相手は話せます');
-												//接続する
-												console.log(3333);
-												callAndAddEvent(icon); //callしてイベント設置
-											} else {
-												console.log('相手は話せません');
-											}
+									} else { //一定距離以外なら
+										if (myChara.talkingNodes.length != 0) {
+											myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+												if (talkingNode.socketId == icon.socketId) { //切断する
+													talkingNode.call.close();
+
+													arr.splice(i, 1);
+													socket.emit('emit_from_client_peerCallDisconnected', icon.socketId);
+												}
+											});
 										}
 									}
-								} else { //一定距離以外なら
-									if (myChara.talkingNodes.length != 0) {
-										myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
-											if (talkingNode.socketId == icon.socketId) { //切断する
-												talkingNode.call.close();
-
-												arr.splice(i, 1);
-												socket.emit('emit_from_client_peerCallDisconnected', icon.socketId);
-											}
-										});
+								} else if (myChara.mediaStreamMode == 'video' && icon.mediaStreamMode == 'video') {
+									var videoTalkAbleDistance = 40;
+									//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
+									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
+										if(!myChara.isVideoChatting){
+											myChara.isVideoChatting = true;
+											videoCallAndAddEvent(icon); //callしてイベント設置
+										}
+									} else { //一定距離以外なら
+										if (myChara.isVideoChatting) {
+											myChara.isVideoChatting = false;
+											myChara.videoChatCall.close();
+										}
 									}
 								}
 							}

@@ -8,12 +8,17 @@ filter.frequency.value = 440;
 //analyserオブジェクトの生成
 var analyser = audioContext.createAnalyser();
 
+//var audioMode = false;
+//var videoMode = false;
 
 //-------------------------------------マイク取得
-var audioObj = {"audio":true};
+
 //WebAudioリクエスト成功時に呼び出されるコールバック関数
+var audioObj = {"audio":true};
 
 function gotStream(stream){
+	myChara.mediaStreamMode = 'audio';
+	socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
 	myStream = stream;
 	//streamからAudioNodeを作成
 	var mediaStreamSource = audioContext.createMediaStreamSource(stream);
@@ -36,6 +41,7 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 if(navigator.getUserMedia){
 	//マイク使って良いか聞いてくる
 	navigator.webkitGetUserMedia(audioObj,gotStream,errBack);
+	console.log(navigator);
 }else{
 	console.log("マイクデバイスがありません");
 }
@@ -43,11 +49,16 @@ if(navigator.getUserMedia){
 
 
 //------------------------------------------------------videoChat
-var videoChatMode = false;
-function videoChatModeOn() {
-	videoChatMode = true;
+function videoAudioOff() {
+	myStream.stop();
+	myChara.mediaStreamMode = false;
+}
+function videoModeOn() {
+	videoAudioOff();
 	var videoObj = { video: true, "audio":true };
 	function gotVideoStream(stream){
+		myChara.mediaStreamMode = 'video';
+		socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
 		console.log(stream);
 		myStream = stream;//videoになる
 		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
@@ -62,9 +73,34 @@ function videoChatModeOn() {
 		console.log("マイクデバイスがありません");
 	}
 }
+function audioModeOn() {
+	videoAudioOff();
+	var videoFalseAudioObj = { video: false, "audio":true };
+	function gotAudioStream(stream){
+		myChara.mediaStreamMode = 'audio';
+		socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
+		console.log(stream);
+		myStream = stream;
+		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
+		mediaStreamSource.connect(filter);
+		filter.connect(analyser);
+	}
+	if(navigator.getUserMedia){
+		//マイク使って良いか聞いてくる
+		navigator.webkitGetUserMedia(videoFalseAudioObj,gotAudioStream,errBack);
+	}else{
+		console.log("マイクデバイスがありません");
+	}
+}
 $('.videoChatModeBtn').on('click', function() {
-	alert();
-	videoChatModeOn();
+	if(myChara.mediaStreamMode == 'audio') {
+		videoModeOn();
+		$(this).html('videoModeOn').css({'background-color': '#faa'});
+	} else if (myChara.mediaStreamMode == 'video') {
+		audioModeOn();
+		$(this).html('audioModeOn').css({'background-color': '#aaf'});
+	}
+
 });
 //------------------------------------------------------videoChat
 
@@ -112,12 +148,22 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 	console.log(stream);
 	console.log(mediaConnection);
 //	$('#video').prop('src', URL.createObjectURL(stream));
-	$('div#videoElems').prepend($('<video></video>', {
-		'class': 'videoWindow',
-		'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
-		src: URL.createObjectURL(stream),
-		autoplay: true
-	}));
+	if(myChara.mediaStreamMode == 'video') {
+		$('div#videoElems').prepend($('<video></video>', {
+			'class': 'videoWindow videoChatting',
+			'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
+			src: URL.createObjectURL(stream),
+			autoplay: true
+		}));
+	}else{
+		$('div#videoElems').prepend($('<video></video>', {
+			'class': 'videoWindow',
+			'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
+			src: URL.createObjectURL(stream),
+			autoplay: true
+		}));
+	}
+
 	
 
 //	mediastreamsource = audioContext.createMediaStreamSource(stream);
