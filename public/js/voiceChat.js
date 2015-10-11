@@ -1,7 +1,9 @@
-var audioContext = new webkitAudioContext();
+//var audioContext = new webkitAudioContext();
+var audioContext = new AudioContext();
 //フィルター
 var filter = audioContext.createBiquadFilter();
-filter.type = 0;
+console.log(filter);
+//filter.type = 0;
 filter.frequency.value = 440;
 //analyserオブジェクトの生成
 var analyser = audioContext.createAnalyser();
