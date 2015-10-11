@@ -12,6 +12,7 @@ var analyser = audioContext.createAnalyser();
 //-------------------------------------マイク取得
 var audioObj = {"audio":true};
 //WebAudioリクエスト成功時に呼び出されるコールバック関数
+
 function gotStream(stream){
 	myStream = stream;
 	//streamからAudioNodeを作成
@@ -40,6 +41,32 @@ if(navigator.getUserMedia){
 }
 //-------------------------------------マイク取得
 
+
+//------------------------------------------------------videoChat
+var videoChatMode = false;
+function videoChatModeOn() {
+	videoChatMode = true;
+	var videoObj = { video: true, "audio":true };
+	function gotVideoStream(stream){
+		console.log(stream);
+		myStream = stream;//videoになる
+		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
+		mediaStreamSource.connect(filter);
+		filter.connect(analyser);
+	}
+
+	if(navigator.getUserMedia){
+		//マイク使って良いか聞いてくる
+		navigator.webkitGetUserMedia(videoObj,gotVideoStream,errBack);
+	}else{
+		console.log("マイクデバイスがありません");
+	}
+}
+$('.videoChatModeBtn').on('click', function() {
+	alert();
+	videoChatModeOn();
+});
+//------------------------------------------------------videoChat
 
 
 //navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
