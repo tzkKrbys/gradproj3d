@@ -45,7 +45,7 @@ if(navigator.getUserMedia){
 var myStream;
 
 var peer = new Peer({
-	key: '01f9acb4-9289-4527-9d3f-ed24ed50042d'
+	key: 'a56f52f0-a285-4d43-8955-d0a609837161'
 });
 console.log(peer);
 
