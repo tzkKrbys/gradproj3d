@@ -110,7 +110,6 @@ peer.on('open', function () {
 		textureImg: myChara.textureImg,
 		peerId: myChara.peerId
 	};
-	socket.emit('emit_from_test', sendCharaData);
 	socket.emit('emit_from_client_join', sendCharaData);
 //	$('#peer-id').text(id);
 //	peer.listAllPeers(function(list) {

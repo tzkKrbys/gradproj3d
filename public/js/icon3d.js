@@ -191,6 +191,9 @@ function Chara(){
 	this.talkingNodes = [];//{socketId: icon.socketId, call: call }
 	this.talkingNodesSocketIds = [];
 	this.textureImg;
+	this.voiceBallMesh;
+	this.voiceBallMeshSize;
+	this.voiceBallMeshScale;
 }
 
 /*初期化関数*/

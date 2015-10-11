@@ -57,93 +57,100 @@ function KeyUp3d(e) {
 $(document).ready(function(){
 	var main = function () {
 		var scene = new THREE.Scene();
-	socket = io.connect();
-	console.log('connectしました。');
-	window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
-	window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
+		//軸の表示（長さ：1000）
+		var  axis = new THREE.AxisHelper(1000);
+		//sceneに追加
+		scene.add(axis);
+		// 位置設定
+		axis.position.set(0,0,1);
+		
+		socket = io.connect();
+		console.log('connectしました。');
+		window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
+		window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
 
 
-	
-	//-------------------------------------------socket.io---//
-	socket.on('connect', function() {
-		socket.on('emit_fron_server_sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
-			console.log("入りましたよ！！");
-			console.log(data);
 
-			data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
-				console.log("きてるね〜");
-				console.log(chara.socketId);
-				if (!chara.socketId) return;
-//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
-				var othreChara = new Chara();
-				othreChara.socketId = chara.socketId;
-				othreChara.Pos = chara.Pos;
-				othreChara.textureImg = chara.textureImg;
-				othreChara.peerId = chara.peerId;
-				otherCharasArr.push(othreChara);
-			});
-			$('#testDiv').html('現在の人数：' + data.numOfIcon);
-			if(otherCharasArr.length != 0) {
-				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-					createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyIcon
-					scene.add(otherCharasArr[i].mesh);
+		//-------------------------------------------socket.io---//
+		socket.on('connect', function() {
+			socket.on('emit_fron_server_sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
+				console.log("入りましたよ！！");
+				console.log(data);
+
+				data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
+					console.log("きてるね〜");
+					console.log(chara.socketId);
+					if (!chara.socketId) return;
+	//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
+					var othreChara = new Chara();
+					othreChara.socketId = chara.socketId;
+					othreChara.Pos = chara.Pos;
+					othreChara.textureImg = chara.textureImg;
+					othreChara.peerId = chara.peerId;
+					otherCharasArr.push(othreChara);
 				});
-			}
-		});
-
-		// クラス生成
-//		myChara.socketId = socket.id;
-		//voiceChat.jsに記述
-		//socket.emit('emit_from_client_join', myIcon);
-
-		socket.on('emit_from_server_join', function(data) {
-//			otherCharasArr.push(myChara.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
-			console.log(data.chara);
-			
-			var othreChara = new Chara();
-			othreChara.socketId = data.chara.socketId;
-			othreChara.Pos = data.chara.Pos;
-			othreChara.textureImg = data.chara.textureImg;
-			othreChara.peerId = data.chara.peerId;
-			createMesh(othreChara);
-			otherCharasArr.push(othreChara);
-			scene.add(othreChara.mesh);
-
-			console.log(otherCharasArr);
-//			debugger;
-			$('#testDiv').html('現在の人数：' + data.numOfIcon);
-		});
-
-
-		socket.on('emit_from_server_charaRemove', function(data){
-			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-				if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
-				console.log(otherCharasArr[i]);
-				scene.remove( chara.mesh );
-//				geometry.dispose();
-//				material.dispose();
-//				texture.dispose();
-			});
-			$('#testDiv').html('現在の人数：' + data.numOfChara);
-		});
-
-		socket.on('emit_from_server_sendMsg', function(data) {
-			otherCharasArr.forEach(function(icon, i, icons) {
-				if(icon.socketId == data.socketId) {
-					console.log('きてます');
-					otherCharasArr[i].str = data.str;
-					otherCharasArr[i].chatShowCount = data.chatShowCount;
+				$('#testDiv').html('現在の人数：' + data.numOfIcon);
+				if(otherCharasArr.length != 0) {
+					otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+						createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyIcon
+						scene.add(otherCharasArr[i].mesh);
+					});
 				}
 			});
-		});
-	});//----------end----------socket.on('connect'
+
+			// クラス生成
+	//		myChara.socketId = socket.id;
+			//voiceChat.jsに記述
+			//socket.emit('emit_from_client_join', myIcon);
+
+			socket.on('emit_from_server_join', function(data) {
+	//			otherCharasArr.push(myChara.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
+				console.log(data.chara);
+
+				var othreChara = new Chara();
+				othreChara.socketId = data.chara.socketId;
+				othreChara.Pos = data.chara.Pos;
+				othreChara.textureImg = data.chara.textureImg;
+				othreChara.peerId = data.chara.peerId;
+				createMesh(othreChara);
+				otherCharasArr.push(othreChara);
+				scene.add(othreChara.mesh);
+
+				console.log(otherCharasArr);
+	//			debugger;
+				$('#testDiv').html('現在の人数：' + data.numOfIcon);
+			});
+
+
+			socket.on('emit_from_server_charaRemove', function(data){
+				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
+					console.log(otherCharasArr[i]);
+					scene.remove( chara.mesh );
+	//				geometry.dispose();
+	//				material.dispose();
+	//				texture.dispose();
+				});
+				$('#testDiv').html('現在の人数：' + data.numOfChara);
+			});
+
+			socket.on('emit_from_server_sendMsg', function(data) {
+				otherCharasArr.forEach(function(icon, i, icons) {
+					if(icon.socketId == data.socketId) {
+						console.log('きてます');
+						otherCharasArr[i].str = data.str;
+						otherCharasArr[i].chatShowCount = data.chatShowCount;
+					}
+				});
+			});
+		});//----------end----------socket.on('connect'
 
 	
-	
-	$('#sendMsgBtn').on("click",function(){
-		myChara.SendChat();
-		socket.emit('emit_from_client_sendMsg', {str: myChara.str, chatShowCount: myChara.chatShowCount});
-	});
+
+		$('#sendMsgBtn').on("click",function(){
+			myChara.SendChat();
+			socket.emit('emit_from_client_sendMsg', {str: myChara.str, chatShowCount: myChara.chatShowCount});
+		});
 
 
 		function createMesh(charaX) {//charaXはcharaインスタンス
@@ -156,8 +163,40 @@ $(document).ready(function(){
 				}));
 			charaX.mesh.castShadow = true;//影の設定
 			charaX.mesh.receiveShadow = true;//影の設定
-			charaX.mesh.position.set(-100, 0, 0);// 位置設定
+//			charaX.mesh.position.set(-100, 0, 0);// 位置設定
+			charaX.mesh.position.set(
+				charaX.Pos[0],
+				charaX.Pos[1],
+				charaX.Pos[2]
+			);// 位置設定
 			//sceneに追加
+			
+			charaX.voiceBallMeshSize = 140;
+			charaX.voiceBallMeshScale = 0;
+			charaX.voiceBallMesh = new THREE.Mesh(
+				new THREE.SphereGeometry(charaX.voiceBallMeshSize, 100, 100),
+				new THREE.MeshPhongMaterial({
+					//				map: texture
+					color: 0xffff66,
+					transparent: true,
+					opacity: 0.5
+				})
+			);
+			charaX.voiceBallMesh.castShadow = true;//影の設定
+			charaX.voiceBallMesh.receiveShadow = true;//影の設定
+//			charaX.voiceBallMesh.position.set(0, 0, -300);// 位置設定
+			charaX.voiceBallMesh.position.set(
+				charaX.Pos[0],
+				charaX.Pos[1],
+				charaX.Pos[2]
+			);// 位置設定
+			scene.add(charaX.voiceBallMesh);
+			charaX.voiceBallMesh.scale.set(
+				charaX.voiceBallMeshScale,
+				charaX.voiceBallMeshScale,
+				charaX.voiceBallMeshScale
+			);
+
 		}
 
 //	var main = function () {
@@ -177,7 +216,7 @@ $(document).ready(function(){
 		scene.add(myChara.mesh);
 		
 
-		
+
 		
 		var width = 1280;
 		var height = 640;
@@ -272,15 +311,13 @@ $(document).ready(function(){
 
 		renderer.render(scene, camera);
 
+		$('body').on('click', function() {
+			myChara.voiceBallMeshScale = 1;
+		});
 		(function renderLoop() {
 			requestAnimationFrame(renderLoop);
 
 			countFrames++;
-
-
-
-
-
 
 			//-----------------------------------音声ビジュアルエフェクト
 			//符号なし8bitArrayを生成
@@ -300,8 +337,9 @@ $(document).ready(function(){
 			}
 			if (volume) {
 				if (myChara) {
-					myChara.countVoice = 100;
-					socket.emit('emit_from_client_voicePU', myChara.countVoice);
+//					myChara.countVoice = 100;
+					myChara.voiceBallMeshScale = 1;
+					socket.emit('emit_from_client_voicePU', myChara.voiceBallMeshScale);
 				}
 			}
 			//-----------------------------------音声ビジュアルエフェクト
@@ -309,9 +347,9 @@ $(document).ready(function(){
 
 
 			socket.on('emit_from_server_voicePU', function (data) {
-				otherCharasArr.forEach(function (icon, i, icons) {
-					if (icon.socketId == data.socketId) {
-						otherCharasArr[i].countVoice = data.countVoice;
+				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+					if (chara.socketId == data.socketId) {
+						otherCharasArr[i].voiceBallMeshScale = data.voiceBallMeshScale;
 					}
 				});
 			});
@@ -430,7 +468,7 @@ $(document).ready(function(){
 			if (myChara) {
 				//				myIcon.Draw(context,0,0); //myIconの描画メソッド呼出
 				myChara.DrawChat(); //myIconオブジェクトの描画メソッド呼出
-				if (myChara.countVoice) {
+				if (myChara.voiceBallMeshScale > 0) {
 					//					context.globalAlpha = myChara.countVoice * 3 / 1000;
 					//					console.log(myChara.talkingNodes.length);
 					if (myChara.talkingNodes.length > 0) {
@@ -444,24 +482,24 @@ $(document).ready(function(){
 					//					context.arc(myChara.PosX, myChara.PosY, 140, 0, Math.PI * 2, false); // full circle
 					//					context.fill();
 					//					context.globalAlpha = 1;
-					myChara.countVoice--;
+					myChara.voiceBallMeshScale -= 0.01;
 				}
 			}
 			//otherIcon-------------------
 			if(otherCharasArr.length != 0) {
-				otherCharasArr.forEach(function (chara) {
+				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 //					icon.endDrag();
 					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
 					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-					if (chara.countVoice) {
-						//					context.globalAlpha = icon.countVoice * 3 / 1000;
+					if (chara.voiceBallMeshScale > 0) {
+//						context.globalAlpha = icon.countVoice * 3 / 1000;
 						//					console.log(icon.talkingNodesSocketIds.length);
 						if (chara.talkingNodesSocketIds.length > 0) {
 							//						context.fillStyle = "#0f0";
 						} else {
 							//						context.fillStyle = "#ff0";
 						}
-						chara.countVoice--;
+						otherCharasArr[i].voiceBallMeshScale -= 0.01;
 					}
 				});
 			}
@@ -496,14 +534,54 @@ $(document).ready(function(){
 				mesh2.rotation.y + 0.01,
 				mesh2.rotation.z + 0.01
 			);
-			myChara.Move(moveLeft, moveRight, moveUp, moveDown, moveForward, moveBackward);
-			myChara.mesh.position.set(myChara.Pos[0], myChara.Pos[1], myChara.Pos[2]);
+			myChara.voiceBallMesh.scale.set(
+				myChara.voiceBallMeshScale,
+				myChara.voiceBallMeshScale,
+				myChara.voiceBallMeshScale
+			);
+			myChara.Move(
+				moveLeft,
+				moveRight,
+				moveUp,
+				moveDown,
+				moveForward,
+				moveBackward
+			);
+			myChara.mesh.position.set(
+				myChara.Pos[0],
+				myChara.Pos[1],
+				myChara.Pos[2]
+			);
+			myChara.mesh.rotation.set(
+				mesh.rotation.x ,
+				mesh.rotation.y,
+				mesh.rotation.z + 0
+			);
+			myChara.voiceBallMesh.position.set(
+				myChara.Pos[0],
+				myChara.Pos[1],
+				myChara.Pos[2]
+			);
 			if(otherCharasArr.length != 0) {
 				console.log(otherCharasArr);
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 //					console.log(otherCharasArr[i]);
 //					console.log(chara);
-					otherCharasArr[i].mesh.position.set(otherCharasArr[i].Pos[0], otherCharasArr[i].Pos[1], otherCharasArr[i].Pos[2]);
+					otherCharasArr[i].mesh.position.set(
+						otherCharasArr[i].Pos[0],
+						otherCharasArr[i].Pos[1],
+						otherCharasArr[i].Pos[2]
+					);
+					otherCharasArr[i].voiceBallMesh.position.set(
+						otherCharasArr[i].Pos[0],
+						otherCharasArr[i].Pos[1],
+						otherCharasArr[i].Pos[2]
+					);
+					otherCharasArr[i].voiceBallMesh.scale.set(
+						otherCharasArr[i].voiceBallMeshScale,
+						otherCharasArr[i].voiceBallMeshScale,
+						otherCharasArr[i].voiceBallMeshScale
+					);
 				});
 			}
 

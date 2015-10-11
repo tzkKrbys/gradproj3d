@@ -120,9 +120,6 @@ io.sockets.on('connection', function (socket) {
 	});
 
 //----------------------------------------------------アクセス時
-	socket.on('emit_from_test', function(data) {
-//		console.log(data);
-	});
 	//voiceChat.jsに記述
 	socket.on('emit_from_client_join', function(data) {//dataはmyChara
 		socket.chara.socketId = socket.id;
@@ -154,7 +151,7 @@ socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.id, 
 	
 	
 	socket.on('emit_from_client_voicePU', function(data) {
-		socket.broadcast.emit('emit_from_server_voicePU', { socketId: socket.id ,countVoice: data});
+		socket.broadcast.emit('emit_from_server_voicePU', { socketId: socket.id ,voiceBallMeshScale: data});
 	});
 	
 	
