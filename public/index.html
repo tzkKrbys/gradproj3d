@@ -12,15 +12,7 @@
 		body {
 			color: #fff;
 		}
-		video {
-			width: 0px;
-			height: 0px;
-			position: fixed;
-			top: 0;
-			left: 0;
-			opacity: 0;
-			
-		}
+
 
 		#setsumei {
 			position: fixed;
@@ -44,27 +36,28 @@
 </head>
 
 <body>
+<!--
 <div id="setsumei">
 	方向キーで前後左右に球を動かせます<br>
 	Aキーで上昇、Zキーで下降します。<br>
 	ドラッグアンドドロップで視点が変わります。<br>
 	マウスホイールで視点が前後します。
-	<div id="testDiv">
-		現在の人数：0
-	</div>
+
 </div>
+-->
 <div class="videoChatModeBtn">
 	Video chat mode
 </div>
 	<div id="wrapper" class="clearfix">
 		<div id="test">
-			<div id="testDiv">現在の人数：</div>
+			<div id="testDiv">現在の人数：0</div>
 			<div id="testDiv2"></div>
 			<div id="testDiv3"></div>
 			<div id="testDiv4"></div>
 			<div id="testDiv5"></div>
 			<div id="testDiv6"></div>
 			<div id="testDiv7"></div>
+			<div id="testDiv8"></div>
 		</div>
 <!--
 		<div id="gameCanvas">
@@ -84,6 +77,14 @@
 <!--		<video id="video" class="videoWindow" autoplay ></video>-->
 <!--		<audio id="audio"></audio>-->
 	</div>
+	<div id="modal_base">
+		<div id="modal_content">
+		</div>
+		<div class="bd bdT"></div>
+		<div class="bd bdB"></div>
+		<div class="bd bdR"></div>
+		<div class="bd bdL"></div>
+	</div>
 	<!--end#wrapper-->
 	<script src="./js/jquery-2.1.4.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -93,11 +94,54 @@
 	<script src="./js/icon3d.js"></script>
 <!--	<script src="./js/main.js"></script>-->
 	<script src="./js/main3d.js"></script>
+<!--	<script src="./js/THREEx.KeyboardState.js"></script>-->
 <!--	<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>-->
 <!--	<script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>-->
 <!--	<script src="./js/peer.js"></script>-->
 	<script src="https://skyway.io/dist/0.3/peer.js"></script>
 	<script src="./js/voiceChat.js"></script>
 	<script src="./js/three_d.js"></script>
+	<script>
+
+
+
+//	$('body').on('click', function () {
+//		if(!isModalActive) {
+//			modalOn();
+//		} else {
+//			modalOff();
+//		}
+//	});
+	</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -126,13 +126,15 @@ io.sockets.on('connection', function (socket) {
 		socket.chara.Pos = data.Pos;
 		socket.chara.textureImg = data.textureImg;
 		socket.chara.peerId = data.peerId;
+		socket.chara.mediaStreamMode = data.mediaStreamMode;
 		console.log("join!!!!");
-		console.log(socket.chara.Pos);
+		console.log('131行目' + socket.chara.mediaStreamMode);
 		var chara = {
 			socketId: socket.chara.socketId,
 			Pos: socket.chara.Pos,
 			textureImg: socket.chara.textureImg,
-			peerId: socket.chara.peerId
+			peerId: socket.chara.peerId,
+			mediaStreamMode : socket.chara.mediaStreamMode
 		};
 //		charasArr.push(chara);
 		socket.broadcast.emit('emit_from_server_join', {chara: chara, numOfChara: io.sockets.sockets.length});
@@ -157,8 +159,11 @@ socket.broadcast.emit('emit_from_server_charaPosChanged', {socketId: socket.id, 
 	//----------------------chat関連
 	socket.on('emit_from_client_modeChange', function (data) {
 		socket.chara.mediaStreamMode = data;
+		console.log('162行目 : '+ data);
+		console.log('163行目 : '+ socket.chara.mediaStreamMode);
 		socket.broadcast.emit('emit_from_server_modeChange', { socketId: socket.id, mediaStreamMode: data});
 	});
+
 	socket.on('emit_from_client_peerCallConnected', function(data) {//dataはicon.socketId
 //		console.log(data);
 		socket.broadcast.emit('emit_from_server_peerCallConnected', {socketId: socket.id, talkingNodesSocketId: data});

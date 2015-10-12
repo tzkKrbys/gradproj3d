@@ -71,22 +71,126 @@ h1{
 	background-color: #aaf;
 }
 
-video {
+video.audioChatting {
 	display: none;
 }
-video.videoChatting {
-	width: 400px;
-	height: 300px;
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	opacity: 1;
-	display: block;
-}
+
 
 #test {
 	color: #fff;
 	position: fixed;
 }
 
+/*---------------------------modal*/
+#modal_overlay {
+	z-index: 10;
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,.5);
+}
+
+#modal_base {
+	width: 600px;
+	height: 450px;
+	z-index: 11;
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -225px;
+	margin-left: -300px;
+/*	background-color: rgba(0,0,0,.5);*/
+}
+
+#modal_content {
+/*	background-color: #000;*/
+/*	display: none;*/
+	z-index: 12;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,1);
+	opacity: 0;
+	-webkit-transition: all 1s ease-in-out 1s;
+	transition: all 1s ease-in-out 1s;
+
+
+}
+#modal_content.active {
+	opacity: 1;
+	-webkit-transition: all 1s ease-in-out 1s;
+	transition: all 1s ease-in-out 1s;
+}
+
+#modal_base div.bd {
+	position: absolute;
+	-webkit-transition: all .8s ease-in-out;
+	transition: all .8s ease-in-out;
+}
+
+#modal_base div.bd {
+	background: #fff;
+}
+#modal_base div.bdT {
+	width: 0;
+	height: 2px;
+	top: 0;
+	left: 0;
+}
+#modal_base div.bdB {
+	width: 0;
+	height: 2px;
+	bottom: 0;
+	right: 0;
+}
+#modal_base div.bdR {
+	width: 2px;
+	height: 0;
+	top: 0;
+	right: 0;
+}
+#modal_base div.bdL {
+	width: 2px;
+	height: 0;
+	bottom: 0;
+	left: 0;
+}
+#modal_base.active div.bdT {
+	width: 100%;
+}
+#modal_base.active div.bdB {
+	width: 100%;
+}
+#modal_base.active div.bdR {
+	height: 100%;
+}
+#modal_base.active div.bdL {
+	height: 100%;
+}
+
+video.videoChatting {
+	background-size: cover;
+	width: 100%;
+	height: 100%;
+/*
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -150px;
+	margin-left: -200px;
+	z-index: 100;
+*/
+	display: block;
+}
+
+video.audioChatting {
+	width: 0px;
+	height: 0px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	opacity: 0;
+}

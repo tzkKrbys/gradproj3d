@@ -23,10 +23,10 @@ function KeyDown3d(e) {
 	case 40: // ↓キー
 		moveBackward = true;
 		break;
-	case 65: // ↑キー
+	case 88: // Xキー
 		moveUp = true;
 		break;
-	case 90: // ↓キー
+	case 90: // Zキー
 		moveDown = true;
 		break;
 	}
@@ -45,24 +45,45 @@ function KeyUp3d(e) {
 	case 40: // ↓キー
 		moveBackward = false;
 		break;
-	case 65: // ↑キー
+	case 88: // Xキー
 		moveUp = false;
 		break;
-	case 90: // ↓キー
+	case 90: // Zキー
 		moveDown = false;
+		break;
+	case 67: // Cキー
+		if(myChara.mediaStreamMode == 'audio') {
+			videoModeOn();
+		} else if (myChara.mediaStreamMode == 'video') {
+			audioModeOn();
+		}
 		break;
 	}
 }
+//var keyboard = new THREEx.KeyboardState();
 
 $(document).ready(function(){
+
 	var main = function () {
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+		}
+		
+
+
+		
+		
+		
+		window.addEventListener( 'resize', onWindowResize, false );
 		var scene = new THREE.Scene();
-		//軸の表示（長さ：1000）
-		var  axis = new THREE.AxisHelper(1000);
-		//sceneに追加
-		scene.add(axis);
-		// 位置設定
-		axis.position.set(0,0,1);
+//		//軸の表示（長さ：1000）
+//		var  axis = new THREE.AxisHelper(1000);
+//		//sceneに追加
+//		scene.add(axis);
+//		// 位置設定
+//		axis.position.set(0,0,1);
 		
 		socket = io.connect();
 		console.log('connectしました。');
@@ -76,10 +97,8 @@ $(document).ready(function(){
 			socket.on('emit_fron_server_sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
 				console.log("入りましたよ！！");
 				console.log(data);
-
 				data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
 					console.log("きてるね〜");
-					console.log(chara.socketId);
 					if (!chara.socketId) return;
 	//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
 					var othreChara = new Chara();
@@ -87,6 +106,7 @@ $(document).ready(function(){
 					othreChara.Pos = chara.Pos;
 					othreChara.textureImg = chara.textureImg;
 					othreChara.peerId = chara.peerId;
+					othreChara.mediaStreamMode = chara.mediaStreamMode;
 					otherCharasArr.push(othreChara);
 				});
 				$('#testDiv').html('現在の人数：' + data.numOfIcon);
@@ -112,8 +132,10 @@ $(document).ready(function(){
 				othreChara.Pos = data.chara.Pos;
 				othreChara.textureImg = data.chara.textureImg;
 				othreChara.peerId = data.chara.peerId;
+				othreChara.mediaStreamMode = data.chara.mediaStreamMode;
 				createMesh(othreChara);
 				otherCharasArr.push(othreChara);
+				console.log(othreChara.mediaStreamMode);
 				scene.add(othreChara.mesh);
 
 				console.log(otherCharasArr);
@@ -219,18 +241,28 @@ $(document).ready(function(){
 		
 
 
-		console.log(window.innerWidth);
-		console.log(window.innerHeight);
+
 //		var width = 1280;
 //		var height = 640;
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		var fov = 60;//フレーム数
 		var aspect = width / height;
+//		$(window).resize(function() {
+//			width = window.innerWidth;
+//			height = window.innerHeight;
+//			aspect = width / height;
+//		});
+		//		window.onresize = function() {
+//			width = window.innerWidth;
+//			height = window.innerHeight;
+//			aspect = width / height;
+//		};
 		var near = 1;
 		var far = 4000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 		camera.position.set(0, 0, 200);
+		console.log(camera);
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
@@ -321,10 +353,12 @@ $(document).ready(function(){
 		});
 		
 		//mediaStreamModeを変更
-		socket.on('emit_from_server_modeChange', function (data) {
+		socket.on('emit_from_server_modeChange', function (data) {//{ socketId: socket.id, mediaStreamMode: mediaStreamMode}
+			console.log(data);
 			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId) {
 					otherCharasArr[i].mediaStreamMode = data.mediaStreamMode;
+					console.log(otherCharasArr[i].mediaStreamMode);
 				}
 			});
 		});
@@ -334,15 +368,11 @@ $(document).ready(function(){
 		
 			
 			
-			
-			
-
-		(function renderLoop() {
-			requestAnimationFrame(renderLoop);
-
-			countFrames++;
 
 
+		
+		
+		function update() {
 			//-----------------------------------音声ビジュアルエフェクト
 			//符号なし8bitArrayを生成
 			var data = new Uint8Array(analyser.frequencyBinCount);
@@ -367,45 +397,183 @@ $(document).ready(function(){
 				}
 			}
 			//-----------------------------------音声ビジュアルエフェクト
+			
+			
+			if (myChara/* && countFrames % 2 == 0*/) {
+				Pos[0] = myChara.Pos[0];
+				Pos[1] = myChara.Pos[1];
+				Pos[2] = myChara.Pos[2];
+			}
+			controls.update();//orbitcontrolのメソッド
 
-
-			socket.on('emit_from_server_voicePU', function (data) {
+			mesh.rotation.set(
+				mesh.rotation.x + 0.005,
+				mesh.rotation.y + 0.001,
+				mesh.rotation.z + 0.01
+			);
+			mesh2.rotation.set(
+				0,
+				mesh2.rotation.y + 0.01,
+				mesh2.rotation.z + 0.01
+			);
+			myChara.voiceBallMesh.scale.set(
+				myChara.voiceBallMeshScale,
+				myChara.voiceBallMeshScale,
+				myChara.voiceBallMeshScale
+			);
+			myChara.Move(
+				moveLeft,
+				moveRight,
+				moveUp,
+				moveDown,
+				moveForward,
+				moveBackward
+			);
+			myChara.mesh.position.set(
+				myChara.Pos[0],
+				myChara.Pos[1],
+				myChara.Pos[2]
+			);
+			myChara.mesh.rotation.set(
+				myChara.mesh.rotation.x + 0.0,
+				myChara.mesh.rotation.y + 0.02,
+				myChara.mesh.rotation.z + 0.0
+			);
+			myChara.voiceBallMesh.position.set(
+				myChara.Pos[0],
+				myChara.Pos[1],
+				myChara.Pos[2]
+			);
+			//myCharaの位置が変化していたら
+			positionChange();
+			
+			//otherIcon-------------------
+			if(otherCharasArr.length != 0) {
 				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
-					if (chara.socketId == data.socketId) {
-						otherCharasArr[i].voiceBallMeshScale = data.voiceBallMeshScale;
-					}
-				});
-			});
-
-			socket.on('emit_from_server_peerCallConnected', function (data) {
-				otherCharasArr.forEach(function (icon, i, icons) {
-					if (icon.socketId == data.socketId) {
-						if (!otherCharasArr[i].talkingNodesSocketIds.length) {
-							otherCharasArr[i].talkingNodesSocketIds.push(data.talkingNodesSocketId);
+					//					icon.endDrag();
+					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
+					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
+					if (chara.voiceBallMeshScale > 0.1) {
+						//						context.globalAlpha = icon.countVoice * 3 / 1000;
+						//					console.log(icon.talkingNodesSocketIds.length);
+						if (chara.talkingNodesSocketIds.length > 0) {
+							otherCharasArr[i].voiceBallMesh.material.color.r = 0;
 						} else {
-							otherCharasArr[i].talkingNodesSocketIds.forEach(function (id) {
-								if (id != data.socketId) return;
-								otherCharasArr[i].talkingNodesSocketIds.push(data.talkingNodesSocketId);
-							});
+							otherCharasArr[i].voiceBallMesh.material.color.r = 1;
 						}
+						otherCharasArr[i].voiceBallMeshScale -= 0.01;
 					}
 				});
-			});
-			socket.on('emit_from_server_peerCallDisconnected', function (data) {
-				otherCharasArr.forEach(function (icon, i, icons) {
-					if (icon.socketId == data.socketId) {
-						if (otherCharasArr[i].talkingNodesSocketIds.length) {
-							otherCharasArr[i].talkingNodesSocketIds.forEach(function (id, j, arr) {
-								if (id == data.talkingNodesSocketId) {
-									arr.splice(j, 1);
-								}
-							});
-						}
-					}
+			}
+
+
+			if(otherCharasArr.length != 0) {
+				//				console.log(otherCharasArr);
+				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					//					console.log(otherCharasArr[i]);
+					//					console.log(chara);
+					otherCharasArr[i].mesh.position.set(
+						otherCharasArr[i].Pos[0],
+						otherCharasArr[i].Pos[1],
+						otherCharasArr[i].Pos[2]
+					);
+					otherCharasArr[i].voiceBallMesh.position.set(
+						otherCharasArr[i].Pos[0],
+						otherCharasArr[i].Pos[1],
+						otherCharasArr[i].Pos[2]
+					);
+					otherCharasArr[i].voiceBallMesh.scale.set(
+						otherCharasArr[i].voiceBallMeshScale,
+						otherCharasArr[i].voiceBallMeshScale,
+						otherCharasArr[i].voiceBallMeshScale
+					);
 				});
+			}
+
+			
+			
+			
+//			var delta = clock.getDelta(); // seconds.
+//			var moveDistance = 100 * delta; // 100 pixels per second
+//			var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+//			console.log(rotateAngle);
+//			//			console.log(camera);
+//			// rotate left/right/up/down
+//			camera.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
+
+//			if ( keyboard.pressed("A") ) {
+//				camera.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
+//				alert();
+//			}
+//			if ( keyboard.pressed("D") )
+//				camera.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
+		}
+
+//		var clock = new THREE.Clock();
+
+
+		socket.on('emit_from_server_peerCallConnected', function (data) {
+			console.log('emit_from_server_peerCallConnectedきた〜〜〜〜〜〜〜〜〜〜');
+			otherCharasArr.forEach(function (icon, i, icons) {
+				if (icon.socketId == data.socketId) {
+					if (!otherCharasArr[i].talkingNodesSocketIds.length) {
+						otherCharasArr[i].talkingNodesSocketIds.push(data.talkingNodesSocketId);
+					} else {
+						otherCharasArr[i].talkingNodesSocketIds.forEach(function (id) {
+							if (id != data.socketId) return;
+							otherCharasArr[i].talkingNodesSocketIds.push(data.talkingNodesSocketId);
+						});
+					}
+				}
 			});
+		});
+		
+		socket.on('emit_from_server_voicePU', function (data) {
+			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId) {
+					otherCharasArr[i].voiceBallMeshScale = data.voiceBallMeshScale;
+				}
+			});
+		});
+		
+		socket.on('emit_from_server_peerCallDisconnected', function (data) {
+			otherCharasArr.forEach(function (icon, i, icons) {
+				if (icon.socketId == data.socketId) {
+					if (otherCharasArr[i].talkingNodesSocketIds.length) {
+						otherCharasArr[i].talkingNodesSocketIds.forEach(function (id, j, arr) {
+							if (id == data.talkingNodesSocketId) {
+								arr.splice(j, 1);
+							}
+						});
+					}
+				}
+			});
+		});
+		
+		
 
-
+		(function renderLoop() {
+			requestAnimationFrame(renderLoop);
+			countFrames++;
+			update();
+			
+			(function(){
+				$('#testDiv5').html('myChara.mediaStreamMode : ' + myChara.mediaStreamMode);
+				if(otherCharasArr.length > 0){
+					var $test = $('<div></div>');
+					otherCharasArr.forEach(function(chara,i,otherCharasArr) {
+						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode));
+					});
+					$('#testDiv7').html($test);
+					
+				}
+//				$('#testDiv6').html('otherCharasArr[0].mediaStreamMode' + otherCharasArr[0].mediaStreamMode);
+//				$('#testDiv7').html('otherCharasArr[1].mediaStreamMode' + otherCharasArr[1].mediaStreamMode);
+//				var testArr = otherCharasArr.map(function(e) {
+//					return e.mediaStreamMode;
+//				});
+//				$('#testDiv8').html(testArr);
+			})();
 
 			function callAndAddEvent(icon) {
 				var call = peer.call(icon.peerId, myStream);
@@ -430,13 +598,26 @@ $(document).ready(function(){
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
 							$(element).remove();
 							console.log('削除！');
+							function modalOff() {
+								$('#modal_content').removeClass('active');
+								setTimeout(function() {
+									$('#modal_base').removeClass('active');
+									$('#modal_base').delay(800).fadeOut('slow', function() {
+										$('#modal_overlay').fadeOut("slow").remove();
+										//				$('#modal_base').removeClass('active');
+									});
+									isModalActive = false;
+								},1000);
+
+							}
+							modalOff();
 						}
 					});
 				});
 				myChara.videoChatCall = call;
 			}
 
-
+//------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
 				$('#testDiv2').html('myChara.talkingNodes.length : ' + myChara.talkingNodes.length);
 				$('#testDiv3').html('myChara.socketId : ' + myChara.socketId);
@@ -454,10 +635,10 @@ $(document).ready(function(){
 								var diffY = icon.Pos[1] - myChara.Pos[1];
 								var diffZ = icon.Pos[2] - myChara.Pos[2];
 								console.log('myChara.mediaStreamMode : ' + myChara.mediaStreamMode);
-//								console.log('icon.mediaStreamMode : ' + icon.mediaStreamMode);
-								console.log(icon.mediaStreamMode);
+								console.log('icon.mediaStreamMode : ' + icon.mediaStreamMode);
+//								console.log(icon.mediaStreamMode);
 								
-								if (myChara.mediaStreamMode == 'audio' || icon.mediaStreamMode == 'audio') {
+								if (myChara.mediaStreamMode == 'audio') {
 									var talkAbleDistance = 140;
 	//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
@@ -507,7 +688,17 @@ $(document).ready(function(){
 									var videoTalkAbleDistance = 40;
 									//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
-										if(!myChara.isVideoChatting){
+										if(!myChara.isVideoChatting){//自分がvideoチャット中でない場合
+											if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
+												myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+													if (talkingNode.socketId == icon.socketId) { //切断する
+														talkingNode.call.close();
+
+														arr.splice(i, 1);
+														socket.emit('emit_from_client_peerCallDisconnected', icon.socketId);
+													}
+												});
+											}
 											myChara.isVideoChatting = true;
 											videoCallAndAddEvent(icon); //callしてイベント設置
 										}
@@ -549,25 +740,6 @@ $(document).ready(function(){
 					myChara.voiceBallMeshScale -= 0.01;
 				}
 			}
-			//otherIcon-------------------
-			if(otherCharasArr.length != 0) {
-				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
-//					icon.endDrag();
-					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
-					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-					if (chara.voiceBallMeshScale > 0.1) {
-//						context.globalAlpha = icon.countVoice * 3 / 1000;
-						//					console.log(icon.talkingNodesSocketIds.length);
-						if (chara.talkingNodesSocketIds.length > 0) {
-							otherCharasArr[i].voiceBallMesh.material.color.r = 0;
-						} else {
-							otherCharasArr[i].voiceBallMesh.material.color.r = 1;
-						}
-						otherCharasArr[i].voiceBallMeshScale -= 0.01;
-					}
-				});
-			}
-
 			socket.on('emit_from_server_charaPosChanged', function (data) {
 				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 					if (chara.socketId == data.socketId) {
@@ -579,75 +751,7 @@ $(document).ready(function(){
 				});
 			})
 			
-			//myCharaの位置が変化していたら
-			positionChange();
-			if (myChara/* && countFrames % 2 == 0*/) {
-				Pos[0] = myChara.Pos[0];
-				Pos[1] = myChara.Pos[1];
-				Pos[2] = myChara.Pos[2];
-			}
-			controls.update();
 
-			mesh.rotation.set(
-				mesh.rotation.x + 0.005,
-				mesh.rotation.y + 0.001,
-				mesh.rotation.z + 0.01
-			);
-			mesh2.rotation.set(
-				0,
-				mesh2.rotation.y + 0.01,
-				mesh2.rotation.z + 0.01
-			);
-			myChara.voiceBallMesh.scale.set(
-				myChara.voiceBallMeshScale,
-				myChara.voiceBallMeshScale,
-				myChara.voiceBallMeshScale
-			);
-			myChara.Move(
-				moveLeft,
-				moveRight,
-				moveUp,
-				moveDown,
-				moveForward,
-				moveBackward
-			);
-			myChara.mesh.position.set(
-				myChara.Pos[0],
-				myChara.Pos[1],
-				myChara.Pos[2]
-			);
-			myChara.mesh.rotation.set(
-				myChara.mesh.rotation.x + 0.0,
-				myChara.mesh.rotation.y + 0.02,
-				myChara.mesh.rotation.z + 0.0
-			);
-			myChara.voiceBallMesh.position.set(
-				myChara.Pos[0],
-				myChara.Pos[1],
-				myChara.Pos[2]
-			);
-			if(otherCharasArr.length != 0) {
-//				console.log(otherCharasArr);
-				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-//					console.log(otherCharasArr[i]);
-//					console.log(chara);
-					otherCharasArr[i].mesh.position.set(
-						otherCharasArr[i].Pos[0],
-						otherCharasArr[i].Pos[1],
-						otherCharasArr[i].Pos[2]
-					);
-					otherCharasArr[i].voiceBallMesh.position.set(
-						otherCharasArr[i].Pos[0],
-						otherCharasArr[i].Pos[1],
-						otherCharasArr[i].Pos[2]
-					);
-					otherCharasArr[i].voiceBallMesh.scale.set(
-						otherCharasArr[i].voiceBallMeshScale,
-						otherCharasArr[i].voiceBallMeshScale,
-						otherCharasArr[i].voiceBallMeshScale
-					);
-				});
-			}
 
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------

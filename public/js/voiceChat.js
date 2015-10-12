@@ -7,17 +7,18 @@ console.log(filter);
 filter.frequency.value = 440;
 //analyserオブジェクトの生成
 var analyser = audioContext.createAnalyser();
+var isModalActive = false;
 
-//var audioMode = false;
-//var videoMode = false;
 
 //-------------------------------------マイク取得
 
 //WebAudioリクエスト成功時に呼び出されるコールバック関数
-var audioObj = {"audio":true};
+//var audioObj = {"audio":true};
+//var videoObj = {"video": true, "audio":true};
 
 function gotStream(stream){
-	myChara.mediaStreamMode = 'audio';
+//	myChara.mediaStreamMode = 'audio';
+	myChara.mediaStreamMode = 'video';
 	socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
 	myStream = stream;
 	//streamからAudioNodeを作成
@@ -40,7 +41,7 @@ var errBack = function(e){
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 if(navigator.getUserMedia){
 	//マイク使って良いか聞いてくる
-	navigator.webkitGetUserMedia(audioObj,gotStream,errBack);
+	navigator.webkitGetUserMedia({"video": true, "audio":true},gotStream,errBack);
 	console.log(navigator);
 }else{
 	console.log("マイクデバイスがありません");
@@ -49,12 +50,22 @@ if(navigator.getUserMedia){
 
 
 //------------------------------------------------------videoChat
-function videoAudioOff() {
+function mediaStreamOff() {
 	myStream.stop();
 	myChara.mediaStreamMode = false;
+	socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
 }
 function videoModeOn() {
-	videoAudioOff();
+	if(myChara.mediaStreamMode == 'video') {
+		myChara.mesh = new THREE.Mesh(
+			//					new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
+			new THREE.CubeGeometry(20, 20, 20),
+			new THREE.MeshPhongMaterial({
+				map: texture
+			}));
+	}
+
+	mediaStreamOff();
 	var videoObj = { video: true, "audio":true };
 	function gotVideoStream(stream){
 		myChara.mediaStreamMode = 'video';
@@ -74,7 +85,7 @@ function videoModeOn() {
 	}
 }
 function audioModeOn() {
-	videoAudioOff();
+	mediaStreamOff();
 	var videoFalseAudioObj = { video: false, "audio":true };
 	function gotAudioStream(stream){
 		myChara.mediaStreamMode = 'audio';
@@ -148,19 +159,33 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 	console.log(stream);
 	console.log(mediaConnection);
 //	$('#video').prop('src', URL.createObjectURL(stream));
-	if(myChara.mediaStreamMode == 'video') {
-		$('div#videoElems').prepend($('<video></video>', {
+	if( myChara.mediaStreamMode == 'video' ) {
+		function modalOn() {
+			$('body').append('<div id="modal_overlay"><div>');
+			$('#modal_overlay').delay(1000).fadeIn("slow");
+			$('#modal_base').show(function() {
+				$('#modal_base').addClass('active');
+			});
+			//		$('#modal_content').delay(1000).fadeIn("slow");
+			isModalActive = true;
+		}
+		modalOn();
+//		$('div#videoElems').prepend($('<video></video>', {
+		$('#modal_content').prepend($('<video></video>', {
 			'class': 'videoWindow videoChatting',
 			'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
 			src: URL.createObjectURL(stream),
 			autoplay: true
 		}));
-	}else{
+		$('#modal_content').addClass('active');
+	} else {
 		$('div#videoElems').prepend($('<video></video>', {
-			'class': 'videoWindow',
+			'class': 'videoWindow audioChatting',
 			'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
 			src: URL.createObjectURL(stream),
-			autoplay: true
+			autoplay: true,
+			width: "0",
+			height: "0"
 		}));
 	}
 
@@ -183,7 +208,8 @@ peer.on('open', function () {
 		socketId: myChara.socketId,
 		Pos: myChara.Pos,
 		textureImg: myChara.textureImg,
-		peerId: myChara.peerId
+		peerId: myChara.peerId,
+		mediaStreamMode: myChara.mediaStreamMode
 	};
 	socket.emit('emit_from_client_join', sendCharaData);
 //	$('#peer-id').text(id);
