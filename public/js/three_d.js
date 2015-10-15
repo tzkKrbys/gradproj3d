@@ -29,32 +29,32 @@ function KeyDown3d(e) {
 	case 40: // ↓キー
 		moveBackward = true;
 		break;
-	case 88: // Xキー
+	case 84: // Tキー
 		moveUp = true;
 		break;
-	case 90: // Zキー
+	case 71: // gキー
 		moveDown = true;
 		break;
-	//--------------------------camera
-//	case 65: // Aキー
-//		cameraMoveLeft = true;
-//		break;
-//	case 68: // Dキー
-//		cameraMoveRight = true;
-//		break;
-//	case 87: // Wキー
-//		cameraMoveForward = true;
-//		break;
-//	case 83: // Sキー
-//		cameraMoveBackward = true;
-//		break;
-//	case 69: // Eキー
-//		cameraMoveUp = true;
-//		break;
-//	case 81: // Qキー
-//		cameraMoveDown = true;
-//		break;
-	//--------------------------camera
+	//--------------------------
+	case 65: // Aキー
+			moveLeft = true;
+		break;
+	case 68: // Dキー
+			moveRight = true;
+		break;
+	case 87: // Wキー
+			moveForward = true;
+		break;
+	case 83: // Sキー
+			moveBackward = true;
+		break;
+	case 69: // Eキー
+			moveUp = true;
+		break;
+	case 81: // Qキー
+			moveDown = true;
+		break;
+	//--------------------------
 	}
 }
 function KeyUp3d(e) {
@@ -71,33 +71,33 @@ function KeyUp3d(e) {
 	case 40: // ↓キー
 		moveBackward = false;
 		break;
-	case 88: // Xキー
+	case 84: // Tキー
 		moveUp = false;
 		break;
-	case 90: // Zキー
+	case 71: // Gキー
 		moveDown = false;
 		break;
 		//--------------------------camera
-//	case 65: // Aキー
-//		cameraMoveLeft = false;
-//		break;
-//	case 68: // Dキー
-//		cameraMoveRight = false;
-//		break;
-//	case 87: // Wキー
-//		cameraMoveForward = false;
-//		break;
-//	case 83: // Sキー
-//		cameraMoveBackward = false;
-//		break;
-//	case 69: // Eキー
-//		cameraMoveUp = false;
-//		break;
-//	case 81: // Qキー
-//		cameraMoveDown = false;
-//		break;
+	case 65: // Aキー
+			moveLeft = false;
+		break;
+	case 68: // Dキー
+			moveRight = false;
+		break;
+	case 87: // Wキー
+			moveForward = false;
+		break;
+	case 83: // Sキー
+			moveBackward = false;
+		break;
+	case 69: // Eキー
+			moveUp = false;
+		break;
+	case 81: // Qキー
+			moveDown = false;
+		break;
 		//--------------------------camera
-		case 67: // Cキー
+		case 66: // Bキー
 			if ( myChara.mediaStreamMode != 'audio') {
 				audioModeOn();
 			}
@@ -284,7 +284,7 @@ $(document).ready(function(){
 		//		myIcon.Init( 0, 0, -300, './img/IMG_2706.jpg' ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
 //		myIcon.InitPos( 0, 0, -300 );
 		Math.floor(Math.random() * 1000) - 500;
-		myChara.InitPos( Math.floor(Math.random() * 500) - 250, 0, Math.floor(Math.random() * 500) - 500 );
+		myChara.InitPos( Math.floor(Math.random() * 500) - 250, 0, Math.floor(Math.random() * 200)  );
 //		myChara.InitPos( 0, 0, -300 );
 //		myChara.textureImg = './img/IMG_2706.jpg';
 		myChara.textureImg = './img/IMG_2706.jpg';
@@ -314,11 +314,11 @@ $(document).ready(function(){
 //			aspect = width / height;
 //		};
 		var near = 1;
-		var far = 10000;
+		var far = 20000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 //		camera.Pos = [0,0,0];
 //		camera.moveSpeed = 4;
-		camera.position.set(0, 0, 300);
+		camera.position.set(0, 60, 500);
 //		camera.position.set(camera.Pos[0], camera.Pos[1], camera.Pos[2]);
 		console.log(camera);
 //		function cameraMove(cameraMoveRight,cameraMoveLeft,cameraMoveUp,cameraMoveDown,cameraMoveForward,cameraMoveBackward) {
@@ -353,28 +353,35 @@ $(document).ready(function(){
 		var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 //		var directionalLight = new THREE.DirectionalLight(0xffffff);
-		var directionalLight = new THREE.DirectionalLight(0xffffff);
-		directionalLight.position.set(0, 0.7, 0.7);
+		var directionalLight = new THREE.DirectionalLight(0xeeeeee);
+		directionalLight.position.set(0, 0.8, 0.7);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
+		
+		var ambientLight = new THREE.AmbientLight(0x444444);
+		scene.add( ambientLight );
 
-		var geometry = new THREE.CubeGeometry(30, 30, 30);
-//		var material = new THREE.MeshPhongMaterial({
-//			color: 0xffaacc
-//		});
-		var textureMesh  = new THREE.ImageUtils.loadTexture('./img/son.png');
+//		var geometry = new THREE.CubeGeometry(30, 30, 30);
+		var geometry = new THREE.OctahedronGeometry(80);
+		var material = new THREE.MeshPhongMaterial({
+			color: 0x3377ff,
+			transparent: true,
+			opacity: 0.9
+		});
+//		var textureMesh  = new THREE.ImageUtils.loadTexture('./img/son.png');
 
 //		var mesh = new THREE.Mesh(geometry, material);
-		var mesh1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-			map: textureMesh
-		}));
-		mesh1.position.x = -100;
-		mesh1.position.y = 0;
-		mesh1.position.z = -100;
+//		var octahedronMesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+//			map: textureMesh
+//		}));
+		var octahedronMesh = new THREE.Mesh(geometry, material);
+		octahedronMesh.position.x = 0;
+		octahedronMesh.position.y = 160;
+		octahedronMesh.position.z = -400;
 
-		mesh1.castShadow = true;
-		mesh1.receiveShadow = true;
-		scene.add(mesh1);
+		octahedronMesh.castShadow = true;
+		octahedronMesh.receiveShadow = true;
+		scene.add(octahedronMesh);
 
 		var geometry2 = new THREE.CubeGeometry(20, 20, 20);
 //		var material2 = new THREE.MeshPhongMaterial({
@@ -393,7 +400,6 @@ $(document).ready(function(){
 		scene.add(mesh2);
 
 
-
 		var groundGeometry = new THREE.PlaneGeometry(1000, 1000);
 		//平面オブジェクトの色を設定します。
 		material3 = new THREE.MeshPhongMaterial({
@@ -402,11 +408,12 @@ $(document).ready(function(){
 		var texture1  = new THREE.ImageUtils.loadTexture('./img/IMG_2706.jpg');
 //		var ground = new THREE.Mesh(groundGeometry, material3);
 		var ground = new THREE.Mesh(groundGeometry, new THREE.MeshPhongMaterial({
-			map: texture1
+			map: texture1,
+			side: THREE.DoubleSide
 		}));
 		//続いて、平面オブジェクトの位置を調整します。
 		ground.rotation.x = 4.7;
-		ground.position.y = -150;
+		ground.position.y = -200;
 		ground.position.z = -500;
 		ground.receiveShadow = true;
 		//視覚効果を作る
@@ -500,7 +507,7 @@ $(document).ready(function(){
 					}
 				}
 				if (volume) {
-					if (myChara) {
+					if (myChara && myChara.mediaStreamMode == 'audio') {
 						//					myChara.countVoice = 100;
 						myChara.voiceBallMeshScale = 1;
 						socket.emit('voicePU', myChara.voiceBallMeshScale);
@@ -529,10 +536,10 @@ $(document).ready(function(){
 
 			controls.update();//orbitcontrolのメソッド
 
-			mesh1.rotation.set(
-				mesh1.rotation.x + 0.005,
-				mesh1.rotation.y + 0.001,
-				mesh1.rotation.z + 0.01
+			octahedronMesh.rotation.set(
+				octahedronMesh.rotation.x + 0,
+				octahedronMesh.rotation.y + 0.01,
+				octahedronMesh.rotation.z + 0
 			);
 			mesh2.rotation.set(
 				0,
@@ -605,10 +612,17 @@ $(document).ready(function(){
 			//myCharaの位置が変化していたら
 			positionChange();
 			
-			//otherIcon-------------------
+			//otherChara-------------------
 			if(otherCharasArr.length != 0) {
 				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
-					//					icon.endDrag();
+					if(chara.mediaStreamMode == 'audio' && chara.mesh.geometry.type != "SphereGeometry") {
+						chara.mesh.geometry = new THREE.SphereGeometry(30, 100, 100);
+					}else if (chara.mediaStreamMode == 'video' && chara.mesh.geometry.type != "BoxGeometry") {
+						chara.mesh.geometry = new THREE.CubeGeometry(40, 40, 40);//球のジオメトリ　（半径：２０）
+					} else if (chara.mediaStreamMode == false && chara.mesh.geometry.type != "TorusKnotGeometry") {
+						chara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
+					}
+						//					icon.endDrag();
 					//				icon.Draw(context,0,0); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,イメージオブジェクト,0,0)
 					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
 					if (chara.voiceBallMeshScale > 0.1) {
@@ -621,15 +635,15 @@ $(document).ready(function(){
 						}
 						otherCharasArr[i].voiceBallMeshScale -= 0.01;
 					}
-				});
-			}
-
-
-			if(otherCharasArr.length != 0) {
-				//				console.log(otherCharasArr);
-				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-					//					console.log(otherCharasArr[i]);
-					//					console.log(chara);
+//				});
+//			}
+//			if(otherCharasArr.length != 0) {
+//				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					otherCharasArr[i].mesh.rotation.set(
+						otherCharasArr[i].mesh.rotation.x + 0.003,
+						otherCharasArr[i].mesh.rotation.y + 0.002,
+						otherCharasArr[i].mesh.rotation.z + 0.004
+					);
 					otherCharasArr[i].mesh.position.set(
 						otherCharasArr[i].Pos[0],
 						otherCharasArr[i].Pos[1],
@@ -740,7 +754,15 @@ $(document).ready(function(){
 			});
 		});
 		
-		
+		function printProperties(obj) {
+			var properties = '';
+			for (var prop in obj){
+				if(obj[prop] == )
+				properties += prop + "=" + obj[prop] + "\n";
+			}
+//			alert(properties);
+			return properties;
+		}
 
 		(function renderLoop() {
 			requestAnimationFrame(renderLoop);
@@ -753,6 +775,8 @@ $(document).ready(function(){
 					var $test = $('<div></div>');
 					otherCharasArr.forEach(function(chara,i,otherCharasArr) {
 						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode + ' , cahra.videoBroadcastReady : ' + chara.videoBroadcastReady));
+//						$test.append($('<div></div>').html(printProperties(chara)));
+//						console.log(printProperties(chara));
 					});
 					$('#testDiv7').html($test);
 					
@@ -835,24 +859,25 @@ $(document).ready(function(){
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
 							$(element).remove();
 							console.log('削除！');
-							function modalOff() {
-								$('#modal_content').removeClass('active');
-								setTimeout(function() {
-									$('#modal_base').removeClass('active');
-									$('#modal_base').delay(800).fadeOut('slow', function() {
-										$('#modal_overlay').fadeOut("slow").remove();
-										myChara.isVideoChatting = false;
-										isModalActive = false;
-										//				$('#modal_base').removeClass('active');
-									});
-								},1000);
-							}
 							modalOff();
 						}
 					});
 				});
 				myChara.videoChatCall = call;
 			}
+			function modalOff() {
+				$('#modal_content').removeClass('active');
+				setTimeout(function() {
+					$('#modal_base').removeClass('active');
+					$('#modal_base').delay(800).fadeOut('slow', function() {
+						$('#modal_overlay').fadeOut("slow").remove();
+						myChara.isVideoChatting = false;
+						isModalActive = false;
+						//				$('#modal_base').removeClass('active');
+					});
+				},1000);
+			}
+
 
 
 //------------------------------------------------------------media接続判定
@@ -866,13 +891,13 @@ $(document).ready(function(){
 				}
 				
 				if (myChara && peer && myStream) {
-					if (otherCharasArr.length > 0) {
+					if (otherCharasArr.length > 0) {//誰か相手がいれば
 						otherCharasArr.forEach(function (icon, i, icons) {
 							if (icon.peerId) {
 								var diffX = icon.Pos[0] - myChara.Pos[0];
 								var diffY = icon.Pos[1] - myChara.Pos[1];
 								var diffZ = icon.Pos[2] - myChara.Pos[2];
-								if (myChara.mediaStreamMode == 'audio') {
+								if (myChara.mediaStreamMode == 'audio') {//自分がaudioModeの場合
 									var talkAbleDistance = 140;
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
 										if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
@@ -916,7 +941,7 @@ $(document).ready(function(){
 											});
 										}
 									}
-								} else if (myChara.mediaStreamMode == 'video' && icon.mediaStreamMode == 'video') {
+								} else if (myChara.mediaStreamMode == 'video' && icon.mediaStreamMode == 'video') {//自分も相手もビデオ利用中の場合
 									var videoTalkAbleDistance = 40;
 									//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
@@ -954,9 +979,9 @@ $(document).ready(function(){
 					}
 				}/*end of ~~~if (myChara && peer && myStream) {*/
 				//video配信、受信モード準備判定
-				var diff1X = myChara.Pos[0] - mesh1.position.x;
-				var diff1Y = myChara.Pos[1] - mesh1.position.y;
-				var diff1Z = myChara.Pos[2] - mesh1.position.z;
+				var diff1X = myChara.Pos[0] - octahedronMesh.position.x;
+				var diff1Y = myChara.Pos[1] - octahedronMesh.position.y;
+				var diff1Z = myChara.Pos[2] - octahedronMesh.position.z;
 				var diff2X = myChara.Pos[0] - mesh2.position.x;
 				var diff2Y = myChara.Pos[1] - mesh2.position.y;
 				var diff2Z = myChara.Pos[2] - mesh2.position.z;
