@@ -941,9 +941,8 @@ $(document).ready(function(){
 									//------------------------------------------------ビデオ配信
 									if(myChara.videoBroadcastReady == 'readyToSend' && !myChara.isVideoChatting ) {
 										if(icon.videoBroadcastReady == 'readyToView' ) {
-											videoSendAndAddEvent(icon);
+											videoSendAndAddEvent(icon);//※※※※※※※※※※※※※※※※※※※今は自分からかけているが、配信準備だけしておいて、リクエストがきたらつなぐ仕組みに書き換える方がいいのでは？
 											myChara.isVideoChatting = true;
-//											socket.emit('myCharaUpdate', myChara);
 											socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
 											myChara.isVideoBroadcasting = 'sending';
 											socket.emit('isVideoBroadcasting', myChara.isVideoBroadcasting);
@@ -953,29 +952,39 @@ $(document).ready(function(){
 							}
 						});
 					}
-				}
+				}/*end of ~~~if (myChara && peer && myStream) {*/
+				//video配信、受信モード準備判定
 				var diff1X = myChara.Pos[0] - mesh1.position.x;
 				var diff1Y = myChara.Pos[1] - mesh1.position.y;
 				var diff1Z = myChara.Pos[2] - mesh1.position.z;
 				var diff2X = myChara.Pos[0] - mesh2.position.x;
 				var diff2Y = myChara.Pos[1] - mesh2.position.y;
 				var diff2Z = myChara.Pos[2] - mesh2.position.z;
-				if ((diff1X * diff1X) + (diff1Y * diff1Y) + (diff1Z * diff1Z ) < 40 * 40) {
-					//					myChara.isVideoBroadcastingModeReady = 'readyToSend';
-					myChara.isVideoBroadcasting = 'sending';
-					socket.emit('isVideoBroadcasting_Update', myChara.isVideoBroadcasting);
+				if(myChara.mediaStreamMode == 'video'){
+					if ((diff1X * diff1X) + (diff1Y * diff1Y) + (diff1Z * diff1Z ) < 40 * 40) {
+						//					myChara.isVideoBroadcastingModeReady = 'readyToSend';
+						//					myChara.isVideoBroadcasting = 'sending';
+						//					socket.emit('isVideoBroadcasting_Update', myChara.isVideoBroadcasting);
+						if (myChara.videoBroadcastReady != 'readyToSend') {
+							myChara.videoBroadcastReady = 'readyToSend';//video配信準備
+							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
+							console.log(myChara.videoBroadcastReady);
+						}
+					} else if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {
+						if( myChara.videoBroadcastReady != 'readyToView' ) {
+							myChara.videoBroadcastReady = 'readyToView';//video受信準備
+							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
+							console.log(myChara.videoBroadcastReady);
+						}
 
-				} else if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {
-					myChara.videoBroadcastReady = 'readyToView';
-					socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-
-				} else {
-					myChara.videoBroadcastReady = false;
-					socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-
+					} else {
+						if(myChara.videoBroadcastReady != false ) {
+							myChara.videoBroadcastReady = false;
+							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
+							console.log(myChara.videoBroadcastReady);
+						}
+					}
 				}
-				console.log(myChara.videoBroadcastReady);
-
 			}//if (countFrames % 30 == 0) { //30フレーム毎に実行
 			
 
