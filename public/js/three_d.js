@@ -8,6 +8,12 @@ var moveForward = false;
 var moveBackward = false;
 var moveUp = false;
 var moveDown = false;
+//var cameraMoveLeft = false;
+//var cameraMoveRight = false;
+//var cameraMoveForward = false;
+//var cameraMoveBackward = false;
+//var cameraMoveUp = false;
+//var cameraMoveDown = false;
 
 function KeyDown3d(e) {
 	switch (e.keyCode) {
@@ -29,6 +35,26 @@ function KeyDown3d(e) {
 	case 90: // Zキー
 		moveDown = true;
 		break;
+	//--------------------------camera
+//	case 65: // Aキー
+//		cameraMoveLeft = true;
+//		break;
+//	case 68: // Dキー
+//		cameraMoveRight = true;
+//		break;
+//	case 87: // Wキー
+//		cameraMoveForward = true;
+//		break;
+//	case 83: // Sキー
+//		cameraMoveBackward = true;
+//		break;
+//	case 69: // Eキー
+//		cameraMoveUp = true;
+//		break;
+//	case 81: // Qキー
+//		cameraMoveDown = true;
+//		break;
+	//--------------------------camera
 	}
 }
 function KeyUp3d(e) {
@@ -51,15 +77,44 @@ function KeyUp3d(e) {
 	case 90: // Zキー
 		moveDown = false;
 		break;
-	case 67: // Cキー
-		if(myChara.mediaStreamMode == 'audio') {
-			videoModeOn();
-		} else if (myChara.mediaStreamMode == 'video') {
-			audioModeOn();
-		}
+		//--------------------------camera
+//	case 65: // Aキー
+//		cameraMoveLeft = false;
+//		break;
+//	case 68: // Dキー
+//		cameraMoveRight = false;
+//		break;
+//	case 87: // Wキー
+//		cameraMoveForward = false;
+//		break;
+//	case 83: // Sキー
+//		cameraMoveBackward = false;
+//		break;
+//	case 69: // Eキー
+//		cameraMoveUp = false;
+//		break;
+//	case 81: // Qキー
+//		cameraMoveDown = false;
+//		break;
+		//--------------------------camera
+		case 67: // Cキー
+			if ( myChara.mediaStreamMode != 'audio') {
+				audioModeOn();
+			}
+			break;
+		case 86: // Vキー
+			if(myChara.mediaStreamMode != 'video') {
+				console.log('video?');
+				videoModeOn();
+			}
+			break;
+		case 77: // Mキー
+			mediaStreamOff();
 		break;
 	}
 }
+
+
 //var keyboard = new THREEx.KeyboardState();
 
 $(document).ready(function(){
@@ -70,12 +125,8 @@ $(document).ready(function(){
 			camera.updateProjectionMatrix();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 		}
-		
 
 
-		
-		
-		
 		window.addEventListener( 'resize', onWindowResize, false );
 		var scene = new THREE.Scene();
 //		//軸の表示（長さ：1000）
@@ -89,7 +140,6 @@ $(document).ready(function(){
 		console.log('connectしました。');
 		window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
 		window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
-
 
 
 		//-------------------------------------------socket.io---//
@@ -121,9 +171,9 @@ $(document).ready(function(){
 			// クラス生成
 	//		myChara.socketId = socket.id;
 			//voiceChat.jsに記述
-			//socket.emit('emit_from_client_join', myIcon);
+			//socket.emit('join', myIcon);
 
-			socket.on('emit_from_server_join', function(data) {
+			socket.on('join', function(data) {
 	//			otherCharasArr.push(myChara.fromObject( data.icon, data.icon.PosX, data.icon.PosY, data.icon.PosZ ));
 				console.log(data.chara);
 
@@ -133,6 +183,7 @@ $(document).ready(function(){
 				othreChara.textureImg = data.chara.textureImg;
 				othreChara.peerId = data.chara.peerId;
 				othreChara.mediaStreamMode = data.chara.mediaStreamMode;
+				othreChara.videoBroadcastReady = data.chara.videoBroadcastReady;
 				createMesh(othreChara);
 				otherCharasArr.push(othreChara);
 				console.log(othreChara.mediaStreamMode);
@@ -144,7 +195,7 @@ $(document).ready(function(){
 			});
 
 
-			socket.on('emit_from_server_charaRemove', function(data){
+			socket.on('charaRemove', function(data){
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 					if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
 					console.log(otherCharasArr[i]);
@@ -157,7 +208,7 @@ $(document).ready(function(){
 				$('#testDiv').html('現在の人数：' + data.numOfChara);
 			});
 
-			socket.on('emit_from_server_sendMsg', function(data) {
+			socket.on('sendMsg', function(data) {
 				otherCharasArr.forEach(function(icon, i, icons) {
 					if(icon.socketId == data.socketId) {
 						console.log('きてます');
@@ -172,7 +223,7 @@ $(document).ready(function(){
 
 		$('#sendMsgBtn').on("click",function(){
 			myChara.SendChat();
-			socket.emit('emit_from_client_sendMsg', {str: myChara.str, chatShowCount: myChara.chatShowCount});
+			socket.emit('sendMsg', {str: myChara.str, chatShowCount: myChara.chatShowCount});
 		});
 
 
@@ -180,7 +231,8 @@ $(document).ready(function(){
 			var texture  = new THREE.ImageUtils.loadTexture(charaX.textureImg);
 			//球体を表示する部分
 			charaX.mesh = new THREE.Mesh(
-				new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
+//				new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
+				new THREE.TorusKnotGeometry(16, 8, 128, 32, 2, 3),
 				new THREE.MeshPhongMaterial({
 					map: texture
 				}));
@@ -195,7 +247,7 @@ $(document).ready(function(){
 			//sceneに追加
 			
 			charaX.voiceBallMeshSize = 140;
-			charaX.voiceBallMeshScale = 0.1;
+			charaX.voiceBallMeshScale = 0.01;
 			charaX.voiceBallMesh = new THREE.Mesh(
 				new THREE.SphereGeometry(charaX.voiceBallMeshSize, 100, 100),
 				new THREE.MeshPhongMaterial({
@@ -231,22 +283,25 @@ $(document).ready(function(){
 		myChara.socketId = socket.id;
 		//		myIcon.Init( 0, 0, -300, './img/IMG_2706.jpg' ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
 //		myIcon.InitPos( 0, 0, -300 );
-		myChara.InitPos( 0, 0, -300 );
+		Math.floor(Math.random() * 1000) - 500;
+		myChara.InitPos( Math.floor(Math.random() * 500) - 250, 0, Math.floor(Math.random() * 500) - 500 );
+//		myChara.InitPos( 0, 0, -300 );
 //		myChara.textureImg = './img/IMG_2706.jpg';
 		myChara.textureImg = './img/IMG_2706.jpg';
 //		mkSphere(myIcon);
 		createMesh(myChara);
+		console.log(myChara);
 //		scene.add(myIcon.mesh);
 		scene.add(myChara.mesh);
 		
 
 
-
+//--------------------------------------------------------------camera
 //		var width = 1280;
 //		var height = 640;
 		var width = window.innerWidth;
 		var height = window.innerHeight;
-		var fov = 60;//フレーム数
+		var fov = 40;
 		var aspect = width / height;
 //		$(window).resize(function() {
 //			width = window.innerWidth;
@@ -259,10 +314,35 @@ $(document).ready(function(){
 //			aspect = width / height;
 //		};
 		var near = 1;
-		var far = 4000;
+		var far = 10000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-		camera.position.set(0, 0, 200);
+//		camera.Pos = [0,0,0];
+//		camera.moveSpeed = 4;
+		camera.position.set(0, 0, 300);
+//		camera.position.set(camera.Pos[0], camera.Pos[1], camera.Pos[2]);
 		console.log(camera);
+//		function cameraMove(cameraMoveRight,cameraMoveLeft,cameraMoveUp,cameraMoveDown,cameraMoveForward,cameraMoveBackward) {
+//			if(cameraMoveRight) {// 右キーが押された
+//				camera.Pos[0] -= camera.moveSpeed;
+//			}
+//			else if(cameraMoveLeft) {// 左キーが押された
+//				camera.Pos[0] += camera.moveSpeed;
+//				console.log(camera.Pos);
+//			}
+//			if(cameraMoveUp) {// 上キーが押された
+//				camera.Pos[1] += camera.moveSpeed;
+//			}
+//			else if(cameraMoveDown) {// 下キーが押された
+//				camera.Pos[1] -= camera.moveSpeed;
+//			}
+//			if(cameraMoveForward) {// 上キーが押された
+//				camera.Pos[2] -= camera.moveSpeed;
+//			}
+//			else if(cameraMoveBackward) {// 下キーが押された
+//				camera.Pos[2] += camera.moveSpeed;
+//			}
+//		}
+//-------------------------------------------------------------camera end
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
@@ -285,16 +365,16 @@ $(document).ready(function(){
 		var textureMesh  = new THREE.ImageUtils.loadTexture('./img/son.png');
 
 //		var mesh = new THREE.Mesh(geometry, material);
-		var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+		var mesh1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
 			map: textureMesh
 		}));
-		mesh.position.x = -100;
-		mesh.position.y = 0;
-		mesh.position.z = -100;
+		mesh1.position.x = -100;
+		mesh1.position.y = 0;
+		mesh1.position.z = -100;
 
-		mesh.castShadow = true;
-		mesh.receiveShadow = true;
-		scene.add(mesh);
+		mesh1.castShadow = true;
+		mesh1.receiveShadow = true;
+		scene.add(mesh1);
 
 		var geometry2 = new THREE.CubeGeometry(20, 20, 20);
 //		var material2 = new THREE.MeshPhongMaterial({
@@ -331,29 +411,58 @@ $(document).ready(function(){
 		ground.receiveShadow = true;
 		//視覚効果を作る
 		scene.add(ground);
-
+		
+		
+//		// 形状データを作成
+//		var geometry4 = new THREE.Geometry();
+//		var numParticles = 200000;
+//		for(var i = 0 ; i < numParticles ; i++) {
+//			geometry4.vertices.push(new THREE.Vector3(
+//				Math.random() * 2000 - 1000,
+//				Math.random() * 2000 - 1000,
+//				Math.random() * 2000 - 1000));
+//		}
+//		// マテリアルを作成
+//		var texture4 =THREE.ImageUtils.loadTexture('./img/particle1.png');
+//		var material4 = new THREE.ParticleBasicMaterial({
+//			size: 10, color: 0xff8888, blending: THREE.AdditiveBlending,
+//			transparent: true, depthTest: false, map: texture4, fog: true });
+//		scene.fog = new THREE.FogExp2(0x0000ff, 0.00035);
+//
+//		// 物体を作成
+//		var mesh4 = new THREE.ParticleSystem(geometry4, material4);
+//		mesh4.position = new THREE.Vector3(0, 0, -1200);
+//		mesh4.sortParticles = false;
+//		scene.add(mesh4);
+		
 
 		//myCharaの位置が変わったかどうかを確認する為の変数
 		var Pos = [];
+		//myCharaの位置が変わったかどうかを確認する為の変数
+//		var cameraPos = [];
+		
 		var countFrames = 0;
 		var capacityOfVoiceChat = 3;
 
 		function positionChange() {
 			if (myChara) {
 				if (myChara.Pos[0] != Pos[0] || myChara.Pos[1] != Pos[1] || myChara.Pos[2] != Pos[2]) {
-					socket.emit('emit_from_client_charaPosChanged', myChara.Pos);
+					socket.emit('charaPosChanged', myChara.Pos);
 				}
 			}
 		}
 
+
 		renderer.render(scene, camera);
 
-		$('body').on('click', function() {
-			myChara.voiceBallMeshScale = 1;
-		});
+		
+//		ボイスエフェクト確認コード
+//		$('body').on('click', function() {
+//			myChara.voiceBallMeshScale = 1;
+//		});
 		
 		//mediaStreamModeを変更
-		socket.on('emit_from_server_modeChange', function (data) {//{ socketId: socket.id, mediaStreamMode: mediaStreamMode}
+		socket.on('modeChange', function (data) {//{ socketId: socket.id, mediaStreamMode: mediaStreamMode}
 			console.log(data);
 			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId) {
@@ -374,28 +483,32 @@ $(document).ready(function(){
 		
 		function update() {
 			//-----------------------------------音声ビジュアルエフェクト
-			//符号なし8bitArrayを生成
-			var data = new Uint8Array(analyser.frequencyBinCount);
-			//周波数データ
-			analyser.getByteFrequencyData(data);
-			var volume = false;
-			for (var i = 0; i < data.length; ++i) {
-				//上部の描画
-				//			context2.fillRect(i*5, 0, 5, data[i]*2);
-				//下部の描画
-				//			context2.fillRect(i*5, h, 5, -data[i]*2);
-				//console.log( data[i] > 100 );
-				if (data[i] > 200) {
-					volume = true;
+			function voicePickUpFx(){
+				//符号なし8bitArrayを生成
+				var data = new Uint8Array(analyser.frequencyBinCount);
+				//周波数データ
+				analyser.getByteFrequencyData(data);
+				var volume = false;
+				for (var i = 0; i < data.length; ++i) {
+					//上部の描画
+					//			context2.fillRect(i*5, 0, 5, data[i]*2);
+					//下部の描画
+					//			context2.fillRect(i*5, h, 5, -data[i]*2);
+					//console.log( data[i] > 100 );
+					if (data[i] > 200) {
+						volume = true;
+					}
+				}
+				if (volume) {
+					if (myChara) {
+						//					myChara.countVoice = 100;
+						myChara.voiceBallMeshScale = 1;
+						socket.emit('voicePU', myChara.voiceBallMeshScale);
+					}
 				}
 			}
-			if (volume) {
-				if (myChara) {
-					//					myChara.countVoice = 100;
-					myChara.voiceBallMeshScale = 1;
-					socket.emit('emit_from_client_voicePU', myChara.voiceBallMeshScale);
-				}
-			}
+			voicePickUpFx();
+
 			//-----------------------------------音声ビジュアルエフェクト
 			
 			
@@ -404,12 +517,22 @@ $(document).ready(function(){
 				Pos[1] = myChara.Pos[1];
 				Pos[2] = myChara.Pos[2];
 			}
+//			if(camera){
+//				camera.position.set(camera.Pos[0], camera.Pos[1], camera.Pos[2]);
+//			}
+			
+//			if (camera) {
+//				cameraPos[0] = camera.Pos[0];
+//				cameraPos[1] = camera.Pos[1];
+//				cameraPos[2] = camera.Pos[2];
+//			}
+
 			controls.update();//orbitcontrolのメソッド
 
-			mesh.rotation.set(
-				mesh.rotation.x + 0.005,
-				mesh.rotation.y + 0.001,
-				mesh.rotation.z + 0.01
+			mesh1.rotation.set(
+				mesh1.rotation.x + 0.005,
+				mesh1.rotation.y + 0.001,
+				mesh1.rotation.z + 0.01
 			);
 			mesh2.rotation.set(
 				0,
@@ -429,16 +552,51 @@ $(document).ready(function(){
 				moveForward,
 				moveBackward
 			);
+			
+			if(myChara.mediaStreamMode == 'audio' && myChara.mesh.geometry.type != "SphereGeometry") {
+				myChara.mesh.geometry = new THREE.SphereGeometry(30, 100, 100);
+			}else if (myChara.mediaStreamMode == 'video' && myChara.mesh.geometry.type != "BoxGeometry") {
+				myChara.mesh.geometry = new THREE.CubeGeometry(40, 40, 40);//球のジオメトリ　（半径：２０）
+			} else if (myChara.mediaStreamMode == false && myChara.mesh.geometry.type != "TorusKnotGeometry") {
+				myChara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
+//				charaX.mesh = new THREE.Mesh(
+//					//				new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
+//					new THREE.TorusKnotGeometry(30, 20, 128, 32, 2, 3),
+//					new THREE.MeshPhongMaterial({
+//						map: texture
+//					}));
+//				myChara.mesh.geometry = new THREE.ParametricGeometry(function(u, v){
+//					u = (u - 0.5) * 2 * Math.PI; v = (v - 0.5) * 2 * Math.PI;
+//					return new THREE.Vector3(
+//						2 * Math.sin(3 * u) / (2 + Math.cos(v)) * 0.25,
+//						2 * (Math.sin(u) + 2 * Math.sin(2 * u)) /
+//						(2 + Math.cos(v + 2 * Math.PI / 3)) * 0.18,
+//						(Math.cos(u) - 2 * Math.cos(2 * u)) * (2 + Math.cos(v)) *
+//						(2 + Math.cos(v + 2 * Math.PI / 3)) / 4 * 0.25);
+//				}, 64, 64, true);
+			}
+			
+			
 			myChara.mesh.position.set(
 				myChara.Pos[0],
 				myChara.Pos[1],
 				myChara.Pos[2]
 			);
-			myChara.mesh.rotation.set(
-				myChara.mesh.rotation.x + 0.0,
-				myChara.mesh.rotation.y + 0.02,
-				myChara.mesh.rotation.z + 0.0
-			);
+			if(myChara.mesh.geometry.type == "SphereGeometry") {
+				myChara.mesh.rotation.set(
+					myChara.mesh.rotation.x + 0.0,
+					myChara.mesh.rotation.y + 0.02,
+					myChara.mesh.rotation.z + 0.0
+				);
+			} else {
+				myChara.mesh.rotation.set(
+					myChara.mesh.rotation.x + 0.01,
+					myChara.mesh.rotation.y + 0.01,
+					myChara.mesh.rotation.z + 0.01
+				);
+			}
+
+			
 			myChara.voiceBallMesh.position.set(
 				myChara.Pos[0],
 				myChara.Pos[1],
@@ -512,8 +670,8 @@ $(document).ready(function(){
 //		var clock = new THREE.Clock();
 
 
-		socket.on('emit_from_server_peerCallConnected', function (data) {
-			console.log('emit_from_server_peerCallConnectedきた〜〜〜〜〜〜〜〜〜〜');
+		socket.on('peerCallConnected', function (data) {
+			console.log('peerCallConnectedきた〜〜〜〜〜〜〜〜〜〜');
 			otherCharasArr.forEach(function (icon, i, icons) {
 				if (icon.socketId == data.socketId) {
 					if (!otherCharasArr[i].talkingNodesSocketIds.length) {
@@ -528,15 +686,22 @@ $(document).ready(function(){
 			});
 		});
 		
-		socket.on('emit_from_server_voicePU', function (data) {
+		socket.on('voicePU', function (data) {
 			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId) {
 					otherCharasArr[i].voiceBallMeshScale = data.voiceBallMeshScale;
 				}
 			});
 		});
+		socket.on('videoBroadcastReady_Update', function (data) {
+			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId) {
+					otherCharasArr[i].videoBroadcastReady = data.videoBroadcastReady;
+				}
+			});
+		});
 		
-		socket.on('emit_from_server_peerCallDisconnected', function (data) {
+		socket.on('peerCallDisconnected', function (data) {
 			otherCharasArr.forEach(function (icon, i, icons) {
 				if (icon.socketId == data.socketId) {
 					if (otherCharasArr[i].talkingNodesSocketIds.length) {
@@ -550,6 +715,31 @@ $(document).ready(function(){
 			});
 		});
 		
+		socket.on('myCharaUpdate', function(data) {
+			console.log(data);
+			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId ) {
+//					otherCharasArr[i] = MyIcon.fromObject( data, data.PosX, data.PosY );
+					otherCharasArr[i] = Chara.fromObject( data );
+				}
+			});
+		});
+		
+		socket.on('isVideoChatting_Update', function (data) {
+			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId ) {
+					otherCharasArr[i].isVideoChatting = data.isVideoChatting;
+				}
+			});
+		});
+		socket.on('videoBroadcastReady_Update', function (data) {
+			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId ) {
+					otherCharasArr[i].videoBroadcastReady = data.videoBroadcastReady;
+				}
+			});
+		});
+		
 		
 
 		(function renderLoop() {
@@ -558,11 +748,11 @@ $(document).ready(function(){
 			update();
 			
 			(function(){
-				$('#testDiv5').html('myChara.mediaStreamMode : ' + myChara.mediaStreamMode);
+				$('#testDiv5').html('myChara.mediaStreamMode : ' + myChara.mediaStreamMode + ' , myChara.videoBroadcastReady : ' + myChara.videoBroadcastReady);
 				if(otherCharasArr.length > 0){
 					var $test = $('<div></div>');
 					otherCharasArr.forEach(function(chara,i,otherCharasArr) {
-						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode));
+						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode + ' , cahra.videoBroadcastReady : ' + chara.videoBroadcastReady));
 					});
 					$('#testDiv7').html($test);
 					
@@ -589,7 +779,7 @@ $(document).ready(function(){
 					socketId: icon.socketId,
 					call: call
 				});
-				socket.emit('emit_from_client_peerCallConnected', icon.socketId);
+				socket.emit('peerCallConnected', icon.socketId);
 			}
 			function videoCallAndAddEvent(icon) {
 				var call = peer.call(icon.peerId, myStream);
@@ -604,11 +794,11 @@ $(document).ready(function(){
 									$('#modal_base').removeClass('active');
 									$('#modal_base').delay(800).fadeOut('slow', function() {
 										$('#modal_overlay').fadeOut("slow").remove();
+										myChara.isVideoChatting = false;
+										isModalActive = false;
 										//				$('#modal_base').removeClass('active');
 									});
-									isModalActive = false;
 								},1000);
-
 							}
 							modalOff();
 						}
@@ -616,6 +806,54 @@ $(document).ready(function(){
 				});
 				myChara.videoChatCall = call;
 			}
+			function videoSendAndAddEvent(icon) {
+				console.log('videoSend');
+				var call = peer.call(icon.peerId, myStream);
+//				function modalOn() {
+//					$('body').append('<div id="modal_overlay"><div>');
+//					$('#modal_overlay').delay(1000).fadeIn("slow");
+//					$('#modal_base').show(function() {
+//						$('#modal_base').addClass('active');
+//					});
+//					//		$('#modal_content').delay(1000).fadeIn("slow");
+//					isModalActive = true;
+//				}
+				modalOn();
+				//		$('div#videoElems').prepend($('<video></video>', {
+				$('#modal_content').prepend($('<video></video>', {
+					'class': 'videoWindow videoChatting',
+//					'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
+					'data-peer': call.peer,//mediaConnection.peerを持たせる
+					src: URL.createObjectURL(myStream),//自分のstreamを流す
+					autoplay: true
+				}));
+				$('#modal_content').addClass('active');
+
+				call.on('close', function () { //callが終了した際のイベントを設定
+					console.log('close!!!!!!!!!!!!!!!!!!');
+					$('video').each(function (i, element) { //videoタグをサーチ
+						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+							$(element).remove();
+							console.log('削除！');
+							function modalOff() {
+								$('#modal_content').removeClass('active');
+								setTimeout(function() {
+									$('#modal_base').removeClass('active');
+									$('#modal_base').delay(800).fadeOut('slow', function() {
+										$('#modal_overlay').fadeOut("slow").remove();
+										myChara.isVideoChatting = false;
+										isModalActive = false;
+										//				$('#modal_base').removeClass('active');
+									});
+								},1000);
+							}
+							modalOff();
+						}
+					});
+				});
+				myChara.videoChatCall = call;
+			}
+
 
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
@@ -634,13 +872,8 @@ $(document).ready(function(){
 								var diffX = icon.Pos[0] - myChara.Pos[0];
 								var diffY = icon.Pos[1] - myChara.Pos[1];
 								var diffZ = icon.Pos[2] - myChara.Pos[2];
-								console.log('myChara.mediaStreamMode : ' + myChara.mediaStreamMode);
-								console.log('icon.mediaStreamMode : ' + icon.mediaStreamMode);
-//								console.log(icon.mediaStreamMode);
-								
 								if (myChara.mediaStreamMode == 'audio') {
 									var talkAbleDistance = 140;
-	//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
 										if (icon.talkingNodesSocketIds.length < capacityOfVoiceChat) { //iconが話せる
 											if (myChara.talkingNodes.length < capacityOfVoiceChat) { //myIconが話せる
@@ -677,9 +910,8 @@ $(document).ready(function(){
 											myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
 												if (talkingNode.socketId == icon.socketId) { //切断する
 													talkingNode.call.close();
-
 													arr.splice(i, 1);
-													socket.emit('emit_from_client_peerCallDisconnected', icon.socketId);
+													socket.emit('peerCallDisconnected', icon.socketId);
 												}
 											});
 										}
@@ -688,24 +920,33 @@ $(document).ready(function(){
 									var videoTalkAbleDistance = 40;
 									//								if ((diffX * diffX) + (diffY * diffY) < 140 * 140) { //一定距離以内なら
 									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
-										if(!myChara.isVideoChatting){//自分がvideoチャット中でない場合
+										if(!myChara.isVideoChatting && !isModalActive ){//自分がvideoチャット中でない場合
 											if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
 												myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
 													if (talkingNode.socketId == icon.socketId) { //切断する
 														talkingNode.call.close();
-
 														arr.splice(i, 1);
-														socket.emit('emit_from_client_peerCallDisconnected', icon.socketId);
+														socket.emit('peerCallDisconnected', icon.socketId);
 													}
 												});
 											}
 											myChara.isVideoChatting = true;
 											videoCallAndAddEvent(icon); //callしてイベント設置
 										}
-									} else { //一定距離以外なら
-										if (myChara.isVideoChatting) {
-											myChara.isVideoChatting = false;
+									} else if (!myChara.videoBroadcastReady) { //一定距離以外なら
+										if (myChara.isVideoChatting || isModalActive ) {
 											myChara.videoChatCall.close();
+										}
+									}
+									//------------------------------------------------ビデオ配信
+									if(myChara.videoBroadcastReady == 'readyToSend' && !myChara.isVideoChatting ) {
+										if(icon.videoBroadcastReady == 'readyToView' ) {
+											videoSendAndAddEvent(icon);
+											myChara.isVideoChatting = true;
+//											socket.emit('myCharaUpdate', myChara);
+											socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+											myChara.isVideoBroadcasting = 'sending';
+											socket.emit('isVideoBroadcasting', myChara.isVideoBroadcasting);
 										}
 									}
 								}
@@ -713,7 +954,30 @@ $(document).ready(function(){
 						});
 					}
 				}
-			}
+				var diff1X = myChara.Pos[0] - mesh1.position.x;
+				var diff1Y = myChara.Pos[1] - mesh1.position.y;
+				var diff1Z = myChara.Pos[2] - mesh1.position.z;
+				var diff2X = myChara.Pos[0] - mesh2.position.x;
+				var diff2Y = myChara.Pos[1] - mesh2.position.y;
+				var diff2Z = myChara.Pos[2] - mesh2.position.z;
+				if ((diff1X * diff1X) + (diff1Y * diff1Y) + (diff1Z * diff1Z ) < 40 * 40) {
+					//					myChara.isVideoBroadcastingModeReady = 'readyToSend';
+					myChara.isVideoBroadcasting = 'sending';
+					socket.emit('isVideoBroadcasting_Update', myChara.isVideoBroadcasting);
+
+				} else if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {
+					myChara.videoBroadcastReady = 'readyToView';
+					socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
+
+				} else {
+					myChara.videoBroadcastReady = false;
+					socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
+
+				}
+				console.log(myChara.videoBroadcastReady);
+
+			}//if (countFrames % 30 == 0) { //30フレーム毎に実行
+			
 
 			if (myChara) {
 				//				myIcon.Draw(context,0,0); //myIconの描画メソッド呼出
@@ -740,7 +1004,7 @@ $(document).ready(function(){
 					myChara.voiceBallMeshScale -= 0.01;
 				}
 			}
-			socket.on('emit_from_server_charaPosChanged', function (data) {
+			socket.on('charaPosChanged', function (data) {
 				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 					if (chara.socketId == data.socketId) {
 						otherCharasArr[i].Pos = data.Pos;

@@ -19,7 +19,7 @@ var isModalActive = false;
 function gotStream(stream){
 //	myChara.mediaStreamMode = 'audio';
 	myChara.mediaStreamMode = 'video';
-	socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
+	socket.emit('modeChange', myChara.mediaStreamMode);
 	myStream = stream;
 	//streamからAudioNodeを作成
 	var mediaStreamSource = audioContext.createMediaStreamSource(stream);
@@ -31,6 +31,7 @@ function gotStream(stream){
 //	analyser.connect(audioContext.destination);
 	//mediaStreamSource.connect(audioContext.destination);
 }
+
 //エラー処理
 var errBack = function(e){
 	console.log("Web Audio error:",e.code);
@@ -39,21 +40,21 @@ var errBack = function(e){
 
 //マイクの有無を調べる
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-if(navigator.getUserMedia){
-	//マイク使って良いか聞いてくる
-	navigator.webkitGetUserMedia({"video": true, "audio":true},gotStream,errBack);
-	console.log(navigator);
-}else{
-	console.log("マイクデバイスがありません");
-}
+//if(navigator.getUserMedia){
+//	//マイク使って良いか聞いてくる
+//	navigator.webkitGetUserMedia({"video": true, "audio":true},gotStream,errBack);
+//	console.log(navigator);
+//}else{
+//	console.log("マイクデバイスがありません");
+//}
 //-------------------------------------マイク取得
 
 
 //------------------------------------------------------videoChat
 function mediaStreamOff() {
-	myStream.stop();
+	if(myStream) myStream.stop();
 	myChara.mediaStreamMode = false;
-	socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
+	socket.emit('modeChange', myChara.mediaStreamMode);
 }
 function videoModeOn() {
 	if(myChara.mediaStreamMode == 'video') {
@@ -67,9 +68,13 @@ function videoModeOn() {
 
 	mediaStreamOff();
 	var videoObj = { video: true, "audio":true };
+	
 	function gotVideoStream(stream){
 		myChara.mediaStreamMode = 'video';
-		socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
+		socket.emit('modeChange', myChara.mediaStreamMode);
+		console.log(myChara);
+
+//		socket.emit('myCharaUpdate', myChara);
 		console.log(stream);
 		myStream = stream;//videoになる
 		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
@@ -84,18 +89,20 @@ function videoModeOn() {
 		console.log("マイクデバイスがありません");
 	}
 }
+
+function gotAudioStream(stream){
+	myChara.mediaStreamMode = 'audio';
+	socket.emit('modeChange', myChara.mediaStreamMode);
+	console.log(stream);
+	myStream = stream;
+	var mediaStreamSource = audioContext.createMediaStreamSource(stream);
+	mediaStreamSource.connect(filter);
+	filter.connect(analyser);
+}
+
 function audioModeOn() {
 	mediaStreamOff();
 	var videoFalseAudioObj = { video: false, "audio":true };
-	function gotAudioStream(stream){
-		myChara.mediaStreamMode = 'audio';
-		socket.emit('emit_from_client_modeChange', myChara.mediaStreamMode);
-		console.log(stream);
-		myStream = stream;
-		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
-		mediaStreamSource.connect(filter);
-		filter.connect(analyser);
-	}
 	if(navigator.getUserMedia){
 		//マイク使って良いか聞いてくる
 		navigator.webkitGetUserMedia(videoFalseAudioObj,gotAudioStream,errBack);
@@ -103,16 +110,16 @@ function audioModeOn() {
 		console.log("マイクデバイスがありません");
 	}
 }
-$('.videoChatModeBtn').on('click', function() {
-	if(myChara.mediaStreamMode == 'audio') {
-		videoModeOn();
-		$(this).html('videoModeOn').css({'background-color': '#faa'});
-	} else if (myChara.mediaStreamMode == 'video') {
-		audioModeOn();
-		$(this).html('audioModeOn').css({'background-color': '#aaf'});
-	}
 
-});
+//$('.videoChatModeBtn').on('click', function() {
+//	if(myChara.mediaStreamMode == 'audio') {
+//		videoModeOn();
+//		$(this).html('videoModeOn').css({'background-color': '#faa'});
+//	} else if (myChara.mediaStreamMode == 'video') {
+//		audioModeOn();
+//		$(this).html('audioModeOn').css({'background-color': '#aaf'});
+//	}
+//});
 //------------------------------------------------------videoChat
 
 
@@ -154,21 +161,21 @@ console.log(peer);
 //	console.log(stream);
 //	console.log(myStream);
 //};
+function modalOn() {
+	$('body').append('<div id="modal_overlay"><div>');
+	$('#modal_overlay').delay(1000).fadeIn("slow");
+	$('#modal_base').show(function() {
+		$('#modal_base').addClass('active');
+	});
+	//		$('#modal_content').delay(1000).fadeIn("slow");
+	isModalActive = true;
+}
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
 	console.log(stream);
 	console.log(mediaConnection);
 //	$('#video').prop('src', URL.createObjectURL(stream));
 	if( myChara.mediaStreamMode == 'video' ) {
-		function modalOn() {
-			$('body').append('<div id="modal_overlay"><div>');
-			$('#modal_overlay').delay(1000).fadeIn("slow");
-			$('#modal_base').show(function() {
-				$('#modal_base').addClass('active');
-			});
-			//		$('#modal_content').delay(1000).fadeIn("slow");
-			isModalActive = true;
-		}
 		modalOn();
 //		$('div#videoElems').prepend($('<video></video>', {
 		$('#modal_content').prepend($('<video></video>', {
@@ -209,9 +216,11 @@ peer.on('open', function () {
 		Pos: myChara.Pos,
 		textureImg: myChara.textureImg,
 		peerId: myChara.peerId,
-		mediaStreamMode: myChara.mediaStreamMode
+		mediaStreamMode: myChara.mediaStreamMode,
+		videoBroadcastReady: myChara.videoBroadcastReady,
+		isVideoBroadcasting: myChara.isVideoBroadcasting
 	};
-	socket.emit('emit_from_client_join', sendCharaData);
+	socket.emit('join', sendCharaData);
 //	$('#peer-id').text(id);
 //	peer.listAllPeers(function(list) {
 //		console.dir(list);
@@ -248,7 +257,11 @@ peer.on('open', function () {
 
 peer.on('call', function (call) {//仮引数callはmediaConnection。リモートのpeerがあなたに発信してきたときに発生します。mediaConnectionはこの時点でアクティブではありません。つまり、最初に応答する必要があります
 	console.log(call);
-	call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+	if( !myChara.videoBroadcastReady ) {
+		call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+	} else if ( myChara.videoBroadcastReady == 'readyToView' ){
+		call.answer();
+	}
 //	call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
 	call.on('stream', function (stream) {
 		console.log(stream);

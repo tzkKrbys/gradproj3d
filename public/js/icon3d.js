@@ -57,7 +57,6 @@ MyIcon.prototype.Draw = function(img, offsetX, offSetY, offSetZ){ //引数 Canva
 	img.transform(-1, 0, 0, 1, 0, 0);//context . transform(m11, m12, m21, m22, dx, dy)下記の通りに引数に指定されたマトリックスを適用して、変換マトリックスを変更します。
 	img.drawImage(this.data.iconImg, 0, 0, 160, 160, -this.data.PosX - this.data.radius, this.data.PosY - this.data.radius, this.data.radius * 2, this.data.radius * 2);//drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
 	img.restore();//context . restore() スタックの最後の状態を抜き出し、その状態をコンテキストに復元します。
-	//socket.emit('client_from_emit_icon_draw', this);
 }
 
 /*動き*/
@@ -170,17 +169,8 @@ function Chara(){
 	this.mesh;
 	this.socketId;
 	this.Pos = [0, 0, 0];					// x座標
-//	this.PosX;					// x座標
-//	this.PosY;					// y座標
-//	this.PosZ;					// y座標
-	this.moveSpeed;				// x座標移動加算量
-//	this.AddNumX;				// x座標移動加算量
-//	this.AddNumY;				// y座標移動加算量
-//	this.AddNumZ;				// y座標移動加算量
+	this.moveSpeed;				// 座標移動加算量
 	this.radius = 20;			// 円の半径
-//	this.relX;					// 円の中心とマウスの相対位置
-//	this.relY;					// 円の中心とマウスの相対位置
-//	this.relZ;					// 円の中心とマウスの相対位置
 	this.dragging = false;//ドラッグ中かどうか
 	this.onObj = false;//マウスがアイコンに乗っかってるかどうか
 	this.chatShowCount;
@@ -194,9 +184,11 @@ function Chara(){
 	this.voiceBallMesh;
 	this.voiceBallMeshSize;
 	this.voiceBallMeshScale;
-	this.mediaStreamMode;
+	this.mediaStreamMode = false;
 	this.isVideoChatting = false;
-	this.videoChatCall;
+	this.videoChatCall;//切断する際に必要
+	this.videoBroadcastReady = false;//false,readyToSend,readyToView ビデオ配信準備用
+	this.isVideoBroadcasting = false;//false,sending,viewing ビデオ配信中判断用
 }
 
 /*初期化関数*/
@@ -213,16 +205,13 @@ Chara.prototype.InitPos = function( x, y, z ){//引数にx,yの初期位置を�
 //	this.iconImg.src = "../img/circleParis.png";//アイコン画像を渡す
 }
 
-Chara.fromObject = function( obj, x, y, z ) {
+Chara.fromObject = function( obj ) {
 	var chara = new Chara();
 //	icon.xxx = obj.xxx;
-	console.log(obj);
 	Object.keys(obj).forEach(function (key) {
 		chara.data[key] = obj[key];
 		
 	});
-	chara.InitPos( x, y, z );
-	// ...
 	return chara;
 }
 
@@ -233,7 +222,6 @@ Chara.prototype.Draw = function(img, offsetX, offSetY, offSetZ){ //引数 Canvas
 	img.transform(-1, 0, 0, 1, 0, 0);//context . transform(m11, m12, m21, m22, dx, dy)下記の通りに引数に指定されたマトリックスを適用して、変換マトリックスを変更します。
 	img.drawImage(this.iconImg, 0, 0, 160, 160, -this.PosX - this.radius, this.PosY - this.radius, this.radius * 2, this.radius * 2);//drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
 	img.restore();//context . restore() スタックの最後の状態を抜き出し、その状態をコンテキストに復元します。
-	//socket.emit('client_from_emit_icon_draw', this);
 }
 
 /*動き*/
@@ -405,7 +393,6 @@ Chara.prototype.mousePosCheck = function (event) {
 //	img.transform(-1, 0, 0, 1, 0, 0);//context . transform(m11, m12, m21, m22, dx, dy)下記の通りに引数に指定されたマトリックスを適用して、変換マトリックスを変更します。
 //	img.drawImage(this.iconImg, 0, 0, 160, 160, -this.PosX - this.radius, this.PosY - this.radius, this.radius * 2, this.radius * 2);//drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
 //	img.restore();//context . restore() スタックの最後の状態を抜き出し、その状態をコンテキストに復元します。
-//	//socket.emit('client_from_emit_icon_draw', this);
 //}
 //
 ///*動き*/
