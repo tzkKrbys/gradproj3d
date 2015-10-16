@@ -757,8 +757,10 @@ $(document).ready(function(){
 		function printProperties(obj) {
 			var properties = '';
 			for (var prop in obj){
-				if(obj[prop] == )
-				properties += prop + "=" + obj[prop] + "\n";
+				var type  = typeof(eval("obj." + prop));
+				if(type != 'function') {
+					properties += prop + "=" + obj[prop] + "\n<br>";
+				}
 			}
 //			alert(properties);
 			return properties;
@@ -771,16 +773,19 @@ $(document).ready(function(){
 			
 			(function(){
 				$('#testDiv5').html('myChara.mediaStreamMode : ' + myChara.mediaStreamMode + ' , myChara.videoBroadcastReady : ' + myChara.videoBroadcastReady);
-				if(otherCharasArr.length > 0){
-					var $test = $('<div></div>');
-					otherCharasArr.forEach(function(chara,i,otherCharasArr) {
-						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode + ' , cahra.videoBroadcastReady : ' + chara.videoBroadcastReady));
-//						$test.append($('<div></div>').html(printProperties(chara)));
-//						console.log(printProperties(chara));
-					});
-					$('#testDiv7').html($test);
-					
+				if(countFrames % 60 == 0){
+					if(otherCharasArr.length > 0){
+						var $test = $('<div></div>');
+						otherCharasArr.forEach(function(chara,i,otherCharasArr) {
+							//						$test.append($('<div></div>').html(i + ':' + chara.mediaStreamMode + ' , cahra.videoBroadcastReady : ' + chara.videoBroadcastReady));
+							$test.html(printProperties(chara));
+							console.log(printProperties(chara));
+						});
+						$('#testDiv7').html($test);
+
+					}
 				}
+
 //				$('#testDiv6').html('otherCharasArr[0].mediaStreamMode' + otherCharasArr[0].mediaStreamMode);
 //				$('#testDiv7').html('otherCharasArr[1].mediaStreamMode' + otherCharasArr[1].mediaStreamMode);
 //				var testArr = otherCharasArr.map(function(e) {
