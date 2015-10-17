@@ -314,11 +314,11 @@ $(document).ready(function(){
 //			aspect = width / height;
 //		};
 		var near = 1;
-		var far = 20000;
+		var far = 40000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 //		camera.Pos = [0,0,0];
 //		camera.moveSpeed = 4;
-		camera.position.set(0, 60, 500);
+		camera.position.set(0, 100, 500);
 //		camera.position.set(camera.Pos[0], camera.Pos[1], camera.Pos[2]);
 		console.log(camera);
 //		function cameraMove(cameraMoveRight,cameraMoveLeft,cameraMoveUp,cameraMoveDown,cameraMoveForward,cameraMoveBackward) {
@@ -358,7 +358,7 @@ $(document).ready(function(){
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
 		
-		var ambientLight = new THREE.AmbientLight(0x444444);
+		var ambientLight = new THREE.AmbientLight(0x333333);
 		scene.add( ambientLight );
 
 //		var geometry = new THREE.CubeGeometry(30, 30, 30);
@@ -376,14 +376,14 @@ $(document).ready(function(){
 //		}));
 		var octahedronMesh = new THREE.Mesh(geometry, material);
 		octahedronMesh.position.x = 0;
-		octahedronMesh.position.y = 160;
+		octahedronMesh.position.y = 150;
 		octahedronMesh.position.z = -400;
 
 		octahedronMesh.castShadow = true;
 		octahedronMesh.receiveShadow = true;
 		scene.add(octahedronMesh);
 
-		var geometry2 = new THREE.CubeGeometry(200, 200, 200);
+		var geometry2 = new THREE.CubeGeometry(80, 80, 80);
 //		var material2 = new THREE.MeshPhongMaterial({
 //			color: 0x00ffdd
 //		});
@@ -401,7 +401,7 @@ $(document).ready(function(){
 
 		var moonTexture = new THREE.ImageUtils.loadTexture('./img/moon.jpg');
 		var moon = new THREE.Mesh(
-			new THREE.SphereGeometry(1000, 100, 100),
+			new THREE.SphereGeometry(500, 30, 30),
 			new THREE.MeshPhongMaterial({
 				map: moonTexture,
 				bumpMap:moonTexture,
@@ -409,47 +409,66 @@ $(document).ready(function(){
 //				color: 0xaaeecc
 			})
 		);
-		moon.position.x = 2000;
-		moon.position.y = 0;
-		moon.position.z = -6000;
+		//----------------------------------月
+		moon.Pos = [1600, 0, -4000];
+		moon.position.x = moon.Pos[0];
+		moon.position.y = moon.Pos[1];
+		moon.position.z = moon.Pos[2];
 		moon.castShadow = true;
 		moon.receiveShadow = true;
 		scene.add(moon);
-		
+		//----------------------------------木星
 		var jupiter = new THREE.Mesh(
-			new THREE.SphereGeometry(2000, 100, 100),
+			new THREE.SphereGeometry(3000, 30, 30),
 			new THREE.MeshPhongMaterial({
 				map: new THREE.ImageUtils.loadTexture('./img/jupiter.jpg')
 			})
 		);
-		jupiter.Pos = [-5000, -1000, -9000];
+		jupiter.Pos = [-7000, -500, -11000];
 		jupiter.position.x = jupiter.Pos[0];
 		jupiter.position.y = jupiter.Pos[1];
 		jupiter.position.z = jupiter.Pos[2];
 		jupiter.castShadow = true;
 		jupiter.receiveShadow = true;
 		scene.add(jupiter);
+		//-----------------------------------地球
+		var earthTexture = new THREE.ImageUtils.loadTexture('./img/earth.jpg');
+		var earth = new THREE.Mesh(
+			new THREE.SphereGeometry(2000, 50, 50),
+			new THREE.MeshPhongMaterial({
+				map: new THREE.ImageUtils.loadTexture('./img/earth.jpg'),
+				bumpMap:earthTexture,
+				bumpScale: 8
+			})
+		);
+		earth.Pos = [0, -2200, -400];
+		earth.position.x = earth.Pos[0];
+		earth.position.y = earth.Pos[1];
+		earth.position.z = earth.Pos[2];
+		earth.rotation.z = 90;
+		console.log(earth.position);
+		earth.castShadow = true;
+		earth.receiveShadow = true;
+		scene.add(earth);
 
-		var groundGeometry = new THREE.PlaneGeometry(1000, 1000);
-		//平面オブジェクトの色を設定します。
-		material3 = new THREE.MeshPhongMaterial({
-			color: 0xccccFF
-		});
-		var texture1  = new THREE.ImageUtils.loadTexture('./img/IMG_2706.jpg');
-//		var ground = new THREE.Mesh(groundGeometry, material3);
-		var ground = new THREE.Mesh(groundGeometry, new THREE.MeshPhongMaterial({
-			map: texture1,
-			side: THREE.DoubleSide,
-			bumpMap:moonTexture,
-			bumpScale: 2
-		}));
-		//続いて、平面オブジェクトの位置を調整します。
-		ground.rotation.x = 4.7;
-		ground.position.y = -200;
-		ground.position.z = -500;
-		ground.receiveShadow = true;
-		//視覚効果を作る
-		scene.add(ground);
+		//-----------------------------------平面
+//		var groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+//		material3 = new THREE.MeshPhongMaterial({
+//			color: 0xccccFF
+//		});
+//		var texture1  = new THREE.ImageUtils.loadTexture('./img/IMG_2706.jpg');
+////		var ground = new THREE.Mesh(groundGeometry, material3);
+//		var ground = new THREE.Mesh(groundGeometry, new THREE.MeshPhongMaterial({
+//			map: texture1,
+//			side: THREE.DoubleSide,
+//			bumpMap:moonTexture,
+//			bumpScale: 2
+//		}));
+//		ground.rotation.x = 4.7;
+//		ground.position.y = -200;
+//		ground.position.z = -500;
+//		ground.receiveShadow = true;
+//		scene.add(ground);
 		
 		
 //		// 形状データを作成
@@ -579,14 +598,22 @@ $(document).ready(function(){
 				jupiter.rotation.y + 0.0005,
 				jupiter.rotation.z + 0
 			);
+			jupiter.position.x = Math.sin(new Date().getTime() / 6000 ) * 10000 + earth.Pos[0];
+			jupiter.position.y = Math.sin(new Date().getTime() / 6000 ) * 1000 + earth.Pos[1] + 2000;
+			jupiter.position.z = Math.cos(new Date().getTime() / 6000 ) * 10000 + earth.Pos[2];
+			earth.rotation.set(
+				earth.rotation.x + 0.0002,
+				earth.rotation.y + 0,
+				earth.rotation.z + 0
+			);
 			mesh2.rotation.set(
 				0,
 				mesh2.rotation.y + 0.01,
 				mesh2.rotation.z + 0.01
 			);
-			mesh2.position.x = Math.sin(new Date().getTime() / 1000 ) * 1200 + 2000;
-			mesh2.position.y = Math.sin(new Date().getTime() / 1000 ) * 1200;
-			mesh2.position.z = Math.cos(new Date().getTime() / 1000 ) * 1200 - 6000;
+			mesh2.position.x = Math.sin(new Date().getTime() / 1000 ) * 800 + moon.Pos[0];
+			mesh2.position.y = Math.sin(new Date().getTime() / 1000 ) * 800 + moon.Pos[1];
+			mesh2.position.z = Math.cos(new Date().getTime() / 1000 ) * 800 + moon.Pos[2];
 			myChara.voiceBallMesh.scale.set(
 				myChara.voiceBallMeshScale,
 				myChara.voiceBallMeshScale,
@@ -1005,7 +1032,7 @@ $(document).ready(function(){
 													});
 												}
 												console.log('コールしました！！！！！');
-												videoCallAndAddEvent(chara); //callしてイベント設置
+												//videoCallAndAddEvent(chara); //callしてイベント設置
 //												myChara.isVideoChatting = true;
 //												socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
 											}
@@ -1061,13 +1088,14 @@ $(document).ready(function(){
 								bumpMap: new THREE.ImageUtils.loadTexture(myChara.textureImg),
 								bumpScale: 4
 								//				color: 0xaaeecc
-							})
-							jupiter.material = new THREE.MeshPhongMaterial({
-								map: new THREE.ImageUtils.loadTexture(myChara.textureImg),
-								bumpMap: new THREE.ImageUtils.loadTexture(myChara.textureImg),
-								bumpScale: 4
-								//				color: 0xaaeecc
-							})
+							});
+//							jupiterのtextureを変更
+//							jupiter.material = new THREE.MeshPhongMaterial({
+//								map: new THREE.ImageUtils.loadTexture(myChara.textureImg),
+//								bumpMap: new THREE.ImageUtils.loadTexture(myChara.textureImg),
+//								bumpScale: 4
+//								//				color: 0xaaeecc
+//							})
 							octahedronMesh.material = new THREE.MeshPhongMaterial({
 								color: 0x66eeaa
 							})
@@ -1092,9 +1120,10 @@ $(document).ready(function(){
 								bumpScale: 4
 								//				color: 0xaaeecc
 							});
-							jupiter.material = new THREE.MeshPhongMaterial({
-								map: new THREE.ImageUtils.loadTexture('./img/jupiter.jpg')
-							});
+//							jupiterのtextureを変更
+//							jupiter.material = new THREE.MeshPhongMaterial({
+//								map: new THREE.ImageUtils.loadTexture('./img/jupiter.jpg')
+//							});
 
 //							var moonTexture = new THREE.ImageUtils.loadTexture('./img/moon.jpg');
 							octahedronMesh.material = new THREE.MeshPhongMaterial({
