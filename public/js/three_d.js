@@ -417,7 +417,7 @@ $(document).ready(function(){
 		scene.add(moon);
 		
 		var jupiter = new THREE.Mesh(
-			new THREE.SphereGeometry(3000, 100, 100),
+			new THREE.SphereGeometry(2000, 100, 100),
 			new THREE.MeshPhongMaterial({
 				map: new THREE.ImageUtils.loadTexture('./img/jupiter.jpg')
 			})
@@ -570,9 +570,9 @@ $(document).ready(function(){
 				octahedronMesh.rotation.z + 0
 			);
 			moon.rotation.set(
-				moon.rotation.x + 0.00005,
+				moon.rotation.x + 0,
 				moon.rotation.y + 0.001,
-				moon.rotation.z + 0.0001
+				moon.rotation.z + 0
 			);
 			jupiter.rotation.set(
 				jupiter.rotation.x + 0,
@@ -676,10 +676,6 @@ $(document).ready(function(){
 						}
 						otherCharasArr[i].voiceBallMeshScale -= 0.01;
 					}
-//				});
-//			}
-//			if(otherCharasArr.length != 0) {
-//				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 					otherCharasArr[i].mesh.rotation.set(
 						otherCharasArr[i].mesh.rotation.x + 0.003,
 						otherCharasArr[i].mesh.rotation.y + 0.002,
@@ -868,7 +864,7 @@ $(document).ready(function(){
 										$('#modal_overlay').fadeOut("slow").remove();
 										myChara.isVideoChatting = false;
 										socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
-										isModalActive = false;
+//										isModalActive = false;
 										//				$('#modal_base').removeClass('active');
 									});
 								},1000);
@@ -921,7 +917,7 @@ $(document).ready(function(){
 					$('#modal_base').delay(800).fadeOut('slow', function() {
 						$('#modal_overlay').fadeOut("slow").remove();
 						myChara.isVideoChatting = false;
-						isModalActive = false;
+//						isModalActive = false;
 						//				$('#modal_base').removeClass('active');
 					});
 				},1000);
@@ -1013,13 +1009,16 @@ $(document).ready(function(){
 //												myChara.isVideoChatting = true;
 //												socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
 											}
-										} else if (!myChara.videoBroadcastReady) { //一定距離以外なら
+										} else { //一定距離以外なら
 											console.log('離れた！！');
-											if (myChara.isVideoChatting || isModalActive ) {
-												myChara.videoChatCall.close();
-												myChara.isVideoChatting = false;
-												console.log('1003行目');
-												socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+											if (!myChara.videoBroadcastReady) {
+												if (myChara.isVideoChatting /*|| isModalActive*/ ) {
+													console.log('切断！！！！！');
+													myChara.videoChatCall.close();
+													myChara.isVideoChatting = false;
+													console.log('1003行目');
+													socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+												}
 											}
 										}
 										//------------------------------------------------ビデオ配信

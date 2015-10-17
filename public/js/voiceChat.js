@@ -7,7 +7,7 @@ console.log(filter);
 filter.frequency.value = 440;
 //analyserオブジェクトの生成
 var analyser = audioContext.createAnalyser();
-var isModalActive = false;
+//var isModalActive = false;
 
 
 //-------------------------------------マイク取得
@@ -125,7 +125,7 @@ function modalOn() {
 		$('#modal_base').addClass('active');
 	});
 	//		$('#modal_content').delay(1000).fadeIn("slow");
-	isModalActive = true;
+//	isModalActive = true;
 }
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
