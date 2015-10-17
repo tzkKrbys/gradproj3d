@@ -82,6 +82,10 @@ video.audioChatting {
 	position: fixed;
 }
 
+#testDiv6 {
+	color: #0f0;
+}
+
 /*---------------------------modal*/
 #modal_overlay {
 	z-index: 10;

@@ -111,20 +111,6 @@ function audioModeOn() {
 	}
 }
 
-//$('.videoChatModeBtn').on('click', function() {
-//	if(myChara.mediaStreamMode == 'audio') {
-//		videoModeOn();
-//		$(this).html('videoModeOn').css({'background-color': '#faa'});
-//	} else if (myChara.mediaStreamMode == 'video') {
-//		audioModeOn();
-//		$(this).html('audioModeOn').css({'background-color': '#aaf'});
-//	}
-//});
-//------------------------------------------------------videoChat
-
-
-//navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
 var myStream;
 
 var peer = new Peer({
@@ -132,35 +118,6 @@ var peer = new Peer({
 });
 console.log(peer);
 
-//var setOthersStream = function (stream) { //相手の動画を表示する為の
-//	$('#others-video').prop('src', URL.createObjectURL(stream));
-//};
-//
-
-//var audioContext = new webkitAudioContext();
-//var mediastreamsource;
-//var mediastreamdestination = audioContext.createMediaStreamDestination();
-//
-//var lowpassfilter = audioContext.createBiquadFilter();
-//lowpassfilter.type = 0;
-//lowpassfilter.frequency.value = 440;
-
-//var audioElement;
-//audioElement = document.getElementById("audio");
-
-
-
-//var setMyStream = function (stream) {
-//	myStream = stream;
-//	$('#video').prop('src', URL.createObjectURL(stream));
-//};
-
-//var setMyStream = function (stream) {
-//function setMyStream(stream) {
-//	myStream = stream;
-//	console.log(stream);
-//	console.log(myStream);
-//};
 function modalOn() {
 	$('body').append('<div id="modal_overlay"><div>');
 	$('#modal_overlay').delay(1000).fadeIn("slow");
@@ -172,12 +129,8 @@ function modalOn() {
 }
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
-	console.log(stream);
-	console.log(mediaConnection);
-//	$('#video').prop('src', URL.createObjectURL(stream));
 	if( myChara.mediaStreamMode == 'video' ) {
 		modalOn();
-//		$('div#videoElems').prepend($('<video></video>', {
 		$('#modal_content').prepend($('<video></video>', {
 			'class': 'videoWindow videoChatting',
 			'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
@@ -185,6 +138,8 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 			autoplay: true
 		}));
 		$('#modal_content').addClass('active');
+//		myChara.isVideoChatting = true;
+//		socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
 	} else {
 		$('div#videoElems').prepend($('<video></video>', {
 			'class': 'videoWindow audioChatting',
@@ -195,14 +150,6 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 			height: "0"
 		}));
 	}
-
-	
-
-//	mediastreamsource = audioContext.createMediaStreamSource(stream);
-//	mediastreamsource.connect(lowpassfilter);
-//	lowpassfilter.connect(mediastreamdestination);
-//	audioElement.src = webkitURL.createObjectURL(mediastreamdestination.stream);
-//	audioElement.play();
 };
 
 
@@ -242,32 +189,39 @@ peer.on('open', function () {
 	});
 	
 	console.log(peer.id);
-//});
 
-//function connnectPeer(peer) {
-//	return new Promise(function(resolve, reject) {
-//		peer.listAllPeers(function(list) {
-//			for (var i = 0; i < list.length; i++) {
-//				console.log(list[i]);
-//			}
-//			resolve(peer);
-//		});
-//	});
-//}
 
+peer.on('connection', function(conn) {
+	conn.on('data', function(data) {
+		if(data == 'success') {
+			myChara.isVideoChatting = true;
+			socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+		}
+	});
+	
+});
 peer.on('call', function (call) {//仮引数callはmediaConnection。リモートのpeerがあなたに発信してきたときに発生します。mediaConnectionはこの時点でアクティブではありません。つまり、最初に応答する必要があります
+	console.log('かかってきました！　：　' + call);
 	console.log(call);
-	if( !myChara.videoBroadcastReady ) {
-		call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
-	} else if ( myChara.videoBroadcastReady == 'readyToView' ){
-		call.answer();
+//	console.log(peer.connect(call.id));
+	console.log(call.id);
+	var conn = peer.connect(call.peer);
+	conn.on('open', function() {
+		conn.send('success');
+	});
+	if(!myChara.isVideoChatting){
+		if( !myChara.videoBroadcastReady ) {
+//			call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+			call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+			//	call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
+			call.on('stream', function (stream) {
+				receiveOthersStream(stream, this);
+			});//リモートのpeerがstreamを追加したときに発生します。
+			console.log('アンサーしました！　：　');
+		} else if ( myChara.videoBroadcastReady == 'readyToView' ){
+			call.answer();
+		}
 	}
-//	call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
-	call.on('stream', function (stream) {
-		console.log(stream);
-		console.log(this);
-		receiveOthersStream(stream, this);
-	});//リモートのpeerがstreamを追加したときに発生します。
 });
 //
 //peer.on('error', function (e) {
