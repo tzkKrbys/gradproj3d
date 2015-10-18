@@ -176,6 +176,10 @@ socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 		socket.broadcast.emit('videoBroadcastReady_Update', {socketId: socket.id, videoBroadcastReady: data});
 	});
 
+//	socket.on('videoChatCall_Update', function(data) {
+//		socket.chara.videoChatCall = data;
+//		socket.broadcast.emit('videoChatCall_Update', {socketId: socket.id, videoChatCall: data});
+//	});
 	socket.on('isVideoChatting_Update', function(data) {
 		socket.chara.isVideoChatting = data;
 		socket.broadcast.emit('isVideoChatting_Update', {socketId: socket.id, isVideoChatting: data});

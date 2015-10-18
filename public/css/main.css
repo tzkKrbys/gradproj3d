@@ -199,3 +199,34 @@ video.audioChatting {
 	left: 0;
 	opacity: 0;
 }
+
+#textureBox {
+	position: fixed;
+	z-index: 100;
+	top: 0;
+	right: 0;
+	background: #fff;
+}
+
+#textureBox li {
+	list-style-type: none;
+	width: 40px;
+	height: 40px;
+	cursor: pointer;
+}
+#texture1 {
+	background: url(../img/kyoushitsu.jpeg);
+	background-size: cover;
+}
+#texture2 {
+	background: url(../img/harinezumi.jpg);
+	background-size: cover;
+}
+#texture3 {
+	background: url(../img/IMG_2706.jpg);
+	background-size: cover;
+}
+#texture4 {
+	background: url(../img/pagu.jpeg);
+	background-size: cover;
+}

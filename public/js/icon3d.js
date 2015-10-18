@@ -185,7 +185,6 @@ function Chara(){
 	this.voiceBallMeshSize;
 	this.voiceBallMeshScale;
 	this.mediaStreamMode = false;//video,audio,false
-	this.isVideoChatting = false;
 	this.videoChatCall;//切断する際に必要
 	this.videoBroadcastReady = false;//false,readyToSend,readyToView ビデオ配信準備用
 	this.isVideoBroadcasting = false;//false,sending,viewing ビデオ配信中判断用

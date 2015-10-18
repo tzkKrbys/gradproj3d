@@ -108,6 +108,9 @@ function KeyUp3d(e) {
 				videoModeOn();
 			}
 			break;
+		case 80: // Pキー
+//			camera.position.set(0, 80, 500);
+			break;
 		case 77: // Mキー
 			mediaStreamOff();
 		break;
@@ -209,8 +212,8 @@ $(document).ready(function(){
 			});
 
 			socket.on('sendMsg', function(data) {
-				otherCharasArr.forEach(function(icon, i, icons) {
-					if(icon.socketId == data.socketId) {
+				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+					if(chara.socketId == data.socketId) {
 						console.log('きてます');
 						otherCharasArr[i].str = data.str;
 						otherCharasArr[i].chatShowCount = data.chatShowCount;
@@ -275,84 +278,37 @@ $(document).ready(function(){
 
 		}
 
-//	var main = function () {
-//		var scene = new THREE.Scene();
 
-//		myIcon = new MyIcon(); // クラス
 		myChara = new Chara(); // クラス
 		myChara.socketId = socket.id;
-		//		myIcon.Init( 0, 0, -300, './img/IMG_2706.jpg' ); //初期化メソッド実行(初期の位置を引数に渡してcanvas要素中央に配置)//
-//		myIcon.InitPos( 0, 0, -300 );
 		Math.floor(Math.random() * 1000) - 500;
 		myChara.InitPos( Math.floor(Math.random() * 500) - 250, 0, Math.floor(Math.random() * 200)  );
-//		myChara.InitPos( 0, 0, -300 );
-//		myChara.textureImg = './img/IMG_2706.jpg';
 		myChara.textureImg = './img/IMG_2706.jpg';
-//		mkSphere(myIcon);
 		createMesh(myChara);
 		console.log(myChara);
-//		scene.add(myIcon.mesh);
 		scene.add(myChara.mesh);
 		
 
 
 //--------------------------------------------------------------camera
-//		var width = 1280;
-//		var height = 640;
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		var fov = 40;
 		var aspect = width / height;
-//		$(window).resize(function() {
-//			width = window.innerWidth;
-//			height = window.innerHeight;
-//			aspect = width / height;
-//		});
-		//		window.onresize = function() {
-//			width = window.innerWidth;
-//			height = window.innerHeight;
-//			aspect = width / height;
-//		};
 		var near = 1;
 		var far = 40000;
 		var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-//		camera.Pos = [0,0,0];
-//		camera.moveSpeed = 4;
-		camera.position.set(0, 100, 500);
-//		camera.position.set(camera.Pos[0], camera.Pos[1], camera.Pos[2]);
-		console.log(camera);
-//		function cameraMove(cameraMoveRight,cameraMoveLeft,cameraMoveUp,cameraMoveDown,cameraMoveForward,cameraMoveBackward) {
-//			if(cameraMoveRight) {// 右キーが押された
-//				camera.Pos[0] -= camera.moveSpeed;
-//			}
-//			else if(cameraMoveLeft) {// 左キーが押された
-//				camera.Pos[0] += camera.moveSpeed;
-//				console.log(camera.Pos);
-//			}
-//			if(cameraMoveUp) {// 上キーが押された
-//				camera.Pos[1] += camera.moveSpeed;
-//			}
-//			else if(cameraMoveDown) {// 下キーが押された
-//				camera.Pos[1] -= camera.moveSpeed;
-//			}
-//			if(cameraMoveForward) {// 上キーが押された
-//				camera.Pos[2] -= camera.moveSpeed;
-//			}
-//			else if(cameraMoveBackward) {// 下キーが押された
-//				camera.Pos[2] += camera.moveSpeed;
-//			}
-//		}
+		camera.position.set(0, 80, 500);
+
 //-------------------------------------------------------------camera end
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
-//		renderer.shadowMapEnabled = true; //影をつける
 		renderer.shadowMap.enabled = true; //影をつける
 		document.body.appendChild(renderer.domElement);
 
 		var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-//		var directionalLight = new THREE.DirectionalLight(0xffffff);
 		var directionalLight = new THREE.DirectionalLight(0xeeeeee);
 		directionalLight.position.set(0, 0.8, 0.7);
 		directionalLight.castShadow = true;
@@ -361,7 +317,6 @@ $(document).ready(function(){
 		var ambientLight = new THREE.AmbientLight(0x333333);
 		scene.add( ambientLight );
 
-//		var geometry = new THREE.CubeGeometry(30, 30, 30);
 		var geometry = new THREE.OctahedronGeometry(80);
 		var material = new THREE.MeshPhongMaterial({
 			color: 0x3377ff/*,
@@ -382,6 +337,23 @@ $(document).ready(function(){
 		octahedronMesh.castShadow = true;
 		octahedronMesh.receiveShadow = true;
 		scene.add(octahedronMesh);
+		
+		var octahedronViewMesh = new THREE.Mesh(
+			new THREE.OctahedronGeometry(80),
+			new THREE.MeshPhongMaterial({
+				color: 0xff77aa/*,
+			transparent: true,
+			opacity: 0.9*/
+			})
+		);
+		octahedronViewMesh.position.x = -300;
+		octahedronViewMesh.position.y = 0;
+		octahedronViewMesh.position.z = -500;
+
+		octahedronViewMesh.castShadow = true;
+		octahedronViewMesh.receiveShadow = true;
+		scene.add(octahedronViewMesh);
+
 
 		var geometry2 = new THREE.CubeGeometry(80, 80, 80);
 //		var material2 = new THREE.MeshPhongMaterial({
@@ -803,14 +775,6 @@ $(document).ready(function(){
 			});
 		});
 		
-		socket.on('isVideoChatting_Update', function (data) {
-			console.log(data);
-			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-				if (chara.socketId == data.socketId ) {
-					otherCharasArr[i].isVideoChatting = data.isVideoChatting;
-				}
-			});
-		});
 		socket.on('videoBroadcastReady_Update', function (data) {
 			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId ) {
@@ -818,6 +782,14 @@ $(document).ready(function(){
 				}
 			});
 		});
+		
+//		socket.on('videoChatCall_Update', function(data) {
+//			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+//				if (chara.socketId == data.socketId ) {
+//					otherCharasArr[i].videoChatCall = data.videoChatCall;
+//				}
+//			});
+//		});
 		
 		function printProperties(obj) {
 			var properties = '';
@@ -859,9 +831,17 @@ $(document).ready(function(){
 				})();
 			}
 
-
-			function callAndAddEvent(icon) {
-				var call = peer.call(icon.peerId, myStream);
+			function modalOff() {
+				$('#modal_content').removeClass('active');
+				setTimeout(function() {
+					$('#modal_base').removeClass('active');
+					$('#modal_base').delay(800).fadeOut('slow', function() {
+						$('#modal_overlay').fadeOut("slow").remove();
+					});
+				},1000);
+			}
+			function callAndAddEvent(chara) {
+				var call = peer.call(chara.peerId, myStream);
 				call.on('close', function () { //callが終了した際のイベントを設定
 					$('video').each(function (i, element) { //videoタグをサーチ
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
@@ -871,71 +851,76 @@ $(document).ready(function(){
 					});
 				});
 				myChara.talkingNodes.push({
-					socketId: icon.socketId,
+					socketId: chara.socketId,
 					call: call
 				});
-				socket.emit('peerCallConnected', icon.socketId);
+				socket.emit('peerCallConnected', chara.socketId);
 			}
-			function videoCallAndAddEvent(icon) {
-				var call = peer.call(icon.peerId, myStream);
+			
+			function videoCallAndAddEvent(chara) {
+				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
 				call.on('close', function () { //callが終了した際のイベントを設定
+					console.log('削除命令受信！！！');
 					$('video').each(function (i, element) { //videoタグをサーチ
+						console.log('削除命令通過！！！');
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+							console.log('削除対象発見！！！' + $(element).attr("data-peer") + ' : ' + call.peer);
 							$(element).remove();
 							console.log('削除！');
-							function modalOff() {
-								$('#modal_content').removeClass('active');
-								setTimeout(function() {
-									$('#modal_base').removeClass('active');
-									$('#modal_base').delay(800).fadeOut('slow', function() {
-										$('#modal_overlay').fadeOut("slow").remove();
-										myChara.isVideoChatting = false;
-										socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
-//										isModalActive = false;
-										//				$('#modal_base').removeClass('active');
-									});
-								},1000);
-							}
 							modalOff();
 						}
 					});
+					$('#modal_content').empty();
 				});
-				myChara.videoChatCall = call;
+				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+//				console.log(myChara.videoChatCall);
+//				socket.emit('videoChatCall_Update', true);
+				console.log(call);
 			}
-			function videoSendAndAddEvent(icon) {
-				console.log('videoSend');
-				var call = peer.call(icon.peerId, myStream);
-//				function modalOn() {
-//					$('body').append('<div id="modal_overlay"><div>');
-//					$('#modal_overlay').delay(1000).fadeIn("slow");
-//					$('#modal_base').show(function() {
-//						$('#modal_base').addClass('active');
-//					});
-//					//		$('#modal_content').delay(1000).fadeIn("slow");
-//					isModalActive = true;
-//				}
-				modalOn();
-				//		$('div#videoElems').prepend($('<video></video>', {
-				$('#modal_content').prepend($('<video></video>', {
-					'class': 'videoWindow videoChatting',
-//					'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
-					'data-peer': call.peer,//mediaConnection.peerを持たせる
-					src: URL.createObjectURL(myStream),//自分のstreamを流す
-					autoplay: true
-				}));
-				$('#modal_content').addClass('active');
+			function videoViewRequestAndAddEvent(chara) {
+				var call = peer.call(chara.peerId);
+				console.log('videoRequestAndAddEvent');
+				call.on('close', function () { //callが終了した際のイベントを設定
+					console.log('削除命令受信！！！');
+					$('video').each(function (i, element) { //videoタグをサーチ
+						console.log('削除命令通過！！！');
+						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+							console.log('削除対象発見！！！' + $(element).attr("data-peer") + ' : ' + call.peer);
+							$(element).remove();
+							console.log('削除！');
+							modalOff();
+						}
+					});
+					$('#modal_content').empty();
+				});
+				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+				//				console.log(myChara.videoChatCall);
+				//				socket.emit('videoChatCall_Update', true);
+				console.log(call);
 
-				call.on('close', function () { //callが終了した際のイベントを設定
-					console.log('close!!!!!!!!!!!!!!!!!!');
-					$('video').each(function (i, element) { //videoタグをサーチ
-						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-							$(element).remove();
-							console.log('削除！');
-							modalOff();
-						}
-					});
-				});
-				myChara.videoChatCall = call;
+				
+//				var call = peer.call(chara.peerId);
+//				modalOn();
+//				//		$('div#videoElems').prepend($('<video></video>', {
+//				$('#modal_content').prepend($('<video></video>', {
+//					'class': 'videoWindow videoChatting',
+////					'data-peer': mediaConnection.peer,//mediaConnection.peerを持たせる
+//					'data-peer': call.peer,//mediaConnection.peerを持たせる
+//					src: URL.createObjectURL(myStream),//自分のstreamを流す
+//					autoplay: true
+//				}));
+//				$('#modal_content').addClass('active');
+//
+//				call.on('close', function () { //callが終了した際のイベントを設定
+//					console.log('close!!!!!!!!!!!!!!!!!!');
+//					$('video').each(function (i, element) { //videoタグをサーチ
+//						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+//							$(element).remove();
+//							console.log('削除！');
+//						}
+//					});
+//				});
+//				myChara.videoChatCall = call;
 			}
 			function modalOff() {
 				$('#modal_content').removeClass('active');
@@ -943,8 +928,6 @@ $(document).ready(function(){
 					$('#modal_base').removeClass('active');
 					$('#modal_base').delay(800).fadeOut('slow', function() {
 						$('#modal_overlay').fadeOut("slow").remove();
-						myChara.isVideoChatting = false;
-//						isModalActive = false;
 						//				$('#modal_base').removeClass('active');
 					});
 				},1000);
@@ -971,47 +954,50 @@ $(document).ready(function(){
 								var diffZ = chara.Pos[2] - myChara.Pos[2];
 								//------------------------------------------------------------------音声チャット接続部分
 								if (myChara.mediaStreamMode == 'audio') {//自分がaudioModeの場合
-									var talkAbleDistance = 140;
-									if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
-										if (chara.talkingNodesSocketIds.length < capacityOfVoiceChat) { //charaが話せる
-											if (myChara.talkingNodes.length < capacityOfVoiceChat) { //mycharaが話せる
-												if (myChara.talkingNodes.length) { //mychara誰かと話してたら
-													myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
-														if (talkingNode.socketId == chara.socketId) { //話しているのがその相手だったら
-															return; //何もしない
-														} else { //話している人でなければ
-															//接続する
-															console.log(1111);
-															callAndAddEvent(chara); //callしてイベント設置
-														}
-													});
-												} else { //mycharaが誰かと話してなければ
-													//接続する
-													console.log(2222);
-													callAndAddEvent(chara); //callしてイベント設置
+									if ( chara.mediaStreamMode == 'audio' ) {//相手もaudioModeの場合
+										var talkAbleDistance = 140;
+										if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < talkAbleDistance * talkAbleDistance) { //一定距離以内なら
+											if (chara.talkingNodesSocketIds.length < capacityOfVoiceChat) { //charaが話せる
+												if (myChara.talkingNodes.length < capacityOfVoiceChat) { //mycharaが話せる
+													if (myChara.talkingNodes.length) { //mychara誰かと話してたら
+														myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+															if (talkingNode.socketId == chara.socketId) { //話しているのがその相手だったら
+																return; //何もしない
+															} else { //話している人でなければ
+																//接続する
+																console.log(1111);
+																callAndAddEvent(chara); //callしてイベント設置
+															}
+														});
+													} else { //mycharaが誰かと話してなければ
+														//接続する
+														console.log(2222);
+														callAndAddEvent(chara); //callしてイベント設置
+													}
+												}
+											} else if (chara.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //charaが話せない場合
+												if (myChara.talkingNodes.length < capacityOfVoiceChat) { //mycharaが話せる場合
+													if (chara.talkingNodesSocketIds == myChara.socketId) {
+														console.log('相手は話せます');
+														//接続する
+														console.log(3333);
+														callAndAddEvent(chara); //callしてイベント設置
+													} else {
+														console.log('相手は話せません');
+													}
 												}
 											}
-										} else if (chara.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //charaが話せない場合
-											if (myChara.talkingNodes.length < capacityOfVoiceChat) { //mycharaが話せる場合
-												if (chara.talkingNodesSocketIds == myChara.socketId) {
-													console.log('相手は話せます');
-													//接続する
-													console.log(3333);
-													callAndAddEvent(chara); //callしてイベント設置
-												} else {
-													console.log('相手は話せません');
-												}
+										} else { //一定距離以外なら
+											if (myChara.talkingNodes.length != 0) {
+												myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+													if (talkingNode.socketId == chara.socketId) { //切断する
+														talkingNode.call.close();
+														arr.splice(i, 1);
+														socket.emit('peerCallDisconnected', chara.socketId);
+													}
+												});
 											}
-										}
-									} else { //一定距離以外なら
-										if (myChara.talkingNodes.length != 0) {
-											myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
-												if (talkingNode.socketId == chara.socketId) { //切断する
-													talkingNode.call.close();
-													arr.splice(i, 1);
-													socket.emit('peerCallDisconnected', chara.socketId);
-												}
-											});
+
 										}
 									}
 								//-----------------------------------------------------------------------------------------ビデオチャット接続部分
@@ -1020,7 +1006,7 @@ $(document).ready(function(){
 										var videoTalkAbleDistance = 40;
 										if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
 											console.log('一定距離内来てます');
-											if(!myChara.isVideoChatting /*&& !isModalActive*/ ){//自分がvideoチャット中でない場合
+											if(!myChara.videoChatCall ){//mediaConnectionを持っていなければ
 												console.log('ここまで来てます');
 												if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
 													myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
@@ -1032,32 +1018,30 @@ $(document).ready(function(){
 													});
 												}
 												console.log('コールしました！！！！！');
-												//videoCallAndAddEvent(chara); //callしてイベント設置
-//												myChara.isVideoChatting = true;
-//												socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+												videoCallAndAddEvent(chara); //callしてイベント設置
 											}
 										} else { //一定距離以外なら
 											console.log('離れた！！');
 											if (!myChara.videoBroadcastReady) {
-												if (myChara.isVideoChatting /*|| isModalActive*/ ) {
-													console.log('切断！！！！！');
+												console.log($('#modal_content').children().length);
+												if (myChara.videoChatCall) {//mediaConnectionを持っていれば
+													console.log('切断しろー！！！！！');
 													myChara.videoChatCall.close();
-													myChara.isVideoChatting = false;
+													modalOff();
 													console.log('1003行目');
-													socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+													myChara.videoChatCall = false;
+												} else if ($('#modal_content').children().length > 0) {
+													modalOff();
 												}
 											}
 										}
-										//------------------------------------------------ビデオ配信
-										if(myChara.videoBroadcastReady == 'readyToSend' && !myChara.isVideoChatting ) {
-											if(chara.videoBroadcastReady == 'readyToView' ) {
-												videoSendAndAddEvent(chara);//※※※※※※※※※※※※※※※※※※※今は自分からかけているが、配信準備だけしておいて、リクエストがきたらつなぐ仕組みに書き換える方がいいのでは？
-												myChara.isVideoChatting = true;
-												console.log('ビデオ配信でコールしました！！');
-												socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
-												myChara.isVideoBroadcasting = 'sending';
-												socket.emit('isVideoBroadcasting', myChara.isVideoBroadcasting);
-											}
+									} else if (myChara.videoBroadcastReady == 'readyToView') {//----------------------ビデオ配信状態であれば
+										
+										if(chara.videoBroadcastReady == 'readyToSend' ) {//----------------相手がビデオ受信状態であれば
+											//videoViewRequestAndAddEvent(chara);//※※※※※※※※※※※※※※※※※※※今は自分からかけているが、配信準備だけしておいて、リクエストがきたらつなぐ仕組みに書き換える方がいいのでは？
+											console.log('ビデオ配信閲覧リクエストしました！！');
+//											myChara.isVideoBroadcasting = 'sending';
+//											socket.emit('isVideoBroadcasting', myChara.isVideoBroadcasting);
 										}
 									}
 								}
@@ -1065,82 +1049,53 @@ $(document).ready(function(){
 						});
 					}
 				}/*end of ~~~if (myChara && peer && myStream) {*/
-				//video配信、受信モード準備判定
+				//---------------------------------------------------------------video配信、受信モード準備判定
 				var diff1X = myChara.Pos[0] - octahedronMesh.position.x;
 				var diff1Y = myChara.Pos[1] - octahedronMesh.position.y;
 				var diff1Z = myChara.Pos[2] - octahedronMesh.position.z;
-				var diff2X = myChara.Pos[0] - mesh2.position.x;
-				var diff2Y = myChara.Pos[1] - mesh2.position.y;
-				var diff2Z = myChara.Pos[2] - mesh2.position.z;
+				var diff2X = myChara.Pos[0] - octahedronViewMesh.position.x;
+				var diff2Y = myChara.Pos[1] - octahedronViewMesh.position.y;
+				var diff2Z = myChara.Pos[2] - octahedronViewMesh.position.z;
 				if(myChara.mediaStreamMode == 'video'){
 					if ((diff1X * diff1X) + (diff1Y * diff1Y) + (diff1Z * diff1Z ) < 40 * 40) {
-						//					myChara.isVideoBroadcastingModeReady = 'readyToSend';
-						//					myChara.isVideoBroadcasting = 'sending';
-						//					socket.emit('isVideoBroadcasting_Update', myChara.isVideoBroadcasting);
 						if (myChara.videoBroadcastReady != 'readyToSend') {
 							myChara.videoBroadcastReady = 'readyToSend';//video配信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-							console.log(myChara.videoBroadcastReady);
-//							chara.mesh.geometry = new THREE.SphereGeometry(30, 100, 100);
-//							moon.material = new THREE.SphereGeometry(30, 100, 100);
 							moon.material = new THREE.MeshPhongMaterial({
 								map: new THREE.ImageUtils.loadTexture(myChara.textureImg),
 								bumpMap: new THREE.ImageUtils.loadTexture(myChara.textureImg),
 								bumpScale: 4
-								//				color: 0xaaeecc
 							});
-//							jupiterのtextureを変更
-//							jupiter.material = new THREE.MeshPhongMaterial({
-//								map: new THREE.ImageUtils.loadTexture(myChara.textureImg),
-//								bumpMap: new THREE.ImageUtils.loadTexture(myChara.textureImg),
-//								bumpScale: 4
-//								//				color: 0xaaeecc
-//							})
 							octahedronMesh.material = new THREE.MeshPhongMaterial({
 								color: 0x66eeaa
 							})
 
 							console.log(myChara);
 						}
-					} else if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {
+					} else {
+						if(myChara.videoBroadcastReady == 'readyToSend' ) {
+							myChara.videoBroadcastReady = false;
+							moon.material = new THREE.MeshPhongMaterial({
+								map: new THREE.ImageUtils.loadTexture('./img/moon.jpg'),
+								bumpMap: new THREE.ImageUtils.loadTexture('./img/moon.jpg'),
+								bumpScale: 4
+							});
+							octahedronMesh.material = new THREE.MeshPhongMaterial({
+								color: 0x3377ff
+							});
+						}
+					}
+
+					if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {
 						if( myChara.videoBroadcastReady != 'readyToView' ) {
 							myChara.videoBroadcastReady = 'readyToView';//video受信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							console.log(myChara.videoBroadcastReady);
 						}
-
 					} else {
-						if(myChara.videoBroadcastReady != false ) {
+						if(myChara.videoBroadcastReady == 'readyToView' ) {
 							myChara.videoBroadcastReady = false;
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-							console.log(myChara.videoBroadcastReady);
-							moon.material = new THREE.MeshPhongMaterial({
-								map: new THREE.ImageUtils.loadTexture('./img/moon.jpg'),
-								bumpMap: new THREE.ImageUtils.loadTexture('./img/moon.jpg'),
-								bumpScale: 4
-								//				color: 0xaaeecc
-							});
-//							jupiterのtextureを変更
-//							jupiter.material = new THREE.MeshPhongMaterial({
-//								map: new THREE.ImageUtils.loadTexture('./img/jupiter.jpg')
-//							});
-
-//							var moonTexture = new THREE.ImageUtils.loadTexture('./img/moon.jpg');
-							octahedronMesh.material = new THREE.MeshPhongMaterial({
-								color: 0x3377ff
-							})
-
-							console.log(octahedronMesh);
-
-//							var moon = new THREE.Mesh(
-//								new THREE.SphereGeometry(1000, 100, 100),
-//								new THREE.MeshPhongMaterial({
-//									map: moonTexture,
-//									bumpMap:moonTexture,
-//									bumpScale: 4
-//									//				color: 0xaaeecc
-//								})
-//							);
 						}
 					}
 				}
@@ -1192,5 +1147,29 @@ $(document).ready(function(){
 
 });
 
+$('#texture1').on('click', function() {
+	myChara.textureImg = './img/kyoushitsu.jpeg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
+$('#texture2').on('click', function() {
+	myChara.textureImg = './img/harinezumi.jpg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
+$('#texture3').on('click', function() {
+	myChara.textureImg = './img/IMG_2706.jpg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
+$('#texture4').on('click', function() {
+	myChara.textureImg = './img/pagu.jpeg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
 
 

@@ -138,8 +138,6 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 			autoplay: true
 		}));
 		$('#modal_content').addClass('active');
-//		myChara.isVideoChatting = true;
-//		socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
 	} else {
 		$('div#videoElems').prepend($('<video></video>', {
 			'class': 'videoWindow audioChatting',
@@ -193,35 +191,36 @@ peer.on('open', function () {
 
 peer.on('connection', function(conn) {
 	conn.on('data', function(data) {
-		if(data == 'success') {
-			myChara.isVideoChatting = true;
-			socket.emit('isVideoChatting_Update', myChara.isVideoChatting);
+		if(data == 'success') {//success文字が届いたら、ヴィデオチャット中フラグを立てる
+			console.log('success受信');
 		}
 	});
-	
 });
 peer.on('call', function (call) {//仮引数callはmediaConnection。リモートのpeerがあなたに発信してきたときに発生します。mediaConnectionはこの時点でアクティブではありません。つまり、最初に応答する必要があります
 	console.log('かかってきました！　：　' + call);
 	console.log(call);
 //	console.log(peer.connect(call.id));
 	console.log(call.id);
-	var conn = peer.connect(call.peer);
-	conn.on('open', function() {
-		conn.send('success');
-	});
-	if(!myChara.isVideoChatting){
+//	var conn = peer.connect(call.peer);
+//	conn.on('open', function() {
+//		console.log('success送信');
+//		conn.send('success');
+//	});
+//	if(!myChara.videoChatCall){
+	console.log('アンサー準備');
 		if( !myChara.videoBroadcastReady ) {
-//			call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+			console.log('アンサー実行');
+			//			call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
 			call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
 			//	call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
 			call.on('stream', function (stream) {
 				receiveOthersStream(stream, this);
 			});//リモートのpeerがstreamを追加したときに発生します。
 			console.log('アンサーしました！　：　');
-		} else if ( myChara.videoBroadcastReady == 'readyToView' ){
-			call.answer();
+		} else if ( myChara.videoBroadcastReady == 'readyToSend' ){
+			call.answer(myStream);
 		}
-	}
+//	}
 });
 //
 //peer.on('error', function (e) {
