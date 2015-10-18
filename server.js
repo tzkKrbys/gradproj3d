@@ -77,6 +77,9 @@ var icons = [];
 var charasArr = [];
 var ids = [];
 
+var serverAppStatus = {};
+app.status.moontextureImg = './img/moon.jpg';
+
 io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {

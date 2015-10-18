@@ -631,9 +631,9 @@ $(document).ready(function(){
 			);
 			if(myChara.mesh.geometry.type == "SphereGeometry") {
 				myChara.mesh.rotation.set(
-					myChara.mesh.rotation.x + 0.0,
+					myChara.mesh.rotation.x + 0.01,
 					myChara.mesh.rotation.y + 0.02,
-					myChara.mesh.rotation.z + 0.0
+					myChara.mesh.rotation.z + 0.01
 				);
 			} else {
 				myChara.mesh.rotation.set(
@@ -859,6 +859,9 @@ $(document).ready(function(){
 			
 			function videoCallAndAddEvent(chara) {
 				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
+				console.log('videoCallAndAddEvent');
+				console.log(chara.peerId);
+				console.log(call);
 				call.on('close', function () { //callが終了した際のイベントを設定
 					console.log('削除命令受信！！！');
 					$('video').each(function (i, element) { //videoタグをサーチ
@@ -878,8 +881,11 @@ $(document).ready(function(){
 				console.log(call);
 			}
 			function videoViewRequestAndAddEvent(chara) {
+				console.log('viewリクエスト実行！！！');
 				var call = peer.call(chara.peerId);
 				console.log('videoRequestAndAddEvent');
+				console.log(chara.peerId);
+				console.log(call);
 				call.on('close', function () { //callが終了した際のイベントを設定
 					console.log('削除命令受信！！！');
 					$('video').each(function (i, element) { //videoタグをサーチ
@@ -1035,14 +1041,6 @@ $(document).ready(function(){
 												}
 											}
 										}
-									} else if (myChara.videoBroadcastReady == 'readyToView') {//----------------------ビデオ配信状態であれば
-										
-										if(chara.videoBroadcastReady == 'readyToSend' ) {//----------------相手がビデオ受信状態であれば
-											//videoViewRequestAndAddEvent(chara);//※※※※※※※※※※※※※※※※※※※今は自分からかけているが、配信準備だけしておいて、リクエストがきたらつなぐ仕組みに書き換える方がいいのでは？
-											console.log('ビデオ配信閲覧リクエストしました！！');
-//											myChara.isVideoBroadcasting = 'sending';
-//											socket.emit('isVideoBroadcasting', myChara.isVideoBroadcasting);
-										}
 									}
 								}
 							}
@@ -1091,6 +1089,10 @@ $(document).ready(function(){
 							myChara.videoBroadcastReady = 'readyToView';//video受信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							console.log(myChara.videoBroadcastReady);
+//							if(chara.videoBroadcastReady == 'readyToSend' ) {//----------------相手がビデオ受信状態であれば
+//								videoViewRequestAndAddEvent(chara);//
+//								console.log('ビデオ配信閲覧リクエストしました！！');
+//							}
 						}
 					} else {
 						if(myChara.videoBroadcastReady == 'readyToView' ) {

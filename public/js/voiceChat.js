@@ -218,6 +218,7 @@ peer.on('call', function (call) {//仮引数callはmediaConnection。リモー�
 			});//リモートのpeerがstreamを追加したときに発生します。
 			console.log('アンサーしました！　：　');
 		} else if ( myChara.videoBroadcastReady == 'readyToSend' ){
+			console.log('ビデオリクエスト受信！！！！');
 			call.answer(myStream);
 		}
 //	}
