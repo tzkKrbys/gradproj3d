@@ -111,6 +111,17 @@ function audioModeOn() {
 	}
 }
 
+function modalOff() {
+	$('#modal_content').removeClass('active');
+	setTimeout(function() {
+		$('#modal_base').removeClass('active');
+		$('#modal_base').delay(800).fadeOut('slow', function() {
+			$('#modal_overlay').fadeOut("slow").remove();
+		});
+	},1000);
+}
+
+
 var myStream;
 
 var peer = new Peer({
@@ -150,7 +161,6 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 	}
 };
 
-
 peer.on('open', function () {
 	myChara.peerId = peer.id;
 	console.log(myChara.peerId);
@@ -189,37 +199,67 @@ peer.on('open', function () {
 	console.log(peer.id);
 
 
-peer.on('connection', function(conn) {
-	conn.on('data', function(data) {
-		if(data == 'success') {//success文字が届いたら、ヴィデオチャット中フラグを立てる
-			console.log('success受信');
-		}
+peer.on('connection', function(conn) {//ビデオ受信リクエスト側からconnectionがあった際に
+	console.log('コネクションきたね');
+	console.log(conn.peer);
+	console.log(myStream);
+	
+	var call = peer.call(conn.peer, myStream);//ビデオコールする
+	console.log(call);
+	myChara.videoChatViewerCall.push(call);//mediaConnectionクラス。切断する際に必要
+	console.log(myChara.videoChatViewerCall);
+	call.on('close', function () { //callが終了した際のイベントを設定
+		console.log('削除命令受信！！！');
+		$('video').each(function (i, element) { //videoタグをサーチ
+			console.log('削除命令通過！！！');
+//			if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+//				console.log('削除対象発見！！！' + $(element).attr("data-peer") + ' : ' + call.peer);
+				$(element).remove();
+				console.log('削除！');
+				modalOff();
+//			}
+		});
+		$('#modal_content').empty();
 	});
+	//				console.log(myChara.videoChatCall);
+	//				socket.emit('videoChatCall_Update', true);
+	console.log(call);
+
+//	conn.on('data', function(data) {
+//		if(data == 'success') {//success文字が届いたら、ヴィデオチャット中フラグを立てる
+//			console.log('success受信');
+//		}
+//	});
 });
 peer.on('call', function (call) {//仮引数callはmediaConnection。リモートのpeerがあなたに発信してきたときに発生します。mediaConnectionはこの時点でアクティブではありません。つまり、最初に応答する必要があります
 	console.log('かかってきました！　：　' + call);
 	console.log(call);
-//	console.log(peer.connect(call.id));
 	console.log(call.id);
-//	var conn = peer.connect(call.peer);
-//	conn.on('open', function() {
-//		console.log('success送信');
-//		conn.send('success');
-//	});
-//	if(!myChara.videoChatCall){
 	console.log('アンサー準備');
 		if( !myChara.videoBroadcastReady ) {
 			console.log('アンサー実行');
-			//			call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
-			call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
-			//	call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
+			//call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
+			call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せ,また、オプションで自身のmedia streamを設定できます。
+			//call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
 			call.on('stream', function (stream) {
 				receiveOthersStream(stream, this);
 			});//リモートのpeerがstreamを追加したときに発生します。
+			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
 			console.log('アンサーしました！　：　');
-		} else if ( myChara.videoBroadcastReady == 'readyToSend' ){
-			console.log('ビデオリクエスト受信！！！！');
-			call.answer(myStream);
+		} else if ( myChara.videoBroadcastReady == 'readyToView' ){
+			console.log('videosendからビデオコール受信！！！！');
+			call.answer();
+			call.on('stream', function (stream) {//streamは相手のstream
+				receiveOthersStream(stream, this);
+			});//リモートのpeerがstreamを追加したときに発生します。
+			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+			call.on('close', function () { //callが終了した際のイベントを設定
+				$('video').remove();
+				console.log('削除！');
+				modalOff();
+				$('#modal_content').empty();
+			});
+
 		}
 //	}
 });

@@ -77,8 +77,13 @@ var icons = [];
 var charasArr = [];
 var ids = [];
 
-var serverAppStatus = {};
-app.status.moontextureImg = './img/moon.jpg';
+//アプリ共通ステータス
+var appStatus = {};
+appStatus.initialMoonTextureImg = './img/moon.jpg';
+appStatus.initialOctahedronMeshColor = 0x3377ff;
+appStatus.currentMoonTextureImg = './img/moon.jpg';
+appStatus.currentOctahedronMeshColor = 0x3377ff;
+appStatus.peerIdOfVideoBroadcasting = false;
 
 io.set('log level', 1);
 
@@ -88,9 +93,12 @@ io.sockets.on('connection', function (socket) {
 
 	socket.chara = {};
 	//io.sockets.socketsは配列になっている
-	socket.emit('emit_fron_server_sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
+	socket.emit('sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
 		return e.chara;//配列が生成される
 	}), numOfIcon: io.sockets.sockets.length});
+	
+	socket.emit('appStatus_Update', appStatus);//最初にクライアントにアプリの状態を送る
+	
 	console.log('91行目 : '+io.sockets.sockets.map(function(e) {
 		console.log('92行目'+e.chara[1]);
 		return e.chara;//配列が生成される
@@ -104,6 +112,21 @@ io.sockets.on('connection', function (socket) {
 		io.sockets.emit('emit_from_server', 'you sended message ' + data);
 	});
 	console.log('connection キター！');
+
+	//appStatusを更新する
+	socket.on('appStatus_Update', function (data) {
+		appStatus = data;
+		socket.broadcast.emit('appStatus_Update', data);//最初にクライアントにアプリの状態を送る
+	});
+	socket.on('currentMoonTextureImg_Update', function (data) {
+		appStatus.currentMoonTextureImg = data;
+		socket.broadcast.emit('currentMoonTextureImg_Update', data);//最初にクライアントにアプリの状態を送る
+	});
+	socket.on('currentOctahedronMeshColor_Update', function (data) {
+		appStatus.currentOctahedronMeshColor = data;
+		socket.broadcast.emit('currentOctahedronMeshColor_Update', data);
+	});
+	
 
 
 	//iconのプロパティを更新する

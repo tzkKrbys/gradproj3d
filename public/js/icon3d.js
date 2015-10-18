@@ -186,6 +186,7 @@ function Chara(){
 	this.voiceBallMeshScale;
 	this.mediaStreamMode = false;//video,audio,false
 	this.videoChatCall;//切断する際に必要
+	this.videoChatViewerCall = [];//切断する際に必要
 	this.videoBroadcastReady = false;//false,readyToSend,readyToView ビデオ配信準備用
 	this.isVideoBroadcasting = false;//false,sending,viewing ビデオ配信中判断用
 }
@@ -213,7 +214,6 @@ Chara.fromObject = function( obj ) {
 	});
 	return chara;
 }
-
 
 /*アイコン描画関数*/
 Chara.prototype.Draw = function(img, offsetX, offSetY, offSetZ){ //引数 CanvasRenderingContext2Dオブジェクト,0,0
@@ -333,12 +333,6 @@ Chara.prototype.mousePosCheck = function (event) {
 
 
 
-
-
-
-
-//
-//
 ////OtherIconクラス------------------------------------------------
 //function OtherIcon(){
 //	this.socketId;
@@ -376,9 +370,7 @@ Chara.prototype.mousePosCheck = function (event) {
 ////	icon.xxx = obj.xxx;
 //	Object.keys(obj).forEach(function (key) {
 //		icon[key] = obj[key];
-//		
 //	});
-//	
 //	console.log(icon);
 //	icon.Init(x, y);
 //	// ...
