@@ -140,6 +140,7 @@ function modalOn() {
 }
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
+	console.log('receiveOthersStreamまできてます');
 	if( myChara.mediaStreamMode == 'video' ) {
 		modalOn();
 		$('#modal_content').prepend($('<video></video>', {
@@ -244,7 +245,7 @@ peer.on('call', function (call) {//仮引数callはmediaConnection。リモー�
 			call.on('stream', function (stream) {
 				receiveOthersStream(stream, this);
 			});//リモートのpeerがstreamを追加したときに発生します。
-			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+			//myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
 			console.log('アンサーしました！　：　');
 		} else if ( myChara.videoBroadcastReady == 'readyToView' ){
 			console.log('videosendからビデオコール受信！！！！');

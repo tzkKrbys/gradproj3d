@@ -880,6 +880,7 @@ $(document).ready(function(){
 			}
 			
 			function videoCallAndAddEvent(chara) {
+				console.log('videoCallAndAddEvent関数実行');
 				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
 				console.log('videoCallAndAddEvent');
 				console.log(chara.peerId);
@@ -1009,10 +1010,12 @@ $(document).ready(function(){
 									}
 								//-----------------------------------------------------------------------------------------ビデオチャット接続部分
 								} else if (myChara.mediaStreamMode == 'video' && chara.mediaStreamMode == 'video') {//自分も相手もビデオ利用中の場合
-									if (!myChara.videoBroadcastReady && !chara.mediaStreamMode) {//-------------お互いビデオ配信モードでなければ
+									console.log('きてますか');
+									if (!myChara.videoBroadcastReady && !chara.videoBroadcastReady) {//-------------お互いビデオ配信モードでなければ
 										var videoTalkAbleDistance = 40;
 										if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) { //一定距離以内なら
 											console.log('一定距離内来てます');
+											console.log('myChara.videoChatCall : ' + myChara.videoChatCall);
 											if(!myChara.videoChatCall ){//mediaConnectionを持っていなければ
 												console.log('ここまで来てます');
 												if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
@@ -1024,11 +1027,12 @@ $(document).ready(function(){
 														}
 													});
 												}
-												console.log('コールしました！！！！！');
+												console.log('コールしました！！！！！　videoCallAndAddEvent関数実行！');
 												videoCallAndAddEvent(chara); //callしてイベント設置
 											}
 										} else { //一定距離以外なら
-											console.log('離れた！！');
+											console.log('離れてます！！');
+											console.log('myChara.videoChatCall : ' + myChara.videoChatCall);
 											if (!myChara.videoBroadcastReady) {
 												console.log($('#modal_content').children().length);
 												if (myChara.videoChatCall) {//mediaConnectionを持っていれば
@@ -1060,9 +1064,9 @@ $(document).ready(function(){
 						if(!appStatus.peerIdOfVideoBroadcasting) {//ビデオ配信者がいなければ
 							if (myChara.videoBroadcastReady != 'readyToSend') {
 								myChara.videoBroadcastReady = 'readyToSend';//video配信準備
+								socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 								appStatus.peerIdOfVideoBroadcasting = myChara.peerId;
 								socket.emit('appStatus_Update', appStatus);//アプリ状態をサーバーへ送信
-								socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 								modalOn();
 								$('#modal_content').prepend($('<video></video>', {
 									'class': 'videoWindow videoChatting',
@@ -1092,6 +1096,7 @@ $(document).ready(function(){
 					} else {//一定範囲外になれば
 						if(myChara.videoBroadcastReady == 'readyToSend' ) {
 							myChara.videoBroadcastReady = false;
+							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							appStatus.peerIdOfVideoBroadcasting = false;
 							socket.emit('appStatus_Update', appStatus);//アプリ状態をサーバーへ送信
 							console.log('削除命令受信！！！');
