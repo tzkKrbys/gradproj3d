@@ -79,9 +79,6 @@ appStatus.peerIdOfVideoBroadcasting = false;
 io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
-	console.log("入りました！！");
-	console.log(charasArr);
-
 	socket.chara = {};
 	//io.sockets.socketsは配列になっている
 	socket.emit('sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
@@ -94,13 +91,11 @@ io.sockets.on('connection', function (socket) {
 		console.log('92行目'+e.chara[1]);
 		return e.chara;//配列が生成される
 	}));
-	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	console.log('clientから接続がありました');
+//	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 	socket.on('emit_from_client', function (data) {
 		socket.emit('emit_from_server', 'you sended message ' + data);
 		io.sockets.emit('emit_from_server', 'you sended message ' + data);
 	});
-	console.log('connection キター！');
 
 	//appStatusを更新する
 	socket.on('appStatus_Update', function (data) {
@@ -120,7 +115,6 @@ io.sockets.on('connection', function (socket) {
 
 	//iconのプロパティを更新する
 	socket.on('myCharaUpdate', function (data) {
-		console.log('108行目'+data);
 		socket.chara = data;//socketオブジェクトの中にiconを格納
 		socket.broadcast.emit('myCharaUpdate', data);
 	});
@@ -139,8 +133,6 @@ io.sockets.on('connection', function (socket) {
 		socket.chara.mediaStreamMode = data.mediaStreamMode;
 		socket.chara.videoBroadcastReady = data.videoBroadcastReady;
 		socket.chara.isVideoBroadcasting = data.isVideoBroadcasting;
-		console.log("join!!!!");
-		console.log('131行目' + socket.chara.mediaStreamMode);
 		var chara = {
 			socketId: socket.chara.socketId,
 			Pos: socket.chara.Pos,
@@ -192,7 +184,6 @@ socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
 	
 	socket.on('disconnect', function() {
-		console.log('disconnect : ' + socket.id);
 		//サーバー側のcharaはsocket.charaに格納されていて、disconnect時には勝手に消える為、削除処理不要
 		socket.broadcast.emit('charaRemove', { socketId: socket.id, numOfChara: io.sockets.sockets.length});
 		
