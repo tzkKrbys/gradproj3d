@@ -20,9 +20,6 @@ function gotStream(stream){
 	var mediaStreamSource = audioContext.createMediaStreamSource(stream);
 	mediaStreamSource.connect(filter);
 	filter.connect(analyser);
-	//出力Nodeのdestinationに接続
-//	analyser.connect(audioContext.destination);
-	//mediaStreamSource.connect(audioContext.destination);
 }
 
 //エラー処理
@@ -65,7 +62,6 @@ function videoModeOn() {
 		myChara.mediaStreamMode = 'video';
 		socket.emit('modeChange', myChara.mediaStreamMode);
 		console.log(myChara);
-
 //		socket.emit('myCharaUpdate', myChara);
 		console.log(stream);
 		myStream = stream;//videoになる
@@ -119,7 +115,6 @@ var myStream;
 var peer = new Peer({
 	key: 'a56f52f0-a285-4d43-8955-d0a609837161'
 });
-console.log(peer);
 
 function modalOn() {
 	$('body').append('<div id="modal_overlay"><div>');
@@ -130,7 +125,6 @@ function modalOn() {
 }
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
-	console.log('receiveOthersStreamまできてます');
 	if( myChara.mediaStreamMode == 'video' ) {
 		modalOn();
 		$('#modal_content').prepend($('<video></video>', {
@@ -155,7 +149,6 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 peer.on('open', function () {
 	myChara.peerId = peer.id;
 	console.log(myChara.peerId);
-//	debugger;
 	console.log(myChara);
 	var sendCharaData = {
 		socketId: myChara.socketId,

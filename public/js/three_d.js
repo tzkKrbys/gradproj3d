@@ -126,7 +126,6 @@ $(document).ready(function(){
 		var scene = new THREE.Scene();
 
 		socket = io.connect();
-		console.log('connectしました。');
 		window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
 		window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
 		//-------------------------------------------socket.io---//
@@ -199,7 +198,6 @@ $(document).ready(function(){
 			socket.on('sendMsg', function(data) {
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 					if(chara.socketId == data.socketId) {
-						console.log('きてます');
 						otherCharasArr[i].str = data.str;
 						otherCharasArr[i].chatShowCount = data.chatShowCount;
 					}
@@ -613,7 +611,6 @@ $(document).ready(function(){
 		});
 		
 		socket.on('myCharaUpdate', function(data) {
-			console.log(data);
 			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId ) {
 					otherCharasArr[i] = Chara.fromObject( data );
@@ -670,8 +667,7 @@ $(document).ready(function(){
 				call.on('close', function () { //callが終了した際のイベントを設定
 					$('video').each(function (i, element) { //videoタグをサーチ
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-							$(element).remove(); //タグを左k女
-							console.log('削除！');
+							$(element).remove(); //タグを削除
 						}
 					});
 				});
@@ -749,7 +745,7 @@ $(document).ready(function(){
 												}
 											} else if (chara.talkingNodesSocketIds.length >= capacityOfVoiceChat) { //charaが話せない場合
 												if (myChara.talkingNodes.length < capacityOfVoiceChat) { //mycharaが話せる場合
-													if (chara.talkingNodesSocketIds == myChara.socketId) {
+													if (chara.talkingNodesSocketIds == myChara.socketId) {//
 														console.log('相手は話せます');
 														//接続する
 														callAndAddEvent(chara); //callしてイベント設置
@@ -772,14 +768,10 @@ $(document).ready(function(){
 									}
 								//-----------------------------------------------------------------------------------------ビデオチャット接続部分
 								} else if (myChara.mediaStreamMode == 'video' && chara.mediaStreamMode == 'video') {//自分も相手もビデオ利用中の場合
-									console.log('きてますか');
 									if (!myChara.videoBroadcastReady && !chara.videoBroadcastReady) {//-------------お互いビデオ配信モードでなければ
 										var videoTalkAbleDistance = 40;
-										if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) {//一定距離以内なら
-											console.log('一定距離内来てます');
-											console.log('myChara.videoChatCall : ' + myChara.videoChatCall);
+										if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) {//距離内
 											if(!myChara.videoChatCall ){//mediaConnectionを持っていなければ
-												console.log('ここまで来てます');
 												if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
 													myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
 														if (talkingNode.socketId == chara.socketId) {//該当charaとaudioチャット中のcharaのidが一致してたら
@@ -789,19 +781,13 @@ $(document).ready(function(){
 														}
 													});
 												}
-												console.log('コールしました！！！！！　videoCallAndAddEvent関数実行！');
 												videoCallAndAddEvent(chara); //callしてイベント設置
 											}
 										} else { //一定距離以外なら
-											console.log('離れてます！！');
-											console.log('myChara.videoChatCall : ' + myChara.videoChatCall);
 											if (!myChara.videoBroadcastReady) {
-												console.log($('#modal_content').children().length);
 												if (myChara.videoChatCall) {//mediaConnectionを持っていれば
-													console.log('切断しろー！！！！！');
 													myChara.videoChatCall.close();
 													modalOff();
-													console.log('1003行目');
 													myChara.videoChatCall = false;
 												} else if ($('#modal_content').children().length > 0) {
 													modalOff();
@@ -859,7 +845,6 @@ $(document).ready(function(){
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							appStatus.peerIdOfVideoBroadcasting = false;
 							socket.emit('appStatus_Update', appStatus);//アプリ状態をサーバーへ送信
-							console.log('削除命令受信！！！');
 							if(myChara.videoChatViewerCall.length) {
 								myChara.videoChatViewerCall.forEach(function(call) {
 									call.close();
@@ -867,8 +852,7 @@ $(document).ready(function(){
 								myChara.videoChatViewerCall = [];//空にする
 							}
 							$('video').each(function (i, element) { //videoタグをサーチ
-								$(element).remove();
-								console.log('削除！');
+								$(element).remove();//削除
 								modalOff();
 							});
 							$('#modal_content').empty();
@@ -895,7 +879,6 @@ $(document).ready(function(){
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							if(appStatus.peerIdOfVideoBroadcasting) {//----------------ビデオ配信者がいれば
 								videoViewRequestAndAddEvent(appStatus.peerIdOfVideoBroadcasting);//ビデオ受信リクエスト
-								console.log('ビデオ配信閲覧リクエストしました！！');
 							}
 						}
 					} else {
@@ -904,8 +887,7 @@ $(document).ready(function(){
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
 							
 							$('video').each(function (i, element) { //videoタグをサーチ
-								$(element).remove();
-								console.log('削除！');
+								$(element).remove();//削除
 								modalOff();
 							});
 							$('#modal_content').empty();
@@ -932,15 +914,11 @@ $(document).ready(function(){
 						otherCharasArr[i].Pos = data.Pos;
 					}
 				});
-			})
-			
-
-
+			});
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------
 	}
 	window.addEventListener('DOMContentLoaded', main, false);
-
 });
 
 $('#texture1').on('click', function() {
