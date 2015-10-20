@@ -9,6 +9,7 @@
 body {
 	background-color: #000;
 	font-size: 6px;
+	color: #fff;
 }
 .clearfix:after {
 	content: "";
