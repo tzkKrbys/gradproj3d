@@ -365,21 +365,21 @@ $(document).ready(function(){
 		octahedronMesh.receiveShadow = true;
 		scene.add(octahedronMesh);
 		
-		var octahedronViewMesh = new THREE.Mesh(
-			new THREE.OctahedronGeometry(80),
-			new THREE.MeshPhongMaterial({
-				color: 0xff77aa/*,
-			transparent: true,
-			opacity: 0.9*/
-			})
-		);
-		octahedronViewMesh.position.x = -300;
-		octahedronViewMesh.position.y = 0;
-		octahedronViewMesh.position.z = -500;
-
-		octahedronViewMesh.castShadow = true;
-		octahedronViewMesh.receiveShadow = true;
-		scene.add(octahedronViewMesh);
+//		var octahedronViewMesh = new THREE.Mesh(
+//			new THREE.OctahedronGeometry(80),
+//			new THREE.MeshPhongMaterial({
+//				color: 0xff77aa/*,
+//			transparent: true,
+//			opacity: 0.9*/
+//			})
+//		);
+//		octahedronViewMesh.position.x = -300;
+//		octahedronViewMesh.position.y = 0;
+//		octahedronViewMesh.position.z = -500;
+//
+//		octahedronViewMesh.castShadow = true;
+//		octahedronViewMesh.receiveShadow = true;
+//		scene.add(octahedronViewMesh);
 
 
 		var geometry2 = new THREE.CubeGeometry(80, 80, 80);
@@ -399,8 +399,9 @@ $(document).ready(function(){
 		scene.add(mesh2);
 
 		var moonTexture = new THREE.ImageUtils.loadTexture('./img/moon.jpg');
+		var moonSize = 500;
 		var moon = new THREE.Mesh(
-			new THREE.SphereGeometry(500, 30, 30),
+			new THREE.SphereGeometry(moonSize, 30, 30),
 			new THREE.MeshPhongMaterial({
 				map: moonTexture,
 				bumpMap:moonTexture,
@@ -1056,9 +1057,12 @@ $(document).ready(function(){
 				var diff1X = myChara.Pos[0] - octahedronMesh.position.x;
 				var diff1Y = myChara.Pos[1] - octahedronMesh.position.y;
 				var diff1Z = myChara.Pos[2] - octahedronMesh.position.z;
-				var diff2X = myChara.Pos[0] - octahedronViewMesh.position.x;
-				var diff2Y = myChara.Pos[1] - octahedronViewMesh.position.y;
-				var diff2Z = myChara.Pos[2] - octahedronViewMesh.position.z;
+//				var diff2X = myChara.Pos[0] - octahedronViewMesh.position.x;
+//				var diff2Y = myChara.Pos[1] - octahedronViewMesh.position.y;
+//				var diff2Z = myChara.Pos[2] - octahedronViewMesh.position.z;
+				var diff2X = myChara.Pos[0] - moon.position.x;
+				var diff2Y = myChara.Pos[1] - moon.position.y;
+				var diff2Z = myChara.Pos[2] - moon.position.z;
 				if(myChara.mediaStreamMode == 'video'){
 					if ((diff1X * diff1X) + (diff1Y * diff1Y) + (diff1Z * diff1Z ) < 40 * 40) {//一定範囲内に入れば
 						if(!appStatus.peerIdOfVideoBroadcasting) {//ビデオ配信者がいなければ
@@ -1129,7 +1133,7 @@ $(document).ready(function(){
 						}
 					}
 
-					if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < 40 * 40) {//一定範囲以内の場合
+					if ((diff2X * diff2X) + (diff2Y * diff2Y) + (diff2Z * diff2Z ) < moonSize * moonSize) {//一定範囲以内の場合
 						if( myChara.videoBroadcastReady != 'readyToView' ) {
 							myChara.videoBroadcastReady = 'readyToView';//video受信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
