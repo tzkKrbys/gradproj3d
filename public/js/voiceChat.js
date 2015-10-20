@@ -11,11 +11,6 @@ var analyser = audioContext.createAnalyser();
 
 
 //-------------------------------------マイク取得
-
-//WebAudioリクエスト成功時に呼び出されるコールバック関数
-//var audioObj = {"audio":true};
-//var videoObj = {"video": true, "audio":true};
-
 function gotStream(stream){
 //	myChara.mediaStreamMode = 'audio';
 	myChara.mediaStreamMode = 'video';
@@ -24,8 +19,6 @@ function gotStream(stream){
 	//streamからAudioNodeを作成
 	var mediaStreamSource = audioContext.createMediaStreamSource(stream);
 	mediaStreamSource.connect(filter);
-//	console.log(mediaStreamSource);
-//	console.log(mediaStreamSource.connect());
 	filter.connect(analyser);
 	//出力Nodeのdestinationに接続
 //	analyser.connect(audioContext.destination);
@@ -59,7 +52,6 @@ function mediaStreamOff() {
 function videoModeOn() {
 	if(myChara.mediaStreamMode == 'video') {
 		myChara.mesh = new THREE.Mesh(
-			//					new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
 			new THREE.CubeGeometry(20, 20, 20),
 			new THREE.MeshPhongMaterial({
 				map: texture
@@ -135,8 +127,6 @@ function modalOn() {
 	$('#modal_base').show(function() {
 		$('#modal_base').addClass('active');
 	});
-	//		$('#modal_content').delay(1000).fadeIn("slow");
-//	isModalActive = true;
 }
 
 var receiveOthersStream = function (stream, mediaConnection) { //相手の動画を表示する為の
@@ -177,24 +167,6 @@ peer.on('open', function () {
 		isVideoBroadcasting: myChara.isVideoBroadcasting
 	};
 	socket.emit('join', sendCharaData);
-//	$('#peer-id').text(id);
-//	peer.listAllPeers(function(list) {
-//		console.dir(list);
-//
-//			if(list.length > 1){
-//				console.dir(list);
-//
-//				list.forEach(function(id) {
-//					if(id != peer.id){
-//						console.log(id);
-//						console.log(myStream);
-//						var call = peer.call(id, myStream);//idで指定されたリモートのpeerへ発信し、mediaconnectionを返す。
-//						console.log(call);
-//						call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
-//					}
-//				});
-//			}
-//		});
 	});
 	
 	console.log(peer.id);
@@ -213,60 +185,40 @@ peer.on('connection', function(conn) {//ビデオ受信リクエスト側からc
 		console.log('削除命令受信！！！');
 		$('video').each(function (i, element) { //videoタグをサーチ
 			console.log('削除命令通過！！！');
-//			if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-//				console.log('削除対象発見！！！' + $(element).attr("data-peer") + ' : ' + call.peer);
-				$(element).remove();
-				console.log('削除！');
-				modalOff();
-//			}
+			$(element).remove();
+			console.log('削除！');
+			modalOff();
 		});
 		$('#modal_content').empty();
 	});
-	//				console.log(myChara.videoChatCall);
-	//				socket.emit('videoChatCall_Update', true);
 	console.log(call);
-
-//	conn.on('data', function(data) {
-//		if(data == 'success') {//success文字が届いたら、ヴィデオチャット中フラグを立てる
-//			console.log('success受信');
-//		}
-//	});
 });
 peer.on('call', function (call) {//仮引数callはmediaConnection。リモートのpeerがあなたに発信してきたときに発生します。mediaConnectionはこの時点でアクティブではありません。つまり、最初に応答する必要があります
 	console.log('かかってきました！　：　' + call);
 	console.log(call);
 	console.log(call.id);
 	console.log('アンサー準備');
-		if( !myChara.videoBroadcastReady ) {
-			console.log('アンサー実行');
-			//call.answer(myStream);//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せます。また、オプションで自身のmedia streamを設定できます。
-			call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せ,また、オプションで自身のmedia streamを設定できます。
-			//call.on('stream', receiveOthersStream);//リモートのpeerがstreamを追加したときに発生します。
-			call.on('stream', function (stream) {
-				receiveOthersStream(stream, this);
-			});//リモートのpeerがstreamを追加したときに発生します。
-			//myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
-			console.log('アンサーしました！　：　');
-		} else if ( myChara.videoBroadcastReady == 'readyToView' ){
-			console.log('videosendからビデオコール受信！！！！');
-			call.answer();
-			call.on('stream', function (stream) {//streamは相手のstream
-				receiveOthersStream(stream, this);
-			});//リモートのpeerがstreamを追加したときに発生します。
-			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
-			call.on('close', function () { //callが終了した際のイベントを設定
-				$('video').remove();
-				console.log('削除！');
-				modalOff();
-				$('#modal_content').empty();
-			});
-
-		}
-//	}
+	if( !myChara.videoBroadcastReady ) {
+		console.log('アンサー実行');
+		call.answer();//イベントを受信した場合に、応答するためにコールバックにて与えられるmediaconnectionにて.answerを呼び出せ,また、オプションで自身のmedia streamを設定できます。
+		call.on('stream', function (stream) {
+			receiveOthersStream(stream, this);
+		});//リモートのpeerがstreamを追加したときに発生します。
+		console.log('アンサーしました！　：　');
+	} else if ( myChara.videoBroadcastReady == 'readyToView' ){
+		console.log('videosendからビデオコール受信！！！！');
+		call.answer();
+		call.on('stream', function (stream) {//streamは相手のstream
+			receiveOthersStream(stream, this);
+		});//リモートのpeerがstreamを追加したときに発生します。
+		myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+		call.on('close', function () { //callが終了した際のイベントを設定
+			$('video').remove();
+			console.log('削除！');
+			modalOff();
+			$('#modal_content').empty();
+		});
+	}
 });
-//
-//peer.on('error', function (e) {
-//	console.log(e.message);
-//});
 
 
