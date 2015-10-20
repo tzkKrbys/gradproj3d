@@ -91,7 +91,6 @@ io.sockets.on('connection', function (socket) {
 		console.log('92行目'+e.chara[1]);
 		return e.chara;//配列が生成される
 	}));
-//	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 	socket.on('emit_from_client', function (data) {
 		socket.emit('emit_from_server', 'you sended message ' + data);
 		io.sockets.emit('emit_from_server', 'you sended message ' + data);
