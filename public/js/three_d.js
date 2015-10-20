@@ -409,7 +409,7 @@ $(document).ready(function(){
 			})
 		);
 		//----------------------------------月
-		moon.Pos = [1400, -300, -3000];
+		moon.Pos = [1100, -100, -2600];
 		moon.position.x = moon.Pos[0];
 		moon.position.y = moon.Pos[1];
 		moon.position.z = moon.Pos[2];
