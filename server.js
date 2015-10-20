@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var mime = require('mime');
 var cache = {};
-var app = require('./lib/app');
+//var app = require('./lib/app');
 
 var socketio = require('socket.io');
 var util = require('util');//console.log(util.inspect(obj,false,null));でオブジェクトの中身をターミナルで確認できるようにする為
