@@ -17,7 +17,6 @@ appStatus.currentMoonTextureImg = './img/moon.jpg';
 appStatus.currentOctahedronMeshColor = 0x3377ff;
 appStatus.peerIdOfVideoBroadcasting = false;
 
-
 function KeyDown3d(e) {
 	switch (e.keyCode) {
 	case 37: // ←キー
@@ -107,7 +106,6 @@ function KeyUp3d(e) {
 			break;
 		case 86: // Vキー
 			if(myChara.mediaStreamMode != 'video') {
-				console.log('video?');
 				videoModeOn();
 			}
 			break;
@@ -118,15 +116,12 @@ function KeyUp3d(e) {
 }
 
 $(document).ready(function(){
-
 	var main = function () {
 		function onWindowResize() {
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 		}
-
-
 		window.addEventListener( 'resize', onWindowResize, false );
 		var scene = new THREE.Scene();
 
@@ -134,15 +129,10 @@ $(document).ready(function(){
 		console.log('connectしました。');
 		window.addEventListener('keydown', KeyDown3d, true); //キーを押した時、呼び出される関数を指定
 		window.addEventListener('keyup', KeyUp3d, true); //キーを離した時、呼び出される関数を指定
-
-
 		//-------------------------------------------socket.io---//
 		socket.on('connect', function() {
 			socket.on('sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
-				console.log("入りましたよ！！");
-				console.log(data);
 				data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
-					console.log("きてるね〜");
 					if (!chara.socketId) return;
 	//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
 					var othreChara = new Chara();
@@ -156,7 +146,7 @@ $(document).ready(function(){
 				$('#testDiv').html('現在の人数：' + data.numOfIcon);
 				if(otherCharasArr.length != 0) {
 					otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-						createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyIcon
+						createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyChara
 						scene.add(otherCharasArr[i].mesh);
 					});
 				}
@@ -173,7 +163,6 @@ $(document).ready(function(){
 				});
 			});
 			socket.on('currentOctahedronMeshColor_Update', function(data) {//サーバーのアプリの状態を反映
-				console.log(data);
 				appStatus.currentMoonTextureImg = data;
 				octahedronMesh.material = new THREE.MeshPhongMaterial({
 					color: data
@@ -181,7 +170,6 @@ $(document).ready(function(){
 			});
 
 			socket.on('join', function(data) {
-				console.log(data.chara);
 				var othreChara = new Chara();
 				othreChara.socketId = data.chara.socketId;
 				othreChara.Pos = data.chara.Pos;
@@ -191,9 +179,7 @@ $(document).ready(function(){
 				othreChara.videoBroadcastReady = data.chara.videoBroadcastReady;
 				createMesh(othreChara);
 				otherCharasArr.push(othreChara);
-				console.log(othreChara.mediaStreamMode);
 				scene.add(othreChara.mesh);
-				console.log(otherCharasArr);
 				$('#testDiv').html('現在の人数：' + data.numOfIcon);
 			});
 
@@ -201,7 +187,6 @@ $(document).ready(function(){
 			socket.on('charaRemove', function(data){
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 					if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
-					console.log(otherCharasArr[i]);
 					scene.remove( chara.mesh );
 					scene.remove( chara.voiceBallMesh );
 	//				geometry.dispose();
@@ -274,7 +259,6 @@ $(document).ready(function(){
 				charaX.voiceBallMeshScale,
 				charaX.voiceBallMeshScale
 			);
-			console.log(charaX.voiceBallMesh.material.color);
 		}
 
 		myChara = new Chara(); // クラス
@@ -283,7 +267,6 @@ $(document).ready(function(){
 		myChara.InitPos( Math.floor(Math.random() * 500) - 250, 0, Math.floor(Math.random() * 200)  );
 		myChara.textureImg = './img/IMG_2706.jpg';
 		createMesh(myChara);
-		console.log(myChara);
 		scene.add(myChara.mesh);
 
 //--------------------------------------------------------------camera
@@ -388,7 +371,6 @@ $(document).ready(function(){
 		earth.position.y = earth.Pos[1];
 		earth.position.z = earth.Pos[2];
 		earth.rotation.z = 90;
-		console.log(earth.position);
 		earth.castShadow = true;
 		earth.receiveShadow = true;
 		scene.add(earth);
@@ -411,11 +393,9 @@ $(document).ready(function(){
 		
 		//mediaStreamModeを変更
 		socket.on('modeChange', function (data) {//{ socketId: socket.id, mediaStreamMode: mediaStreamMode}
-			console.log(data);
 			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId) {
 					otherCharasArr[i].mediaStreamMode = data.mediaStreamMode;
-					console.log(otherCharasArr[i].mediaStreamMode);
 				}
 			});
 		});
@@ -438,7 +418,6 @@ $(document).ready(function(){
 					//			context2.fillRect(i*5, 0, 5, data[i]*2);
 					//下部の描画
 					//			context2.fillRect(i*5, h, 5, -data[i]*2);
-					//console.log( data[i] > 100 );
 					if (data[i] > 200) {
 						volume = true;
 					}
@@ -556,7 +535,7 @@ $(document).ready(function(){
 					} else if (chara.mediaStreamMode == false && chara.mesh.geometry.type != "TorusKnotGeometry") {
 						chara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
 					}
-					chara.DrawChat(); //myIconオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
+					chara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
 					if (chara.voiceBallMeshScale > 0.1) {
 						if (chara.talkingNodesSocketIds.length > 0) {
 							otherCharasArr[i].voiceBallMesh.material.color.r = 0;
@@ -590,7 +569,6 @@ $(document).ready(function(){
 		}
 
 		socket.on('peerCallConnected', function (data) {
-			console.log('peerCallConnectedきた〜〜〜〜〜〜〜〜〜〜');
 			otherCharasArr.forEach(function (icon, i, icons) {
 				if (icon.socketId == data.socketId) {
 					if (!otherCharasArr[i].talkingNodesSocketIds.length) {
@@ -705,20 +683,12 @@ $(document).ready(function(){
 			}
 			
 			function videoCallAndAddEvent(chara) {
-				console.log('videoCallAndAddEvent関数実行');
 				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
-				console.log('videoCallAndAddEvent');
-				console.log(chara.peerId);
-				console.log(call);
 				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
 				call.on('close', function () { //callが終了した際のイベントを設定
-					console.log('削除命令受信！！！');
 					$('video').each(function (i, element) { //videoタグをサーチ
-						console.log('削除命令通過！！！');
 						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-							console.log('削除対象発見！！！' + $(element).attr("data-peer") + ' : ' + call.peer);
 							$(element).remove();
-							console.log('削除！');
 							modalOff();
 						}
 					});
@@ -726,8 +696,6 @@ $(document).ready(function(){
 				});
 			}
 			function videoViewRequestAndAddEvent(peerId) {
-				console.log(peerId);
-				console.log('viewリクエスト実行！！！');
 				peer.connect(peerId);
 			}
 			function modalOff() {
@@ -883,7 +851,6 @@ $(document).ready(function(){
 									color: appStatus.currentOctahedronMeshColor
 								});
 								socket.emit('currentOctahedronMeshColor_Update', appStatus.currentOctahedronMeshColor);
-								console.log(myChara);
 							}
 						}
 					} else {//一定範囲外になれば
@@ -926,9 +893,7 @@ $(document).ready(function(){
 						if( myChara.videoBroadcastReady != 'readyToView' ) {
 							myChara.videoBroadcastReady = 'readyToView';//video受信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-							console.log(myChara.videoBroadcastReady);
 							if(appStatus.peerIdOfVideoBroadcasting) {//----------------ビデオ配信者がいれば
-								console.log(appStatus);
 								videoViewRequestAndAddEvent(appStatus.peerIdOfVideoBroadcasting);//ビデオ受信リクエスト
 								console.log('ビデオ配信閲覧リクエストしました！！');
 							}
@@ -951,14 +916,12 @@ $(document).ready(function(){
 			}//if (countFrames % 30 == 0) { //30フレーム毎に実行
 
 			if (myChara) {
-				myChara.DrawChat(); //myIconオブジェクトの描画メソッド呼出
+				myChara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出
 				if (myChara.voiceBallMeshScale > 0.1) {
 					if (myChara.talkingNodes.length > 0) {
 						myChara.voiceBallMesh.material.color.r = 0;
-						console.log('いる');
 					} else {
 						myChara.voiceBallMesh.material.color.r = 1;
-						console.log('いない');
 					}
 					myChara.voiceBallMeshScale -= 0.01;
 				}

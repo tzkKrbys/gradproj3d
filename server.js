@@ -8,13 +8,6 @@ var cache = {};
 var socketio = require('socket.io');
 var util = require('util');//console.log(util.inspect(obj,false,null));でオブジェクトの中身をターミナルで確認できるようにする為
 
-
-
-var guestNumber = 1;
-var nickNames = {};
-var namesUsed = [];
-var currentRoom = {};
-
 function send404(response) {
 	response.writeHead(404, {
 		'Content-Type': 'text/plain'
@@ -55,13 +48,11 @@ function serveStatic(response, cache, absPath) {
 
 var server = http.createServer(function (request, response) {
 	var filePath = false;
-
 	if (request.url == '/') {
 		filePath = 'public/index.html';
 	} else {
 		filePath = 'public' + request.url;
 	}
-
 	var absPath = './' + filePath;
 	serveStatic(response, cache, absPath);
 });
@@ -104,10 +95,8 @@ io.sockets.on('connection', function (socket) {
 		return e.chara;//配列が生成される
 	}));
 	socket.hoge = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-//	console.log(socket);
 	console.log('clientから接続がありました');
 	socket.on('emit_from_client', function (data) {
-//		console.log(data);
 		socket.emit('emit_from_server', 'you sended message ' + data);
 		io.sockets.emit('emit_from_server', 'you sended message ' + data);
 	});
@@ -139,11 +128,6 @@ io.sockets.on('connection', function (socket) {
 	socket.on('client_from_emit_icon_draw', function (data) {
 		io.sockets.emit('server_from_emit_icon_draw', data);
 	});
-	
-	
-	socket.on('mkIconBtn', function (data) {
-//		console.log(data);
-	});
 
 //----------------------------------------------------アクセス時
 	//voiceChat.jsに記述
@@ -165,7 +149,6 @@ io.sockets.on('connection', function (socket) {
 			mediaStreamMode : socket.chara.mediaStreamMode,
 			videoBroadcastReady : socket.chara.videoBroadcastReady
 		};
-//		charasArr.push(chara);
 		socket.broadcast.emit('join', {chara: chara, numOfChara: io.sockets.sockets.length});
 
 	});
@@ -192,34 +175,19 @@ socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
 
 	socket.on('peerCallConnected', function(data) {//dataはicon.socketId
-//		console.log(data);
 		socket.broadcast.emit('peerCallConnected', {socketId: socket.id, talkingNodesSocketId: data});
 	});
 
-//	socket.on('videoBroadcastReady', function(data) {
 	socket.on('videoBroadcastReady_Update', function(data) {
 		socket.chara.videoBroadcastReady = data;
 		socket.broadcast.emit('videoBroadcastReady_Update', {socketId: socket.id, videoBroadcastReady: data});
 	});
 
-//	socket.on('videoChatCall_Update', function(data) {
-//		socket.chara.videoChatCall = data;
-//		socket.broadcast.emit('videoChatCall_Update', {socketId: socket.id, videoChatCall: data});
-//	});
 	socket.on('isVideoChatting_Update', function(data) {
 		socket.chara.isVideoChatting = data;
 		socket.broadcast.emit('isVideoChatting_Update', {socketId: socket.id, isVideoChatting: data});
 	});
-//	socket.on('videoBroadcast_Update', function(data) {
-//		socket.chara.videoBroadcast_Update = data;
-//		socket.broadcast.emit('videoBroadcast_Update', {socketId: socket.id, videoBroadcast: data});
-//	});
-	
-	
-	
-	
 	socket.on('peerCallDisconnected', function(data) {//dataはicon.socketId
-//		console.log(data);
 		socket.broadcast.emit('peerCallDisconnected', {socketId: socket.id, talkingNodesSocketId: data});
 	});
 	
