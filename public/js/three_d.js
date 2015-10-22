@@ -16,6 +16,7 @@ appStatus.initialOctahedronMeshColor = 0x3377ff;
 appStatus.currentMoonTextureImg = './img/moon.jpg';
 appStatus.currentOctahedronMeshColor = 0x3377ff;
 appStatus.peerIdOfVideoBroadcasting = false;
+appStatus.videoBroadcastReadyToView = [];
 
 function KeyDown3d(e) {
 	switch (e.keyCode) {
@@ -218,7 +219,8 @@ $(document).ready(function(){
 			//球体を表示する部分
 			charaX.mesh = new THREE.Mesh(
 //				new THREE.SphereGeometry(30, 100, 100),//球のジオメトリ　（半径：２０）
-				new THREE.TorusKnotGeometry(16, 8, 128, 32, 2, 3),
+//				new THREE.TorusKnotGeometry(16, 8, 128, 32, 2, 3),
+				new THREE.TorusGeometry( 28, 10, 16, 100 ),
 				new THREE.MeshPhongMaterial({
 					map: texture
 				}));
@@ -233,14 +235,14 @@ $(document).ready(function(){
 			//sceneに追加
 			
 			charaX.voiceBallMeshSize = 140;
-			charaX.voiceBallMeshScale = 0.01;
+			charaX.voiceBallMeshScale = 0.0001;
 			charaX.voiceBallMesh = new THREE.Mesh(
 				new THREE.SphereGeometry(charaX.voiceBallMeshSize, 100, 100),
 				new THREE.MeshPhongMaterial({
 					//				map: texture
 					color: 0xffff00,
 					transparent: true,
-					opacity: 0.4
+					opacity: 0.3
 				})
 			);
 			charaX.voiceBallMesh.castShadow = true;//影の設定
@@ -398,11 +400,6 @@ $(document).ready(function(){
 			});
 		});
 
-
-
-
-
-
 		function update() {
 			//-----------------------------------音声ビジュアルエフェクト
 			function voicePickUpFx(){
@@ -490,8 +487,9 @@ $(document).ready(function(){
 				myChara.mesh.geometry = new THREE.SphereGeometry(30, 100, 100);
 			}else if (myChara.mediaStreamMode == 'video' && myChara.mesh.geometry.type != "BoxGeometry") {
 				myChara.mesh.geometry = new THREE.CubeGeometry(40, 40, 40);//球のジオメトリ　（半径：２０）
-			} else if (myChara.mediaStreamMode == false && myChara.mesh.geometry.type != "TorusKnotGeometry") {
-				myChara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
+			} else if (myChara.mediaStreamMode == false && myChara.mesh.geometry.type != "TorusGeometry") {
+//				myChara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
+				myChara.mesh.geometry = new THREE.TorusGeometry( 28, 10, 16, 100 );
 			}
 			
 			
@@ -530,11 +528,13 @@ $(document).ready(function(){
 						chara.mesh.geometry = new THREE.SphereGeometry(30, 100, 100);
 					}else if (chara.mediaStreamMode == 'video' && chara.mesh.geometry.type != "BoxGeometry") {
 						chara.mesh.geometry = new THREE.CubeGeometry(40, 40, 40);//球のジオメトリ　（半径：２０）
-					} else if (chara.mediaStreamMode == false && chara.mesh.geometry.type != "TorusKnotGeometry") {
-						chara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
+					} else if (chara.mediaStreamMode == false && chara.mesh.geometry.type != "TorusGeometry") {
+						chara.mesh.geometry = new THREE.TorusGeometry( 28, 10, 16, 100 );
+//					} else if (chara.mediaStreamMode == false && chara.mesh.geometry.type != "TorusKnotGeometry") {
+//						chara.mesh.geometry = new THREE.TorusKnotGeometry(20, 10, 128, 32, 2, 3);
 					}
 					chara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出(CanvasRenderingContext2Dオブジェクト,str)
-					if (chara.voiceBallMeshScale > 0.1) {
+					if (chara.voiceBallMeshScale > 0.0001) {
 						if (chara.talkingNodesSocketIds.length > 0) {
 							otherCharasArr[i].voiceBallMesh.material.color.r = 0;
 						} else {
@@ -637,6 +637,55 @@ $(document).ready(function(){
 			return properties;
 		}
 
+		//音声チャット関数
+		function callAndAddEvent(chara) {
+			var call = peer.call(chara.peerId, myStream);
+			call.on('close', function () { //callが終了した際のイベントを設定
+				$('video').each(function (i, element) { //videoタグをサーチ
+					if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+						$(element).remove(); //タグを削除
+					}
+				});
+			});
+			myChara.talkingNodes.push({//トーク中のノードから該当するものを取り除く
+				socketId: chara.socketId,
+				call: call
+			});
+			socket.emit('peerCallConnected', chara.socketId);
+		}
+		//ビデオチャット関数
+		function videoCallAndAddEvent(chara) {
+			var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
+			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+			call.on('close', function () { //callが終了した際のイベントを設定
+				$('video').each(function (i, element) { //videoタグをサーチ
+					if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+						$(element).remove();
+						modalOff();
+					}
+				});
+				$('#modal_content').empty();
+			});
+		}
+		//ビデオ配信受信リクエスト
+		function videoViewRequestAndAddEvent(peerId) {
+			peer.connect(peerId);
+		}
+		//モーダルウインドウ終了関数
+		function modalOff() {
+			$('#modal_content').removeClass('active');
+			setTimeout(function() {
+				$('#modal_base').removeClass('active');
+				$('#modal_base').delay(800).fadeOut('slow', function() {
+					$('#modal_overlay').fadeOut("slow").remove();
+					//				$('#modal_base').removeClass('active');
+				});
+			},1000);
+		}
+
+
+
+		
 		(function renderLoop() {
 			requestAnimationFrame(renderLoop);
 			countFrames++;
@@ -662,49 +711,38 @@ $(document).ready(function(){
 				})();
 			}
 
-			function callAndAddEvent(chara) {
-				var call = peer.call(chara.peerId, myStream);
-				call.on('close', function () { //callが終了した際のイベントを設定
-					$('video').each(function (i, element) { //videoタグをサーチ
-						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-							$(element).remove(); //タグを削除
-						}
-					});
-				});
-				myChara.talkingNodes.push({
-					socketId: chara.socketId,
-					call: call
-				});
-				socket.emit('peerCallConnected', chara.socketId);
-			}
+//			function callAndAddEvent(chara) {
+//				var call = peer.call(chara.peerId, myStream);
+//				call.on('close', function () { //callが終了した際のイベントを設定
+//					$('video').each(function (i, element) { //videoタグをサーチ
+//						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+//							$(element).remove(); //タグを削除
+//						}
+//					});
+//				});
+//				myChara.talkingNodes.push({
+//					socketId: chara.socketId,
+//					call: call
+//				});
+//				socket.emit('peerCallConnected', chara.socketId);
+//			}
 			
-			function videoCallAndAddEvent(chara) {
-				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
-				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
-				call.on('close', function () { //callが終了した際のイベントを設定
-					$('video').each(function (i, element) { //videoタグをサーチ
-						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-							$(element).remove();
-							modalOff();
-						}
-					});
-					$('#modal_content').empty();
-				});
-			}
-			function videoViewRequestAndAddEvent(peerId) {
-				peer.connect(peerId);
-			}
-			function modalOff() {
-				$('#modal_content').removeClass('active');
-				setTimeout(function() {
-					$('#modal_base').removeClass('active');
-					$('#modal_base').delay(800).fadeOut('slow', function() {
-						$('#modal_overlay').fadeOut("slow").remove();
-						//				$('#modal_base').removeClass('active');
-					});
-				},1000);
-			}
-
+//			function videoCallAndAddEvent(chara) {
+//				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
+//				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+//				call.on('close', function () { //callが終了した際のイベントを設定
+//					$('video').each(function (i, element) { //videoタグをサーチ
+//						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
+//							$(element).remove();
+//							modalOff();
+//						}
+//					});
+//					$('#modal_content').empty();
+//				});
+//			}
+//			function videoViewRequestAndAddEvent(peerId) {
+//				peer.connect(peerId);
+//			}
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
 				$('#testDiv2').html('myChara.talkingNodes.length : ' + myChara.talkingNodes.length);
@@ -819,9 +857,12 @@ $(document).ready(function(){
 								$('#modal_content').prepend($('<video></video>', {
 									'class': 'videoWindow videoChatting',
 									src: URL.createObjectURL(myStream),//自分のstreamを流す
-									autoplay: true
+									autoplay: true,
+									muted : "muted"
 								}));
 								$('#modal_content').addClass('active');
+								$('#modal_content').append('<h2>ビデオ配信中</h2>');
+
 								//appStatusのtextureを変更
 								appStatus.currentMoonTextureImg = myChara.textureImg;
 								//moonのtextureを更新
@@ -899,7 +940,7 @@ $(document).ready(function(){
 
 			if (myChara) {
 				myChara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出
-				if (myChara.voiceBallMeshScale > 0.1) {
+				if (myChara.voiceBallMeshScale > 0.0001) {
 					if (myChara.talkingNodes.length > 0) {
 						myChara.voiceBallMesh.material.color.r = 0;
 					} else {
@@ -941,6 +982,20 @@ $('#texture3').on('click', function() {
 });
 $('#texture4').on('click', function() {
 	myChara.textureImg = './img/pagu.jpeg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
+
+$('#texture5').on('click', function() {
+	myChara.textureImg = './img/pagu.jpeg';
+	myChara.mesh.material = new THREE.MeshPhongMaterial({
+		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
+	});
+});
+
+$('#texture6').on('click', function() {
+	myChara.textureImg = './img/hanami.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});

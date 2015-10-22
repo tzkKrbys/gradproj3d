@@ -105,7 +105,6 @@ function modalOff() {
 	},1000);
 }
 
-
 var myStream;
 
 var peer = new Peer({
@@ -130,6 +129,11 @@ var receiveOthersStream = function (stream, mediaConnection) { //相手の動画
 			autoplay: true
 		}));
 		$('#modal_content').addClass('active');
+		if ( myChara.videoBroadcastReady == 'readyToView' ){
+			$('#modal_content').append('<h2>ビデオ配信受信中</h2>');
+		} else if (!myChara.videoBroadcastReady) {
+			$('#modal_content').append('<h2>一対一でビデオチャット中</h2>');
+		}
 	} else {
 		$('div#videoElems').prepend($('<video></video>', {
 			'class': 'videoWindow audioChatting',
