@@ -304,8 +304,8 @@ video.audioChatting {
 	margin: auto;
 }
 #openingElem h1 {
-	font-size: 80px;
-	color: #fff;
+	font-size: 120px;
+	color: #bbf;
 	text-shadow: 4px 4px 4px rgba(0,0,0,.8);
 	position: absolute;
 	z-index: 13;
@@ -314,10 +314,11 @@ video.audioChatting {
 	right: 0;
 	bottom: 0;
 	margin: auto;
-	width: 410px;
+	width: 620px;
 	height: 80px;
 	line-height: 60px;
-	
+	-webkit-animation: shadowAnime 3s ease-in-out infinite;
+	animation: shadowAnime 3s ease-in-out infinite;
 }
 #openingElem h2 {
 	font-size: 30px;
@@ -333,8 +334,8 @@ video.audioChatting {
 	width: 340px;
 	height: 40px;
 	line-height: 40px;
-	-webkit-animation: fadeInOut 2s ease-in-out infinite;
-	animation: fadeInOut 2s ease-in-out infinite;
+	-webkit-animation: fadeInOut 4s ease-in-out infinite;
+	animation: fadeInOut 4s ease-in-out infinite;
 }
 
 @-webkit-keyframes fadeInOut{
@@ -347,6 +348,18 @@ video.audioChatting {
 	0% {opacity: 1;}
 	50% {opacity: .1;}
 	100% {opacity: 1;}
+}
+
+@-webkit-keyframes shadowAnime{
+	0% {text-shadow: 0 0 20px rgba(200,200,255,1);}
+	50% {text-shadow: 0 0 0px rgba(200,200,255,1);}
+	100% {text-shadow: 0 0 20px rgba(200,200,255,1);}
+}
+
+@keyframes shadowAnime{
+	0% {text-shadow: 0 0 20px rgba(200,200,255,1);}
+	50% {text-shadow: 0 0 0px rgba(200,200,255,1);}
+	100% {text-shadow: 0 0 20px rgba(200,200,255,1);}
 }
 #openingElem ul {
 	position: absolute;
