@@ -319,6 +319,35 @@ video.audioChatting {
 	line-height: 60px;
 	
 }
+#openingElem h2 {
+	font-size: 30px;
+	color: #fff;
+	text-shadow: 4px 4px 4px rgba(0,0,0,.8);
+	position: absolute;
+	z-index: 13;
+	top: 50%;
+	left: 50%;
+	margin-left: -170px;
+	margin-top: 40px;
+	/* margin: auto; */
+	width: 340px;
+	height: 40px;
+	line-height: 40px;
+	-webkit-animation: fadeInOut 2s ease-in-out infinite;
+	animation: fadeInOut 2s ease-in-out infinite;
+}
+
+@-webkit-keyframes fadeInOut{
+	0% {opacity: 1}
+	50% {opacity: .1}
+	100% {opacity: 1}
+}
+
+@keyframes fadeInOut{
+	0% {opacity: 1}
+	50% {opacity: .1}
+	100% {opacity: 1}
+}
 #openingElem ul {
 	position: absolute;
 	top: 0;
