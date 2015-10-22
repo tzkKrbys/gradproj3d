@@ -962,39 +962,39 @@ $(document).ready(function(){
 	window.addEventListener('DOMContentLoaded', main, false);
 });
 
-$('#texture1').on('click', function() {
+$('.texture1').on('click', function() {
 	myChara.textureImg = './img/kyoushitsu.jpeg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
 });
-$('#texture2').on('click', function() {
+$('.texture2').on('click', function() {
 	myChara.textureImg = './img/harinezumi.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
 });
-$('#texture3').on('click', function() {
+$('.texture3').on('click', function() {
 	myChara.textureImg = './img/IMG_2706.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
 });
-$('#texture4').on('click', function() {
+$('.texture4').on('click', function() {
 	myChara.textureImg = './img/pagu.jpeg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
 });
 
-$('#texture5').on('click', function() {
-	myChara.textureImg = './img/pagu.jpeg';
+$('.texture5').on('click', function() {
+	myChara.textureImg = './img/IMG_2915.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
 });
 
-$('#texture6').on('click', function() {
+$('.texture6').on('click', function() {
 	myChara.textureImg = './img/hanami.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
