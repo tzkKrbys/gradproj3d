@@ -338,15 +338,15 @@ video.audioChatting {
 }
 
 @-webkit-keyframes fadeInOut{
-	0% {opacity: 1}
-	50% {opacity: .1}
-	100% {opacity: 1}
+	0% {opacity: 1;}
+	50% {opacity: .1;}
+	100% {opacity: 1;}
 }
 
 @keyframes fadeInOut{
-	0% {opacity: 1}
-	50% {opacity: .1}
-	100% {opacity: 1}
+	0% {opacity: 1;}
+	50% {opacity: .1;}
+	100% {opacity: 1;}
 }
 #openingElem ul {
 	position: absolute;
