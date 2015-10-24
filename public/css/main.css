@@ -351,23 +351,26 @@ video.audioChatting {
 }
 
 @-webkit-keyframes shadowAnime{
-	0% {text-shadow: 0 0 20px rgba(200,200,255,1);}
-	50% {text-shadow: 0 0 0px rgba(200,200,255,1);}
-	100% {text-shadow: 0 0 20px rgba(200,200,255,1);}
+	0% {text-shadow: 0 0 40px rgba(200,200,255,1);}
+	50% {text-shadow: 0 0 5px rgba(200,200,255,1);}
+	100% {text-shadow: 0 0 40px rgba(200,200,255,1);}
 }
 
 @keyframes shadowAnime{
-	0% {text-shadow: 0 0 20px rgba(200,200,255,1);}
-	50% {text-shadow: 0 0 0px rgba(200,200,255,1);}
-	100% {text-shadow: 0 0 20px rgba(200,200,255,1);}
+	0% {text-shadow: 0 0 40px rgba(200,200,255,1);}
+	50% {text-shadow: 0 0 5px rgba(200,200,255,1);}
+	100% {text-shadow: 0 0 40px rgba(200,200,255,1);}
 }
 #openingElem ul {
+	list-style-type: none;
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	margin: auto;
+	-webkit-perspective: 1000px;
+	perspective: 1000px;
 }
 #openingElem li {
 	width: 50%;
@@ -396,28 +399,33 @@ video.audioChatting {
 	transition: all 4s ease-in-out;
 }
 #openingElem.started .texture5 {
-	background-image: url(../img/IMG_2915.jpg);
-	-webkit-transform: translate(-300px, -600px);
-	-ms-transform: translate(-300px, -600px);
-	transform: translate(-300px, -600px);
+/*
+	-webkit-transform: translate3d(-600px, -300px, -600px);
+	transform: translate3d(-600px, -300px, -600px);
+*/
+	-webkit-transform: rotateY(180deg);
+	transform: rotateY(180deg);
+	-webkit-transform-origin: left;
+	-ms-transform-origin: 0;
+	transform-origin: 0;
 }
 #openingElem.started .texture6 {
 	background-image: url(../img/hanami.jpg);
-	-webkit-transform: translate(300px, -600px);
-	-ms-transform: translate(300px, -600px);
-	transform: translate(300px, -600px);
+	-webkit-transform: translate(600px, -300px);
+	-ms-transform: translate(600px, -300px);
+	transform: translate(600px, -300px);
 }
 #openingElem.started .texture3 {
 	background-image: url(../img/IMG_2706.jpg);
-	-webkit-transform: translate(-300px, 600px);
-	-ms-transform: translate(-300px, 600px);
-	transform: translate(-300px, 600px);
+	-webkit-transform: translate(-600px, 300px);
+	-ms-transform: translate(-600px, 300px);
+	transform: translate(-600px, 300px);
 }
 #openingElem.started .texture4 {
 	background-image: url(../img/pagu.jpeg);
-	-webkit-transform: translate(300px, 600px);
-	-ms-transform: translate(300px, 600px);
-	transform: translate(300px, 600px);
+	-webkit-transform: translate(600px, 300px);
+	-ms-transform: translate(600px, 300px);
+	transform: translate(600px, 300px);
 }
 
 
