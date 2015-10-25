@@ -1,3 +1,4 @@
+console.log('rendererテスト');
 var myChara;
 var otherCharasArr = [];
 
@@ -280,6 +281,8 @@ $(document).ready(function(){
 		camera.position.set(0, 80, 500);
 
 //-------------------------------------------------------------camera end
+		console.log('rendererテスト');
+
 		var renderer;
 		if (window.WebGLRenderingContext) {
 			renderer = new THREE.WebGLRenderer();
