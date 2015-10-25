@@ -283,8 +283,10 @@ $(document).ready(function(){
 		var renderer;
 		if (window.WebGLRenderingContext) {
 			renderer = new THREE.WebGLRenderer();
+			console.log('webGLですよ');
 		} else {
 			renderer = new THREE.CanvasRenderer();
+			console.log('canvasですよ');
 		}
 //		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
