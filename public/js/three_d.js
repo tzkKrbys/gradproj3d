@@ -409,6 +409,7 @@ $(document).ready(function(){
 				}
 			});
 		});
+		
 
 		function update() {
 			//-----------------------------------音声ビジュアルエフェクト
@@ -732,38 +733,6 @@ $(document).ready(function(){
 				})();
 			}
 
-//			function callAndAddEvent(chara) {
-//				var call = peer.call(chara.peerId, myStream);
-//				call.on('close', function () { //callが終了した際のイベントを設定
-//					$('video').each(function (i, element) { //videoタグをサーチ
-//						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-//							$(element).remove(); //タグを削除
-//						}
-//					});
-//				});
-//				myChara.talkingNodes.push({
-//					socketId: chara.socketId,
-//					call: call
-//				});
-//				socket.emit('peerCallConnected', chara.socketId);
-//			}
-			
-//			function videoCallAndAddEvent(chara) {
-//				var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
-//				myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
-//				call.on('close', function () { //callが終了した際のイベントを設定
-//					$('video').each(function (i, element) { //videoタグをサーチ
-//						if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
-//							$(element).remove();
-//							modalOff();
-//						}
-//					});
-//					$('#modal_content').empty();
-//				});
-//			}
-//			function videoViewRequestAndAddEvent(peerId) {
-//				peer.connect(peerId);
-//			}
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
 				$('#testDiv2').html('myChara.talkingNodes.length : ' + myChara.talkingNodes.length);
