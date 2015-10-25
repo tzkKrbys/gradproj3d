@@ -405,27 +405,49 @@ video.audioChatting {
 */
 	-webkit-transform: rotateY(180deg);
 	transform: rotateY(180deg);
-	-webkit-transform-origin: left;
-	-ms-transform-origin: 0;
-	transform-origin: 0;
+	-webkit-transform-origin: 0%;
+	-ms-transform-origin: 0%;
+	transform-origin: 0%;
 }
 #openingElem.started .texture6 {
+/*
 	background-image: url(../img/hanami.jpg);
 	-webkit-transform: translate(600px, -300px);
 	-ms-transform: translate(600px, -300px);
 	transform: translate(600px, -300px);
+*/
+	-webkit-transform: rotateY(-180deg);
+	transform: rotateY(-180deg);
+	-webkit-transform-origin: 100%;
+	-ms-transform-origin: 100%;
+	transform-origin: 100%;
 }
 #openingElem.started .texture3 {
+/*
 	background-image: url(../img/IMG_2706.jpg);
 	-webkit-transform: translate(-600px, 300px);
 	-ms-transform: translate(-600px, 300px);
 	transform: translate(-600px, 300px);
+*/
+	-webkit-transform: rotateY(180deg);
+	transform: rotateY(180deg);
+	-webkit-transform-origin: 0%;
+	-ms-transform-origin: 0%;
+	transform-origin: 0%;
 }
 #openingElem.started .texture4 {
+/*
 	background-image: url(../img/pagu.jpeg);
 	-webkit-transform: translate(600px, 300px);
 	-ms-transform: translate(600px, 300px);
 	transform: translate(600px, 300px);
+*/
+	-webkit-transform: rotateY(-180deg);
+	transform: rotateY(-180deg);
+	-webkit-transform-origin: 100%;
+	-ms-transform-origin: 100%;
+	transform-origin: 100%;
+
 }
 
 

@@ -598,6 +598,18 @@ $(document).ready(function(){
 				}
 			});
 		});
+		socket.on('textureImg', function (data) {
+			console.log(data);
+			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId) {
+					otherCharasArr[i].textureImg = data.textureImg;
+					console.log(otherCharasArr[i].textureImg);
+					otherCharasArr[i].mesh.material = new THREE.MeshPhongMaterial({
+						map: new THREE.ImageUtils.loadTexture(otherCharasArr[i].textureImg)
+					});
+				}
+			});
+		});
 		socket.on('videoBroadcastReady_Update', function (data) {
 			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 				if (chara.socketId == data.socketId) {
@@ -977,24 +989,28 @@ $('.texture1').on('click', function() {
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 $('.texture2').on('click', function() {
 	myChara.textureImg = './img/harinezumi.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 $('.texture3').on('click', function() {
 	myChara.textureImg = './img/IMG_2706.jpg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 $('.texture4').on('click', function() {
 	myChara.textureImg = './img/pagu.jpeg';
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 
 $('.texture5').on('click', function() {
@@ -1002,6 +1018,7 @@ $('.texture5').on('click', function() {
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 
 $('.texture6').on('click', function() {
@@ -1009,6 +1026,7 @@ $('.texture6').on('click', function() {
 	myChara.mesh.material = new THREE.MeshPhongMaterial({
 		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
 	});
+	socket.emit('textureImg', myChara.textureImg);
 });
 
 

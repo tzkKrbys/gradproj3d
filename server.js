@@ -158,9 +158,10 @@ io.sockets.on('connection', function (socket) {
 socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
 	
-//	socket.on('sendMsg', function(data) {
-//		socket.broadcast.emit('sendMsg',{ socketId: socket.id, str: data.str, chatShowCount: data.chatShowCount});
-//	});
+	socket.on('textureImg', function(data) {
+		console.log(data);
+		socket.broadcast.emit('textureImg',{ socketId: socket.id, textureImg: data });
+	});
 	
 	
 	socket.on('voicePU', function(data) {
