@@ -382,16 +382,16 @@ video.audioChatting {
 	background-position: center center;
 }
 #openingElem .texture5 {
-	background-image: url(../img/IMG_2915.jpg);
+	background-image: url(../img/IMG_2915_thumb_m.jpg);
 }
 #openingElem .texture6 {
 	background-image: url(../img/hanami.jpg);
 }
 #openingElem .texture3 {
-	background-image: url(../img/IMG_2706.jpg);
+	background-image: url(../img/IMG_2706_thumb_m.jpg);
 }
 #openingElem .texture4 {
-	background-image: url(../img/pagu.jpeg);
+	background-image: url(../img/pagu_thumb_m.jpeg);
 }
 
 #openingElem.started .texture {

@@ -46,6 +46,14 @@ function serveStatic(response, cache, absPath) {
 	}
 }
 
+
+
+
+
+
+
+
+
 var server = http.createServer(function (request, response) {
 	var filePath = false;
 	if (request.url == '/') {
@@ -64,7 +72,7 @@ server.listen(port, function () {
 
 
 var io = socketio.listen(server);
-var icons = [];
+//var charas = [];
 var charasArr = [];
 var ids = [];
 
@@ -150,16 +158,16 @@ io.sockets.on('connection', function (socket) {
 socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
 	
-	socket.on('sendMsg', function(data) {
-		socket.broadcast.emit('sendMsg',{ socketId: socket.id, str: data.str, chatShowCount: data.chatShowCount});
-	});
+//	socket.on('sendMsg', function(data) {
+//		socket.broadcast.emit('sendMsg',{ socketId: socket.id, str: data.str, chatShowCount: data.chatShowCount});
+//	});
 	
 	
 	socket.on('voicePU', function(data) {
 		socket.broadcast.emit('voicePU', { socketId: socket.id ,voiceBallMeshScale: data});
 	});
 	
-	//----------------------chat関連
+	//-------------------------------------------------------------------------------------chat関連
 	socket.on('modeChange', function (data) {
 		socket.chara.mediaStreamMode = data;
 		socket.broadcast.emit('modeChange', { socketId: socket.id, mediaStreamMode: data});
