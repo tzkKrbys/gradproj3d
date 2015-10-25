@@ -280,8 +280,13 @@ $(document).ready(function(){
 		camera.position.set(0, 80, 500);
 
 //-------------------------------------------------------------camera end
-
-		var renderer = new THREE.WebGLRenderer();
+		var renderer;
+		if (window.WebGLRenderingContext) {
+			renderer = new THREE.WebGLRenderer();
+		} else {
+			renderer = new THREE.CanvasRenderer();
+		}
+//		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize(width, height);
 		renderer.shadowMap.enabled = true; //影をつける
 		document.body.appendChild(renderer.domElement);
