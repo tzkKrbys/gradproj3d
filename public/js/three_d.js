@@ -438,8 +438,6 @@ $(document).ready(function(){
 			voicePickUpFx();
 
 			//-----------------------------------音声ビジュアルエフェクト
-			
-			
 			if (myChara/* && countFrames % 2 == 0*/) {
 				Pos[0] = myChara.Pos[0];
 				Pos[1] = myChara.Pos[1];
@@ -575,6 +573,7 @@ $(document).ready(function(){
 				});
 			}
 		}
+//-------------------------------------------------------function update() end
 
 		socket.on('peerCallConnected', function (data) {
 			otherCharasArr.forEach(function (icon, i, icons) {

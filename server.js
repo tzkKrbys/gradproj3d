@@ -160,6 +160,7 @@ socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	
 	socket.on('textureImg', function(data) {
 		console.log(data);
+		socket.chara.textureImg = data;
 		socket.broadcast.emit('textureImg',{ socketId: socket.id, textureImg: data });
 	});
 	
