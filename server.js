@@ -174,6 +174,10 @@ socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 		socket.chara.mediaStreamMode = data;
 		socket.broadcast.emit('modeChange', { socketId: socket.id, mediaStreamMode: data});
 	});
+	socket.on('videoChatOpponentPeerId', function (data) {
+		socket.chara.videoChatOpponentPeerId = data;
+		socket.broadcast.emit('videoChatOpponentPeerId', { socketId: socket.id, videoChatOpponentPeerId: data});
+	});
 
 	socket.on('peerCallConnected', function(data) {//dataはicon.socketId
 		socket.broadcast.emit('peerCallConnected', {socketId: socket.id, talkingNodesSocketId: data});

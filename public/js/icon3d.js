@@ -20,6 +20,7 @@ function Chara(){
 	this.voiceBallMeshScale;
 	this.mediaStreamMode = false;//video,audio,false
 	this.videoChatCall;//切断する際に必要
+	this.videoChatCallPeer;//ビデオ接続する際に、相手がビデオチャット中かどうかを判断する為に使う
 	this.videoChatViewerCall = [];//切断する際に必要
 	this.videoBroadcastReady = false;//false,readyToSend,readyToView ビデオ配信準備用
 	this.isVideoBroadcasting = false;//false,sending,viewing ビデオ配信中判断用

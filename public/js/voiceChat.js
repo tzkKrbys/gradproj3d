@@ -185,6 +185,7 @@ peer.on('call', function (call) {//仮引数callはmediaConnection。リモー�
 			receiveOthersStream(stream, this);
 		});//リモートのpeerがstreamを追加したときに発生します。
 		myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
+		socket.emit('videoChatCallPeer', myChara.videoChatCall.peer);//ビデオ接続する際に、相手がビデオチャット中かどうかを判断する為に使う
 		call.on('close', function () { //callが終了した際のイベントを設定
 			$('video').remove();
 			modalOff();

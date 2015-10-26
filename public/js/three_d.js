@@ -409,6 +409,15 @@ $(document).ready(function(){
 				}
 			});
 		});
+		socket.on('videoChatOpponentPeerId', function (data) {//{ socketId: socket.id, mediaStreamMode: mediaStreamMode}
+			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+				if (chara.socketId == data.socketId) {
+					otherCharasArr[i].videoChatOpponentPeerId = data.videoChatOpponentPeerId;
+					console.log(data);
+					console.log(myChara.videoChatCall);
+				}
+			});
+		});
 	
 
 		function update() {
@@ -679,8 +688,11 @@ $(document).ready(function(){
 		function videoCallAndAddEvent(chara) {
 			var call = peer.call(chara.peerId, myStream);//第一引数…リモートpeerのブローカーID(リモートpeerのpeer.id)
 			myChara.videoChatCall = call;//mediaConnectionクラス。切断する際に必要
-			console.log(call);
+			
 			console.log(chara);
+			console.log(call);//call.peerとchara.peerIdは同じ
+			
+			socket.emit('videoChatOpponentPeerId', myChara.videoChatCall.peer);//videochat中の相手のpeerId。ビデオ接続する際に、相手がビデオチャット中かどうかを判断する為に使う
 			call.on('close', function () { //callが終了した際のイベントを設定
 				$('video').each(function (i, element) { //videoタグをサーチ
 					if ($(element).attr("data-peer") == call.peer) { //もしこのタグのdata-peer属性値とpeerが同じなら
@@ -803,31 +815,36 @@ $(document).ready(function(){
 										if (!myChara.videoBroadcastReady && !chara.videoBroadcastReady) {//-------------お互いビデオ配信モードでなければ
 											var videoTalkAbleDistance = 40;
 											if ((diffX * diffX) + (diffY * diffY) + (diffZ * diffZ ) < videoTalkAbleDistance * videoTalkAbleDistance) {//距離内
-												if(!myChara.videoChatCall ){//mediaConnectionを持っていなければ
-													if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
-														myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
-															if (talkingNode.socketId == chara.socketId) {//該当charaとaudioチャット中のcharaのidが一致してたら
-																talkingNode.call.close();//audioチャットを切断する
-																arr.splice(i, 1);
-																socket.emit('peerCallDisconnected', chara.socketId);
-															}
-														});
+												if(!myChara.videoChatCall){//mediaConnectionを持っていなければ
+													if( !chara.videoChatOpponentPeerId || chara.videoChatOpponentPeerId == myChara.peerId ){
+														if (myChara.talkingNodes.length != 0) {//audioで誰かと話してる場合
+															myChara.talkingNodes.forEach(function (talkingNode, i, arr) {
+																if (talkingNode.socketId == chara.socketId) {//該当charaとaudioチャット中のcharaのidが一致してたら
+																	talkingNode.call.close();//audioチャットを切断する
+																	arr.splice(i, 1);
+																	socket.emit('peerCallDisconnected', chara.socketId);
+																}
+															});
+														}
+														videoCallAndAddEvent(chara); //callしてイベント設置
 													}
-													videoCallAndAddEvent(chara); //callしてイベント設置
 												}
 											} else { //一定距離以外なら
 												if (!myChara.videoBroadcastReady) {
 													if(myChara.videoChatCall) {
-														console.log(myChara.videoChatCall.peer);
-														if ( myChara.videoChatCall && myChara.videoChatCall.peer == chara.peerId ) {//mediaConnectionを持っていれば
-															console.log('切断');
-															myChara.videoChatCall.close();
-															modalOff();
-															myChara.videoChatCall = false;
-														}/* else if ($('#modal_content').children().length > 0) {
-															console.log('切断下段');
-															modalOff();
-														}*/
+														if(myChara.videoChatCall.peer == chara.peerId) {
+														
+															if ( myChara.videoChatCall.peer == chara.peerId ) {//mediaConnectionを持っていれば
+																console.log('切断');
+																myChara.videoChatCall.close();
+																modalOff();
+																myChara.videoChatCall = false;
+																socket.emit('videoChatOpponentPeerId', false);//ビデオ接続する際に、相手がビデオチャット中かどうかを判断する為に使う
+															} else if ($('#modal_content').children().length > 0) {
+																console.log('切断下段');
+																modalOff();
+															}
+														}
 													}
 													
 												}
