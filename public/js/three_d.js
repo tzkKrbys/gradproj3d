@@ -720,42 +720,44 @@ $(document).ready(function(){
 		}
 
 
+		function testElemCreate(){
+			var $test3 = $('<div></div>');
+			$test3.html(printProperties(appStatus));
+			$('#testDiv5').html($test3);
 
-		
+			var $test1 = $('<div></div>');
+			$test1.html(printProperties(myChara));
+			$('#testDiv6').html($test1);
+
+			if(otherCharasArr.length > 0){
+				var $test2 = $('<div></div>');
+				otherCharasArr.forEach(function(chara,i,otherCharasArr) {
+					$test2.html(printProperties(chara));
+				});
+				$('#testDiv7').html($test2);
+			}
+			
+			$('#testDiv2').html('myChara.talkingNodes.length : ' + myChara.talkingNodes.length);
+			$('#testDiv3').html('myChara.socketId : ' + myChara.socketId);
+			if (myChara.talkingNodes.length) {
+				$('#testDiv4').html('myChara.talkingNodes[0].socketId : ' + myChara.talkingNodes[0].socketId);
+			} else {
+				$('#testDiv4').html('myChara.talkingNodes[0].socketId : ');
+			}
+		};
+
 		(function renderLoop() {
 			requestAnimationFrame(renderLoop);
 			countFrames++;
 			update();
 			
 			if(countFrames % 60 == 0) {
-				(function(){
-					var $test3 = $('<div></div>');
-					$test3.html(printProperties(appStatus));
-					$('#testDiv5').html($test3);
-					
-					var $test1 = $('<div></div>');
-					$test1.html(printProperties(myChara));
-					$('#testDiv6').html($test1);
-
-					if(otherCharasArr.length > 0){
-						var $test2 = $('<div></div>');
-						otherCharasArr.forEach(function(chara,i,otherCharasArr) {
-							$test2.html(printProperties(chara));
-						});
-						$('#testDiv7').html($test2);
-					}
-				})();
+				//testElemCreate();
 			}
 
+			
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
-				$('#testDiv2').html('myChara.talkingNodes.length : ' + myChara.talkingNodes.length);
-				$('#testDiv3').html('myChara.socketId : ' + myChara.socketId);
-				if (myChara.talkingNodes.length) {
-					$('#testDiv4').html('myChara.talkingNodes[0].socketId : ' + myChara.talkingNodes[0].socketId);
-				} else {
-					$('#testDiv4').html('myChara.talkingNodes[0].socketId : ');
-				}
 				
 				if (myChara && peer && myStream) {
 					if (otherCharasArr.length > 0) {//誰か相手がいれば
