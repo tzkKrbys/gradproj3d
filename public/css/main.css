@@ -380,6 +380,23 @@ video.audioChatting {
 #openingElem .texture {
 	background-size: cover;
 	background-position: center center;
+	position: relative;
+}
+#openingElem .texture:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	background: #fff;
+	opacity: 0;
+	-webkit-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+#openingElem .texture:hover:before {
+	opacity: .2;
 }
 #openingElem .texture5 {
 	background-image: url(../img/IMG_2915_thumb_m.jpg);
