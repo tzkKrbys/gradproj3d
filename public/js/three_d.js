@@ -755,7 +755,7 @@ $(document).ready(function(){
 				//testElemCreate();
 			}
 
-			
+
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
 				
