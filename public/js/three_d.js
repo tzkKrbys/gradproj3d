@@ -389,7 +389,7 @@ $(document).ready(function(){
 		//myCharaの位置が変わったかどうかを確認する為の変数
 		var Pos = [];
 		var countFrames = 0;
-		var capacityOfVoiceChat = 3;
+		var capacityOfVoiceChat = 4;
 
 		function positionUpdate() {
 			if (myChara) {
@@ -421,33 +421,35 @@ $(document).ready(function(){
 	
 
 		
-		
-		function update() {
-			//-----------------------------------音声ビジュアルエフェクト
-			function voicePickUpFx(){
-				//符号なし8bitArrayを生成
-				var data = new Uint8Array(analyser.frequencyBinCount);
-				//周波数データ
-				analyser.getByteFrequencyData(data);
-				var volume = false;
-				for (var i = 0; i < data.length; ++i) {
-					//上部の描画
-					//			context2.fillRect(i*5, 0, 5, data[i]*2);
-					//下部の描画
-					//			context2.fillRect(i*5, h, 5, -data[i]*2);
-					if (data[i] > 200) {
-						volume = true;
-					}
-				}
-				if (volume) {
-					if (myChara && myChara.mediaStreamMode == 'audio') {
-						//					myChara.countVoice = 100;
-						myChara.voiceBallMeshScale = 1;
-						socket.emit('voicePU', myChara.voiceBallMeshScale);
-					}
+		function voicePickUpFx(){
+			//符号なし8bitArrayを生成
+			var data = new Uint8Array(analyser.frequencyBinCount);
+			//周波数データ
+			analyser.getByteFrequencyData(data);
+			var volume = false;
+			for (var i = 0; i < data.length; ++i) {
+				//上部の描画
+				//			context2.fillRect(i*5, 0, 5, data[i]*2);
+				//下部の描画
+				//			context2.fillRect(i*5, h, 5, -data[i]*2);
+				if (data[i] > 150) {
+					volume = true;
 				}
 			}
-			voicePickUpFx();
+			if (volume) {
+				if (myChara && myChara.mediaStreamMode == 'audio') {
+					//					myChara.countVoice = 100;
+					myChara.voiceBallMeshScale = 1;
+					socket.emit('voicePU', myChara.voiceBallMeshScale);
+				}
+			}
+		}
+
+		function update() {
+			//-----------------------------------音声ビジュアルエフェクト
+			if(countFrames % 10 == 0) {
+				voicePickUpFx();
+			}
 
 			//-----------------------------------音声ビジュアルエフェクト
 			
@@ -805,9 +807,6 @@ $(document).ready(function(){
 			countFrames++;
 			update();
 			
-			if(countFrames % 60 == 0) {
-				//testElemCreate();
-			}
 
 
 //------------------------------------------------------------media接続判定
@@ -1005,7 +1004,6 @@ $(document).ready(function(){
 								modalOff();
 							});
 							$('#modal_content').empty();
-
 						}
 					}
 				}
@@ -1035,49 +1033,5 @@ $(document).ready(function(){
 	window.addEventListener('DOMContentLoaded', main, false);
 });
 
-$('.texture1').on('click', function() {
-	myChara.textureImg = './img/kyoushitsu.jpeg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
-$('.texture2').on('click', function() {
-	myChara.textureImg = './img/harinezumi.jpg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
-$('.texture3').on('click', function() {
-	myChara.textureImg = './img/IMG_2706.jpg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
-$('.texture4').on('click', function() {
-	myChara.textureImg = './img/pagu.jpeg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
-
-$('.texture5').on('click', function() {
-	myChara.textureImg = './img/IMG_2915.jpg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
-
-$('.texture6').on('click', function() {
-	myChara.textureImg = './img/hanami.jpg';
-	myChara.mesh.material = new THREE.MeshPhongMaterial({
-		map: new THREE.ImageUtils.loadTexture(myChara.textureImg)
-	});
-	socket.emit('textureImg', myChara.textureImg);
-});
 
 

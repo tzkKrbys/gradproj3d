@@ -159,11 +159,9 @@ io.sockets.on('connection', function (socket) {
 	});
 	
 	function positionUpdate() {
-		console.log('162行目 ' + socket.chara.Pos);
-		console.log('163行目 ' + io.sockets.sockets[0].chara.Pos);
 //		io.sockets.sockets.forEach(function(socket, i, sockets) {
 		var posArr = io.sockets.sockets.map(function(e) {
-			if(e.chara.socketId) {
+			if(e.chara) {
 				var data = {};
 				data.socketId = e.chara.socketId;
 				data.Pos = e.chara.Pos;
