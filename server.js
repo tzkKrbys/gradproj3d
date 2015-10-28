@@ -153,10 +153,30 @@ io.sockets.on('connection', function (socket) {
 	});
 
 
-	socket.on('charaPosChanged', function(data) {
+	socket.on('positionUpdate', function(data) {
 		socket.chara.Pos = data;
-socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
+		//socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
+	
+	function positionUpdate() {
+		console.log('162行目 ' + socket.chara.Pos);
+		console.log('163行目 ' + io.sockets.sockets[0].chara.Pos);
+//		io.sockets.sockets.forEach(function(socket, i, sockets) {
+		var posArr = io.sockets.sockets.map(function(e) {
+			if(e.chara.socketId) {
+				var data = {};
+				data.socketId = e.chara.socketId;
+				data.Pos = e.chara.Pos;
+				return data;
+				console.log('171行目 ' + data);
+			}
+		});
+		console.log(posArr);
+		io.sockets.emit('positionUpdate', posArr);
+			
+		setTimeout(positionUpdate,1000);
+	}
+	positionUpdate();
 	
 	socket.on('textureImg', function(data) {
 		console.log(data);

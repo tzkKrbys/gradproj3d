@@ -3,6 +3,7 @@ function Chara(){
 	this.mesh;
 	this.socketId;
 	this.Pos = [0, 0, 0];					// x座標
+	this.renderPos = [0, 0, 0];					// x座標
 	this.moveSpeed;				// 座標移動加算量
 	this.radius = 20;			// 円の半径
 	this.dragging = false;//ドラッグ中かどうか

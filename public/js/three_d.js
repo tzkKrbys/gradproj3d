@@ -391,10 +391,10 @@ $(document).ready(function(){
 		var countFrames = 0;
 		var capacityOfVoiceChat = 3;
 
-		function positionChange() {
+		function positionUpdate() {
 			if (myChara) {
 				if (myChara.Pos[0] != Pos[0] || myChara.Pos[1] != Pos[1] || myChara.Pos[2] != Pos[2]) {
-					socket.emit('charaPosChanged', myChara.Pos);
+					socket.emit('positionUpdate', myChara.Pos);
 				}
 			}
 		}
@@ -420,6 +420,8 @@ $(document).ready(function(){
 		});
 	
 
+		
+		
 		function update() {
 			//-----------------------------------音声ビジュアルエフェクト
 			function voicePickUpFx(){
@@ -448,11 +450,7 @@ $(document).ready(function(){
 			voicePickUpFx();
 
 			//-----------------------------------音声ビジュアルエフェクト
-			if (myChara/* && countFrames % 2 == 0*/) {
-				Pos[0] = myChara.Pos[0];
-				Pos[1] = myChara.Pos[1];
-				Pos[2] = myChara.Pos[2];
-			}
+			
 
 			controls.update();//orbitcontrolのメソッド
 
@@ -536,8 +534,18 @@ $(document).ready(function(){
 				myChara.Pos[1],
 				myChara.Pos[2]
 			);
-			//myCharaの位置が変化していたら
-			positionChange();
+			if(countFrames % 60 == 0) {
+				
+				//myCharaの位置が変化していたら
+				positionUpdate();
+				//------------------------------------座標情報用
+				if (myChara) {
+					Pos[0] = myChara.Pos[0];
+					Pos[1] = myChara.Pos[1];
+					Pos[2] = myChara.Pos[2];
+				}
+
+			}
 			
 			//otherChara-------------------
 			if(otherCharasArr.length != 0) {
@@ -565,15 +573,49 @@ $(document).ready(function(){
 						otherCharasArr[i].mesh.rotation.y + 0.002,
 						otherCharasArr[i].mesh.rotation.z + 0.004
 					);
-					otherCharasArr[i].mesh.position.set(
-						otherCharasArr[i].Pos[0],
-						otherCharasArr[i].Pos[1],
-						otherCharasArr[i].Pos[2]
-					);
+//					otherCharasArr[i].mesh.position.set(
+//						otherCharasArr[i].Pos[0],
+//						otherCharasArr[i].Pos[1],
+//						otherCharasArr[i].Pos[2]
+//
+//					console.log(otherCharasArr[i].Pos);
+					if(otherCharasArr[i].renderPos[0] != otherCharasArr[i].Pos[0] ||
+					   otherCharasArr[i].renderPos[1] != otherCharasArr[i].Pos[1] ||
+					   otherCharasArr[i].renderPos[2] != otherCharasArr[i].Pos[2] ){
+//						console.log(otherCharasArr[i].renderPos);
+//						console.log(otherCharasArr[i].Pos);
+						if(otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] > 5){
+							otherCharasArr[i].renderPos[0] += 4;
+						} else if (otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] < -5) {
+							otherCharasArr[i].renderPos[0] -= 4;
+						} else {
+							otherCharasArr[i].renderPos[0] = otherCharasArr[i].Pos[0];
+						}
+						if(otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] > 5){
+							otherCharasArr[i].renderPos[1] += 4;
+						} else if (otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] < -5) {
+							otherCharasArr[i].renderPos[1] -= 4;
+						} else {
+							otherCharasArr[i].renderPos[1] = otherCharasArr[i].Pos[1];
+						}
+						if(otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] > 5){
+							otherCharasArr[i].renderPos[2] += 4;
+						} else if (otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] < -5) {
+							otherCharasArr[i].renderPos[2] -= 4;
+						} else {
+							otherCharasArr[i].renderPos[2] = otherCharasArr[i].Pos[2];
+						}
+						otherCharasArr[i].mesh.position.set(
+							otherCharasArr[i].renderPos[0],
+							otherCharasArr[i].renderPos[1],
+							otherCharasArr[i].renderPos[2]
+						);
+						console.log(otherCharasArr[i].renderPos[0]);
+					}
 					otherCharasArr[i].voiceBallMesh.position.set(
-						otherCharasArr[i].Pos[0],
-						otherCharasArr[i].Pos[1],
-						otherCharasArr[i].Pos[2]
+						otherCharasArr[i].renderPos[0],
+						otherCharasArr[i].renderPos[1],
+						otherCharasArr[i].renderPos[2]
 					);
 					otherCharasArr[i].voiceBallMesh.scale.set(
 						otherCharasArr[i].voiceBallMeshScale,
@@ -638,6 +680,18 @@ $(document).ready(function(){
 						});
 					}
 				}
+			});
+		});
+		socket.on('positionUpdate', function (data) {
+			otherCharasArr.forEach(function(chara, i, otherCharasArr) {
+				for(var j = 0; j < data.length; j++){
+					if(data[j]){
+						if (chara.socketId == data[j].socketId ) {
+							otherCharasArr[i].Pos = data[j].Pos;
+						}
+					}
+				}
+				console.log(otherCharasArr[i].Pos);
 			});
 		});
 		
@@ -758,7 +812,6 @@ $(document).ready(function(){
 
 //------------------------------------------------------------media接続判定
 			if (countFrames % 30 == 0) { //30フレーム毎に実行
-				
 				if (myChara && peer && myStream) {
 					if (otherCharasArr.length > 0) {//誰か相手がいれば
 						otherCharasArr.forEach(function (chara, i, charas) {
