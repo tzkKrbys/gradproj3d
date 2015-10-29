@@ -133,7 +133,7 @@ $(document).ready(function(){
 		//-------------------------------------------socket.io---//
 		socket.on('connect', function() {
 			socket.on('sendCharasArr', function(data){//dataは{iconsArr:[], numOgIcon: io.sockets.sockets.length}
-				data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfIcon}
+				data.charasArr.forEach(function(chara) {//dataはobject{charasArr ,numOfChara}
 					if (!chara.socketId) return;
 	//				otherCharasArr.push(MyChara.fromObject( chara, chara.PosX, chara.PosY, chara.PosZ ));
 					var othreChara = new Chara();
@@ -144,7 +144,8 @@ $(document).ready(function(){
 					othreChara.mediaStreamMode = chara.mediaStreamMode;
 					otherCharasArr.push(othreChara);
 				});
-				$('#testDiv').html('現在の人数：' + data.numOfIcon);
+				
+				$('#testDiv').html('現在の人数：' + data.numOfChara);
 				if(otherCharasArr.length != 0) {
 					otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 						createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyChara
@@ -181,7 +182,7 @@ $(document).ready(function(){
 				createMesh(othreChara);
 				otherCharasArr.push(othreChara);
 				scene.add(othreChara.mesh);
-				$('#testDiv').html('現在の人数：' + data.numOfIcon);
+				$('#testDiv').html('現在の人数：' + (data.numOfChara - 1));
 			});
 
 
@@ -542,6 +543,18 @@ $(document).ready(function(){
 					Pos[0] = myChara.Pos[0];
 					Pos[1] = myChara.Pos[1];
 					Pos[2] = myChara.Pos[2];
+				}
+			}
+			
+			if (myChara) {
+				myChara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出
+				if (myChara.voiceBallMeshScale > 0.0001) {
+					if (myChara.talkingNodes.length > 0) {
+						myChara.voiceBallMesh.material.color.r = 0;
+					} else {
+						myChara.voiceBallMesh.material.color.r = 1;
+					}
+					myChara.voiceBallMeshScale -= 0.01;
 				}
 			}
 			
@@ -1012,17 +1025,6 @@ $(document).ready(function(){
 				}
 			}//if (countFrames % 30 == 0) { //30フレーム毎に実行
 
-			if (myChara) {
-				myChara.DrawChat(); //myCharaオブジェクトの描画メソッド呼出
-				if (myChara.voiceBallMeshScale > 0.0001) {
-					if (myChara.talkingNodes.length > 0) {
-						myChara.voiceBallMesh.material.color.r = 0;
-					} else {
-						myChara.voiceBallMesh.material.color.r = 1;
-					}
-					myChara.voiceBallMeshScale -= 0.01;
-				}
-			}
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------
 	}
