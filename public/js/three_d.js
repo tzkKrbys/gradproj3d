@@ -621,7 +621,6 @@ $(document).ready(function(){
 							otherCharasArr[i].renderPos[1],
 							otherCharasArr[i].renderPos[2]
 						);
-						console.log(otherCharasArr[i].renderPos[0]);
 					}
 					otherCharasArr[i].voiceBallMesh.position.set(
 						otherCharasArr[i].renderPos[0],
@@ -702,7 +701,7 @@ $(document).ready(function(){
 						}
 					}
 				}
-				console.log(otherCharasArr[i].Pos);
+//				console.log(otherCharasArr[i].Pos);
 			});
 		});
 		
