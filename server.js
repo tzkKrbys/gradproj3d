@@ -95,10 +95,10 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.emit('appStatus_Update', appStatus);//最初にクライアントにアプリの状態を送る
 	
-	console.log('91行目 : '+io.sockets.sockets.map(function(e) {
-		console.log('92行目'+e.chara[1]);
-		return e.chara;//配列が生成される
-	}));
+//	console.log('91行目 : '+io.sockets.sockets.map(function(e) {
+//		console.log('92行目'+e.chara[1]);
+//		return e.chara;//配列が生成される
+//	}));
 	socket.on('emit_from_client', function (data) {
 		socket.emit('emit_from_server', 'you sended message ' + data);
 		io.sockets.emit('emit_from_server', 'you sended message ' + data);
@@ -166,18 +166,18 @@ io.sockets.on('connection', function (socket) {
 				data.socketId = e.chara.socketId;
 				data.Pos = e.chara.Pos;
 				return data;
-				console.log('171行目 ' + data);
+//				console.log('171行目 ' + data);
 			}
 		});
-		console.log(posArr);
+//		console.log(posArr);
 		io.sockets.emit('positionUpdate', posArr);
 			
-		setTimeout(positionUpdate,1000);
+		setTimeout(positionUpdate,500);
 	}
 	positionUpdate();
 	
 	socket.on('textureImg', function(data) {
-		console.log(data);
+//		console.log(data);
 		socket.chara.textureImg = data;
 		socket.broadcast.emit('textureImg',{ socketId: socket.id, textureImg: data });
 	});

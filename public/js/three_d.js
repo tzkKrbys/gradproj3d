@@ -452,7 +452,6 @@ $(document).ready(function(){
 			}
 
 			//-----------------------------------音声ビジュアルエフェクト
-			
 
 			controls.update();//orbitcontrolのメソッド
 
@@ -510,7 +509,6 @@ $(document).ready(function(){
 				myChara.mesh.geometry = new THREE.TorusGeometry( 28, 10, 16, 100 );
 			}
 			
-			
 			myChara.mesh.position.set(
 				myChara.Pos[0],
 				myChara.Pos[1],
@@ -536,8 +534,7 @@ $(document).ready(function(){
 				myChara.Pos[1],
 				myChara.Pos[2]
 			);
-			if(countFrames % 60 == 0) {
-				
+			if(countFrames % 30 == 0) {
 				//myCharaの位置が変化していたら
 				positionUpdate();
 				//------------------------------------座標情報用
@@ -546,10 +543,9 @@ $(document).ready(function(){
 					Pos[1] = myChara.Pos[1];
 					Pos[2] = myChara.Pos[2];
 				}
-
 			}
 			
-			//otherChara-------------------
+			//otherChara描画-------------------
 			if(otherCharasArr.length != 0) {
 				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
 					if(chara.mediaStreamMode == 'audio' && chara.mesh.geometry.type != "SphereGeometry") {
@@ -586,23 +582,23 @@ $(document).ready(function(){
 					   otherCharasArr[i].renderPos[2] != otherCharasArr[i].Pos[2] ){
 //						console.log(otherCharasArr[i].renderPos);
 //						console.log(otherCharasArr[i].Pos);
-						if(otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] > 5){
+						if(otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] > 4){
 							otherCharasArr[i].renderPos[0] += 4;
-						} else if (otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] < -5) {
+						} else if (otherCharasArr[i].Pos[0] - otherCharasArr[i].renderPos[0] < -4) {
 							otherCharasArr[i].renderPos[0] -= 4;
 						} else {
 							otherCharasArr[i].renderPos[0] = otherCharasArr[i].Pos[0];
 						}
-						if(otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] > 5){
+						if(otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] > 4){
 							otherCharasArr[i].renderPos[1] += 4;
-						} else if (otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] < -5) {
+						} else if (otherCharasArr[i].Pos[1] - otherCharasArr[i].renderPos[1] < -4) {
 							otherCharasArr[i].renderPos[1] -= 4;
 						} else {
 							otherCharasArr[i].renderPos[1] = otherCharasArr[i].Pos[1];
 						}
-						if(otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] > 5){
+						if(otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] > 4){
 							otherCharasArr[i].renderPos[2] += 4;
-						} else if (otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] < -5) {
+						} else if (otherCharasArr[i].Pos[2] - otherCharasArr[i].renderPos[2] < -4) {
 							otherCharasArr[i].renderPos[2] -= 4;
 						} else {
 							otherCharasArr[i].renderPos[2] = otherCharasArr[i].Pos[2];
@@ -712,6 +708,13 @@ $(document).ready(function(){
 				}
 			});
 		});
+//		socket.on('charaPosChanged', function (data) {
+//			otherCharasArr.forEach(function (chara, i, otherCharasArr) {
+//				if (chara.socketId == data.socketId) {
+//					otherCharasArr[i].Pos = data.Pos;
+//				}
+//			});
+//		});
 
 		function printProperties(obj) {
 			var properties = '';
@@ -990,7 +993,7 @@ $(document).ready(function(){
 						if( myChara.videoBroadcastReady != 'readyToView' ) {
 							myChara.videoBroadcastReady = 'readyToView';//video受信準備
 							socket.emit('videoBroadcastReady_Update', myChara.videoBroadcastReady);
-							if(appStatus.peerIdOfVideoBroadcasting) {//----------------ビデオ配信者がいれば
+							if(appStatus.peerIdOfVideoBroadcasting) {//----------------------------ビデオ配信者がいれば
 								videoViewRequestAndAddEvent(appStatus.peerIdOfVideoBroadcasting);//ビデオ受信リクエスト
 							}
 						}
@@ -1020,13 +1023,6 @@ $(document).ready(function(){
 					myChara.voiceBallMeshScale -= 0.01;
 				}
 			}
-			socket.on('charaPosChanged', function (data) {
-				otherCharasArr.forEach(function (chara, i, otherCharasArr) {
-					if (chara.socketId == data.socketId) {
-						otherCharasArr[i].Pos = data.Pos;
-					}
-				});
-			});
 			renderer.render(scene, camera);
 		})();//----------------------end of (function renderLoop() {--------
 	}
