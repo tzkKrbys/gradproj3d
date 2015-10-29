@@ -91,7 +91,7 @@ io.sockets.on('connection', function (socket) {
 	//io.sockets.socketsは配列になっている
 	socket.emit('sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
 		return e.chara;//配列が生成される
-	}), numOfIcon: io.sockets.sockets.length});
+	}), numOfChara: io.sockets.sockets.length});
 	
 	socket.emit('appStatus_Update', appStatus);//最初にクライアントにアプリの状態を送る
 	

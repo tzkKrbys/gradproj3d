@@ -144,8 +144,9 @@ $(document).ready(function(){
 					othreChara.mediaStreamMode = chara.mediaStreamMode;
 					otherCharasArr.push(othreChara);
 				});
-				
-				$('#testDiv').html('現在の人数：' + data.numOfChara);
+				console.log(data);
+				$('#testDiv').html('現在の人数：' + (data.numOfChara - 1) + '人');
+				console.log(data.numOfChara - 1);
 				if(otherCharasArr.length != 0) {
 					otherCharasArr.forEach(function(chara, i, otherCharasArr) {
 						createMesh(otherCharasArr[i]);//otherCharasArr[0]はmyChara
@@ -182,7 +183,9 @@ $(document).ready(function(){
 				createMesh(othreChara);
 				otherCharasArr.push(othreChara);
 				scene.add(othreChara.mesh);
-				$('#testDiv').html('現在の人数：' + (data.numOfChara - 1));
+				console.log(data);
+				$('#testDiv').html('現在の人数：' + (data.numOfChara - 1) + '人');
+				console.log(data.numOfChara - 1);
 			});
 
 
@@ -195,7 +198,9 @@ $(document).ready(function(){
 	//				material.dispose();
 	//				texture.dispose();
 				});
-				$('#testDiv').html('現在の人数：' + data.numOfChara);
+				console.log(data);
+				$('#testDiv').html('現在の人数：' + (data.numOfChara - 1) + '人');
+				console.log(data.numOfChara - 1);
 			});
 
 			socket.on('sendMsg', function(data) {
