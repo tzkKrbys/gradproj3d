@@ -324,17 +324,21 @@ $(document).ready(function(){
 		octahedronMesh.receiveShadow = true;
 		scene.add(octahedronMesh);
 
-		var geometry2 = new THREE.CubeGeometry(80, 80, 80);
-		var textureMesh2  = new THREE.ImageUtils.loadTexture('./img/circleParis.png');
-		var mesh2 = new THREE.Mesh(geometry2, new THREE.MeshPhongMaterial({
-			map: textureMesh2
+		var geometryMars = new THREE.SphereGeometry(30, 30, 30);
+//		var texturemars  = new THREE.ImageUtils.loadTexture('./img/circleParis.png');
+		var textureMeshMars  = new THREE.ImageUtils.loadTexture('./img/marsTextureImg.jpg');
+//		var mars = new THREE.Mesh(geometry2,  new THREE.MeshPhongMaterial({
+//			color: 0x3377ff
+//		}));
+		var mars = new THREE.Mesh(geometryMars, new THREE.MeshPhongMaterial({
+			map: textureMeshMars
 		}));
-		mesh2.position.x = 100;
-		mesh2.position.y = -100;
-		mesh2.position.z = -150;
-		mesh2.castShadow = true;
-		mesh2.receiveShadow = true;
-		scene.add(mesh2);
+		mars.position.x = 100;
+		mars.position.y = -100;
+		mars.position.z = -150;
+		mars.castShadow = true;
+		mars.receiveShadow = true;
+		scene.add(mars);
 
 		var moonTexture = new THREE.ImageUtils.loadTexture('./img/moon.jpg');
 		var moonSize = 500;
@@ -481,14 +485,14 @@ $(document).ready(function(){
 				earth.rotation.y + 0,
 				earth.rotation.z + 0
 			);
-			mesh2.rotation.set(
+			mars.rotation.set(
 				0,
-				mesh2.rotation.y + 0.01,
-				mesh2.rotation.z + 0.01
+				mars.rotation.y + 0.01,
+				mars.rotation.z + 0.01
 			);
-			mesh2.position.x = Math.sin(new Date().getTime() / 1000 ) * 800 + moon.Pos[0];
-			mesh2.position.y = Math.sin(new Date().getTime() / 1000 ) * 800 + moon.Pos[1];
-			mesh2.position.z = Math.cos(new Date().getTime() / 1000 ) * 800 + moon.Pos[2];
+			mars.position.x = Math.sin(new Date().getTime() / 3000 ) * 800 + moon.Pos[0];
+			mars.position.y = Math.sin(new Date().getTime() / 3000 ) * 800 + moon.Pos[1];
+			mars.position.z = Math.cos(new Date().getTime() / 3000 ) * 800 + moon.Pos[2];
 			myChara.voiceBallMesh.scale.set(
 				myChara.voiceBallMeshScale,
 				myChara.voiceBallMeshScale,
@@ -537,7 +541,7 @@ $(document).ready(function(){
 				myChara.Pos[1],
 				myChara.Pos[2]
 			);
-			if(countFrames % 30 == 0) {
+			if(countFrames % 15 == 0) {
 				//myCharaの位置が変化していたら
 				positionUpdate();
 				//------------------------------------座標情報用

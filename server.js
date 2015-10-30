@@ -172,7 +172,7 @@ io.sockets.on('connection', function (socket) {
 //		console.log(posArr);
 		io.sockets.emit('positionUpdate', posArr);
 			
-		setTimeout(positionUpdate,500);
+		setTimeout(positionUpdate,200);
 	}
 	positionUpdate();
 	

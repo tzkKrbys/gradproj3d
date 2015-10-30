@@ -328,10 +328,10 @@ video.audioChatting {
 	z-index: 13;
 	top: 50%;
 	left: 50%;
-	margin-left: -170px;
+	margin-left: -200px;
 	margin-top: 40px;
 	/* margin: auto; */
-	width: 340px;
+	width: 540px;
 	height: 40px;
 	line-height: 40px;
 	-webkit-animation: fadeInOut 4s ease-in-out infinite;
