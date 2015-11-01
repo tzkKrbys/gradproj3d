@@ -188,13 +188,17 @@ $(document).ready(function(){
 
 
 			socket.on('charaRemove', function(data){
+				console.log(data);
+
 				otherCharasArr.forEach(function(chara, i, otherCharasArr) {
-					if(chara.socketId == data.socketId) otherCharasArr.splice(i, 1);
-					scene.remove( chara.mesh );
-					scene.remove( chara.voiceBallMesh );
+					if(chara.socketId == data.socketId) {
+						otherCharasArr.splice(i, 1);
+						scene.remove( chara.mesh );
+						scene.remove( chara.voiceBallMesh );
 	//				geometry.dispose();
 	//				material.dispose();
 	//				texture.dispose();
+					}
 				});
 				console.log(data);
 				$('#testDiv').html('現在の人数：' + data.numOfChara + '人');
