@@ -8,6 +8,20 @@ var cache = {};
 var socketio = require('socket.io');
 var util = require('util');//console.log(util.inspect(obj,false,null));でオブジェクトの中身をターミナルで確認できるようにする為
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function send404(response) {
 	response.writeHead(404, {
 		'Content-Type': 'text/plain'
@@ -92,9 +106,9 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('sendCharasArr', {charasArr: io.sockets.sockets.map(function(e) {
 		return e.chara;//配列が生成される
 	}), numOfChara: io.sockets.sockets.length});
-	
+
 	socket.emit('appStatus_Update', appStatus);//最初にクライアントにアプリの状態を送る
-	
+
 //	console.log('91行目 : '+io.sockets.sockets.map(function(e) {
 //		console.log('92行目'+e.chara[1]);
 //		return e.chara;//配列が生成される
@@ -117,7 +131,7 @@ io.sockets.on('connection', function (socket) {
 		appStatus.currentOctahedronMeshColor = data;
 		socket.broadcast.emit('currentOctahedronMeshColor_Update', data);
 	});
-	
+
 
 
 	//iconのプロパティを更新する
@@ -157,7 +171,7 @@ io.sockets.on('connection', function (socket) {
 		socket.chara.Pos = data;
 		//socket.broadcast.emit('charaPosChanged', {socketId: socket.id, Pos: data});
 	});
-	
+
 	function positionUpdate() {
 //		io.sockets.sockets.forEach(function(socket, i, sockets) {
 		var posArr = io.sockets.sockets.map(function(e) {
@@ -171,22 +185,22 @@ io.sockets.on('connection', function (socket) {
 		});
 //		console.log(posArr);
 		io.sockets.emit('positionUpdate', posArr);
-			
+
 		setTimeout(positionUpdate,200);
 	}
 	positionUpdate();
-	
+
 	socket.on('textureImg', function(data) {
 //		console.log(data);
 		socket.chara.textureImg = data;
 		socket.broadcast.emit('textureImg',{ socketId: socket.id, textureImg: data });
 	});
-	
-	
+
+
 	socket.on('voicePU', function(data) {
 		socket.broadcast.emit('voicePU', { socketId: socket.id ,voiceBallMeshScale: data});
 	});
-	
+
 	//-------------------------------------------------------------------------------------chat関連
 	socket.on('modeChange', function (data) {
 		socket.chara.mediaStreamMode = data;
@@ -213,15 +227,10 @@ io.sockets.on('connection', function (socket) {
 	socket.on('peerCallDisconnected', function(data) {//dataはicon.socketId
 		socket.broadcast.emit('peerCallDisconnected', {socketId: socket.id, talkingNodesSocketId: data});
 	});
-	
+
 	socket.on('disconnect', function() {
 		//サーバー側のcharaはsocket.charaに格納されていて、disconnect時には勝手に消える為、削除処理不要
 		socket.broadcast.emit('charaRemove', { socketId: socket.id, numOfChara: io.sockets.sockets.length});
-		
+
 	});
 });//---end---io.sockets.on('connection'
-
-
-
-
-
