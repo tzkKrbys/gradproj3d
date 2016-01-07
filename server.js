@@ -5,19 +5,22 @@ var mime = require('mime');
 var cache = {};
 //var app = require('./lib/app');
 
-
-
-
-
-
-
-
-
-
-
-
 var socketio = require('socket.io');
 var util = require('util');//console.log(util.inspect(obj,false,null));でオブジェクトの中身をターミナルで確認できるようにする為
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function send404(response) {
 	response.writeHead(404, {
