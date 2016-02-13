@@ -1,3 +1,5 @@
+var myStream;
+
 //var audioContext = new webkitAudioContext();
 var audioContext = new AudioContext();
 //フィルター
@@ -42,7 +44,20 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 
 //------------------------------------------------------videoChat
 function mediaStreamOff() {
-	if(myStream) myStream.stop();
+	console.dir(myStream);
+	// console.dir(myStream.getVideoTracks());
+	if(myStream){
+		// myStream.stop();
+		console.dir(myStream.getVideoTracks()[0]);
+		console.dir(myStream.getAudioTracks()[0]);
+		if(myStream.getVideoTracks() && myStream.getVideoTracks()[0]){
+			myStream.getVideoTracks()[0].stop();
+			// console.log('video stop');
+		} else if(myStream.getAudioTracks() && myStream.getAudioTracks()[0]) {
+			myStream.getAudioTracks()[0].stop();
+			// console.log('audio stop');
+		}
+	}
 	myChara.mediaStreamMode = false;
 	socket.emit('modeChange', myChara.mediaStreamMode);
 }
@@ -56,8 +71,8 @@ function videoModeOn() {
 	}
 
 	mediaStreamOff();
-	var videoObj = { video: true, "audio":true };
-	
+	var videoObj = { "video": true, "audio":true };
+
 	function gotVideoStream(stream){
 		myChara.mediaStreamMode = 'video';
 		socket.emit('modeChange', myChara.mediaStreamMode);
@@ -105,7 +120,7 @@ function modalOff() {
 	},1000);
 }
 
-var myStream;
+// var myStream;
 
 var peer = new Peer({
 	key: 'a56f52f0-a285-4d43-8955-d0a609837161'
@@ -159,7 +174,7 @@ peer.on('open', function () {
 	};
 	socket.emit('join', sendCharaData);
 	});
-	
+
 
 
 peer.on('connection', function(conn) {//ビデオ受信リクエスト側からconnectionがあった際に
@@ -193,5 +208,3 @@ peer.on('call', function (call) {//仮引数callはmediaConnection。リモー�
 		});
 	}
 });
-
-
